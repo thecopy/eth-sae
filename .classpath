@@ -2,6 +2,6 @@
 <classpath>
 	<classpathentry excluding="apple/awt/|org/sat4j/|org/|target/|LICENSES/|apple/|com/|help/|icons/|images/|models/" including="**/*.java" kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="NewObjectAnalyzer"/>
+	<classpathentry kind="lib" path="TheAnalyzer"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
