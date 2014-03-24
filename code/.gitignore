@@ -1,0 +1,15 @@
+# Generated files #
+*.class
+*.als.cs
+*.als.tests.cs
+*.dll
+*.exe
+
+# Package files #
+*.jar
+*.war
+*.ear
+
+# Directories #
+dist
+.project
