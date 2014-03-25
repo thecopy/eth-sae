@@ -7,10 +7,10 @@ import java.io.PrintWriter;
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4.SafeList;
 import edu.mit.csail.sdg.alloy4.ErrorFatal;
-
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Func;
 import edu.mit.csail.sdg.alloy4compiler.ast.Module;
+import edu.mit.csail.sdg.alloy4compiler.generator.Visitor;
 
 public final class CodeGenerator {
 
@@ -23,12 +23,24 @@ public final class CodeGenerator {
 	  System.out.println(" ** Got sigs:  " + sigs);
 	  System.out.println(" ** Got funcs:  " + funcs);
 	  System.out.println(" ** Got originalFilename:  " + originalFilename);
-	  out.println("YAY");
 	  
+	  
+	  out.println("using System;\r\n"
+			  	 +"using System.Linq;\r\n"
+			  	 +"using System.Collections.Generic;\r\n"
+			  	 +"using System.Diagnostics.Contracts;\r\n\r\n");
+	  
+	  Visitor v = new Visitor(out);
 	  for(Sig sig : sigs){
-		  if(sig.builtin == false){
-			  out.println("public class " + sig.label + "{}");
+		  if(sig.label.equals("univ") || sig.label.equals("Int")
+				  || sig.label.equals("seq/Int")
+				  || sig.label.equals("none")
+				  || sig.label.equals("String")){
+			  
+			  continue; // these are hard coded sigs. We dont care about these
 		  }
+		  
+		  sig.accept(v);
 	  }
 	  
 	  out.flush();
