@@ -7,6 +7,7 @@ import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4.SafeList;
 import edu.mit.csail.sdg.alloy4compiler.ast.Browsable;
 import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
+import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprBad;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprBinary;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprCall;
@@ -64,18 +65,18 @@ public class Visitor extends VisitQuery<Object> {
 		
 		// Singleton
 		if(x.isOne != null || x.isLone != null){
-			s.append("private static " + name + " instance;\r\n");
-			s.append("private " + name + "() {}\r\n");
-			s.append("public static " + name + " Instance {\r\n");
+			s.append("  private static " + name + " instance;\r\n");
+			s.append("  private " + name + "() {}\r\n");
+			s.append("  public static " + name + " Instance {\r\n");
 			ident++;
-				s.append("get{\r\n");
+				s.append("    get{\r\n");
 				ident++;
-					s.append("if(instance == null) instance = new " + name + "();\r\n");
-					s.append("return instance;\r\n");
+					s.append("      if(instance == null) instance = new " + name + "();\r\n");
+					s.append("      return instance;\r\n");
 				ident--;
-				s.append("}\r\n");
+				s.append("    }\r\n");
 			ident--;
-			s.append("}\r\n");
+			s.append("  }\r\n");
 		}
 		
 		ident--;
@@ -132,8 +133,16 @@ public class Visitor extends VisitQuery<Object> {
 		
 		String s = "";
 		
-		//s = (String) x.type().toExpr().accept(this);
-		s = x.type().toString();
+		Expr e = x.type().toExpr();
+		if(e instanceof ExprBinary)
+			if(((ExprBinary) e).right instanceof Sig){
+				s = (String) ((Sig)((ExprBinary)e).right).label.substring(5);
+			}else{
+				s = (String) ((ExprBinary)e).right.accept(this);
+			}
+		else
+			s = "UnkownType";
+		
 		sprintln("Field Expression returning: " + s);
 		return s;
 	}
@@ -150,7 +159,7 @@ public class Visitor extends VisitQuery<Object> {
 				break;
 			case NOOP:
 				if(x.sub instanceof Sig)
-					return x.type().toString();
+					return ((Sig)x.sub).label.substring(5);
 				else
 					s += x.sub.accept(this);
 				break;
