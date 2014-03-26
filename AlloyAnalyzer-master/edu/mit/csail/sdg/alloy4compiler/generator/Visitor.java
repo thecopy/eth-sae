@@ -132,8 +132,8 @@ public class Visitor extends VisitQuery<Object> {
 		
 		String s = "";
 		
-		s = (String) x.type().toExpr().accept(this);
-		
+		//s = (String) x.type().toExpr().accept(this);
+		s = x.type().toString();
 		sprintln("Field Expression returning: " + s);
 		return s;
 	}
