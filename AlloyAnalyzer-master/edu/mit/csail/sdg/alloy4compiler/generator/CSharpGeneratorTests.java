@@ -206,7 +206,7 @@ public final class CSharpGeneratorTests {
         okay = false;
         do{
         	System.out.println("Error running the tests: " + ex);
-        	//ex.printStackTrace();
+        	ex.printStackTrace();
         	ex = ex.getCause();
         }while(ex != null);
       }

@@ -24,11 +24,13 @@ public final class CodeGenerator {
 	  System.out.println(" ** Got funcs:  " + funcs);
 	  System.out.println(" ** Got originalFilename:  " + originalFilename);
 	  
+	  out.println("// This C# file is generated from " + originalFilename + "\r\n");
+	  out.println("#undef CONTRACTS_FULL\r\n");
 	  
 	  out.println("using System;\r\n"
 			  	 +"using System.Linq;\r\n"
 			  	 +"using System.Collections.Generic;\r\n"
-			  	 +"using System.Diagnostics.Contracts;\r\n\r\n");
+			  	 +"using System.Diagnostics.Contracts;\r\n");
 	  
 	  Visitor v = new Visitor(out);
 	  for(Sig sig : sigs){
@@ -40,7 +42,7 @@ public final class CodeGenerator {
 			  continue; // these are hard coded sigs. We dont care about these
 		  }
 		  
-		  sig.accept(v);
+		  out.print(sig.accept(v));
 	  }
 	  
 	  out.flush();
