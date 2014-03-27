@@ -42,7 +42,7 @@ public final class CodeGenerator {
 			  continue; // these are hard coded sigs. We dont care about these
 		  }
 		  
-		  out.print(sig.accept(v));
+		  out.print(sig.accept(v).def);
 	  }
 	  
 	  out.flush();
