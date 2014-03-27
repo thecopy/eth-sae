@@ -216,17 +216,19 @@ public class Visitor extends VisitQuery<DefAndInvariants> {
 		sprintln("Visit binary expression (OP=" + x.op.name() + ", '" + x.op + "' ) [" + x + "]");
 		
 		StringBuilder s = new StringBuilder();
+		DefAndInvariants ret = new DefAndInvariants();
 		
 		ident++;
 		switch (x.op) {
 			case ARROW: // "->" (Set Tuples)
 				s.append("ISet<Tuple<");
-				s.append(x.left.accept(this));
+				s.append(x.left.accept(this).def);
 				s.append(", ");
-				s.append(x.right.accept(this));
+				s.append(x.right.accept(this).def);
 				s.append(">>");
+				ret.invariants.add("{def} != null");
 				break;
-			case ANY_ARROW_LONE: // "-> lone" (Tuple)
+			case ANY_ARROW_LONE: // "-> lone" (Tuple) (Lone can be null (0 or 1))
 				s.append("Map<");
 				s.append(x.left.accept(this));
 				s.append(", ");
@@ -242,7 +244,7 @@ public class Visitor extends VisitQuery<DefAndInvariants> {
 		}
 		ident--;
 		sprintln("Binary Expression returning '" + s + "'");
-		return new DefAndInvariants(s.toString());
+		return ret;
 	}
 	
 	
