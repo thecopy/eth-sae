@@ -6,6 +6,7 @@ import java.util.Iterator;
 
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4.SafeList;
+import edu.mit.csail.sdg.alloy4compiler.ast.Attr;
 import edu.mit.csail.sdg.alloy4compiler.ast.Browsable;
 import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
@@ -21,6 +22,8 @@ import edu.mit.csail.sdg.alloy4compiler.ast.ExprQt;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprVar;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
+import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
+import edu.mit.csail.sdg.alloy4compiler.ast.Sig.SubsetSig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Type;
 import edu.mit.csail.sdg.alloy4compiler.ast.Type.ProductType;
 import edu.mit.csail.sdg.alloy4compiler.ast.VisitQuery;
@@ -40,20 +43,31 @@ public class Visitor extends VisitQuery<DefAndInvariants> {
 	
 	
 	@Override
-	public DefAndInvariants visit(Sig x) throws Err {		
+	public DefAndInvariants visit(Sig x) throws Err{		
 		String name = x.label.substring(5);
+		String parentName = null;
+		
+		if(x instanceof PrimSig){
+			PrimSig parent = ((PrimSig)x).parent;
+			if(parent != null && !parent.builtin){
+				parentName = parent.label.substring(5);
+				if(parentName == "Object")
+					sprintln("***** TODO: Change so type name cannot be 'Object'");
+			}
+		}
 		
 		StringBuilder s = new StringBuilder();
 		
 		s.append("public"
 				+ ((x.isAbstract != null) ? " abstract" : "")
 				+ (" class " + name)
-				
+				+ ((parentName != null) ? (" : " + parentName) : "")
 				+ " {\r\n");
 		
 		SafeList<Decl> decls = x.getFieldDecls();
 		System.out.println("* Visit Sig: " + x.label + " (" + decls.size() + " field declarations)");
-		
+		System.out.println("* Sig is PrimSig = " + (x instanceof PrimSig)
+				+ ". Sig is SubSetSig: " + (x instanceof SubsetSig));
 		ident++;
 		
 		ArrayList<String> invariants = new ArrayList<String>();
@@ -64,14 +78,24 @@ public class Visitor extends VisitQuery<DefAndInvariants> {
 			for(ExprHasName n : decl.names){
 				s.append("  public " + defAndInvariants.def + " " + n.label + ";\r\n"); 
 				
+				StringBuilder invariantAggregated = new StringBuilder();
 				for(String inv : defAndInvariants.invariants){
+					if(inv.isEmpty()) continue;
+					
 					String finalInvariant = inv.replace("{def}", n.label);
 					System.out.print("  Transforming '" + inv + "' to '" + finalInvariant + "'\r\n");
-					invariants.add(finalInvariant);
+					
+					String before = "";
+					if(invariantAggregated.length() != 0)
+						before = " && ";
+					
+					invariantAggregated.append(before + finalInvariant);
 				}
+				
+				invariants.add(invariantAggregated.toString());
 			}
 		}
-
+		
 		s.append("\r\n");
 
 		if(invariants.size() > 0){
@@ -79,6 +103,7 @@ public class Visitor extends VisitQuery<DefAndInvariants> {
 			s.append("  [ContractInvariantMethod]\r\n");
 			s.append("  private void ObjectInvariant() {\r\n");
 			for(String inv : invariants){
+				if(false == inv.isEmpty())
 				s.append("    Contracts.Invariant(" + inv + ");\r\n");
 			}
 			s.append("  }\r\n");
@@ -159,13 +184,18 @@ public class Visitor extends VisitQuery<DefAndInvariants> {
 		Expr e = x.type().toExpr();
 		if(e instanceof ExprBinary)
 			if(((ExprBinary) e).right instanceof Sig){
-				s = new DefAndInvariants(((Sig)((ExprBinary)e).right).label.substring(5));
+				sprintln("Field is Binary Expression with right expression of type Sig");
+				Sig signature = (Sig)((ExprBinary)e).right;
+				s = new DefAndInvariants(signature.label.substring(5));
+				s.invariants.add("{def} == floor");
 			}else{
 				s = ((ExprBinary)e).right.accept(this);
 			}
 		else
 			s = new DefAndInvariants("Unknown Field Expression");
-		
+
+		s.invariants.add(x.label + " != null");
+		s.extra = x.label;
 		sprintln("Field Expression returning: " + s);
 		return s;
 	}
@@ -188,6 +218,7 @@ public class Visitor extends VisitQuery<DefAndInvariants> {
 			case SETOF:
 				t = (DefAndInvariants) x.sub.accept(this);
 				ret.def += "ISet<" + t.def + ">";
+				ret.invariants.add("{def} != null");
 				ret.invariants.addAll(t.invariants);
 				break;
 			case NOOP:
@@ -221,29 +252,44 @@ public class Visitor extends VisitQuery<DefAndInvariants> {
 		ident++;
 		switch (x.op) {
 			case ARROW: // "->" (Set Tuples)
+				DefAndInvariants left = x.left.accept(this);
+				DefAndInvariants right = x.right.accept(this);
+				sprintln("Got left: " + left);
+				sprintln("Got right: " + right);
 				s.append("ISet<Tuple<");
-				s.append(x.left.accept(this).def);
+				s.append(left.def);
 				s.append(", ");
-				s.append(x.right.accept(this).def);
+				s.append(right.def);
 				s.append(">>");
+				
 				ret.invariants.add("{def} != null");
+				ret.invariants.addAll(left.invariants);
+				ret.invariants.addAll(right.invariants);
+								
+				ret.def = s.toString();
 				break;
 			case ANY_ARROW_LONE: // "-> lone" (Tuple) (Lone can be null (0 or 1))
+				left = x.left.accept(this);
+				right = x.right.accept(this);
 				s.append("Map<");
-				s.append(x.left.accept(this));
+				s.append(left.def);
 				s.append(", ");
-				s.append(x.right.accept(this));
+				s.append(right.def);
 				s.append(">");
+				
+				ret.def = s.toString();
+				ret.invariants.addAll(left.invariants);
+				ret.invariants.addAll(right.invariants);
 				break;
 			case JOIN:
-				s.append(x.right.accept(this));
+				ret.join(x.right.accept(this));
 				break;
 			default:
-				s.append(x.toString());
+				ret.def = "Unkown Binary Expression Case: " + x.op;
 				break;
 		}
 		ident--;
-		sprintln("Binary Expression returning '" + s + "'");
+		sprintln("Binary Expression returning '" + ret + "'");
 		return ret;
 	}
 	
