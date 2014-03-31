@@ -15,10 +15,11 @@ public class DefAndInvariants {
 	public void join(DefAndInvariants d){
 		this.def = d.def;
 		this.invariants.addAll(d.invariants);
+		this.extra = d.extra;
 	}
 	
 	@Override
 	public String toString() {
-		return "'" + def + "' ( " + invariants + ")";
+		return "'" + def + "' ( " + invariants + " ). Extra = \"" + extra + "\"";
 	}
 }

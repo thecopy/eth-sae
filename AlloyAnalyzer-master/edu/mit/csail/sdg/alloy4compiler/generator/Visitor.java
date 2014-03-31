@@ -51,7 +51,7 @@ public class Visitor extends VisitQuery<DefAndInvariants> {
 			PrimSig parent = ((PrimSig)x).parent;
 			if(parent != null && !parent.builtin){
 				parentName = parent.label.substring(5);
-				if(parentName == "Object")
+				if(parentName.equals("Object"))
 					sprintln("***** TODO: Change so type name cannot be 'Object'");
 			}
 		}
@@ -104,7 +104,7 @@ public class Visitor extends VisitQuery<DefAndInvariants> {
 			s.append("  private void ObjectInvariant() {\r\n");
 			for(String inv : invariants){
 				if(false == inv.isEmpty())
-				s.append("    Contracts.Invariant(" + inv + ");\r\n");
+				s.append("    Contract.Invariant(" + inv + ");\r\n");
 			}
 			s.append("  }\r\n");
 		}
@@ -187,7 +187,6 @@ public class Visitor extends VisitQuery<DefAndInvariants> {
 				sprintln("Field is Binary Expression with right expression of type Sig");
 				Sig signature = (Sig)((ExprBinary)e).right;
 				s = new DefAndInvariants(signature.label.substring(5));
-				s.invariants.add("{def} == floor");
 			}else{
 				s = ((ExprBinary)e).right.accept(this);
 			}
@@ -207,19 +206,22 @@ public class Visitor extends VisitQuery<DefAndInvariants> {
 		DefAndInvariants ret = new DefAndInvariants();
 		DefAndInvariants t;
 		ident++;
+		
 		switch(x.op){ 
 			case ONEOF:
 				ret.invariants.add("{def} != null");
 			case LONEOF:
 				t = x.sub.accept(this);
 				ret.def = t.def;
-				t.invariants.addAll(t.invariants);
+				ret.invariants.addAll(t.invariants);
+				ret.extra = t.extra;
 				break;
 			case SETOF:
 				t = (DefAndInvariants) x.sub.accept(this);
 				ret.def += "ISet<" + t.def + ">";
 				ret.invariants.add("{def} != null");
 				ret.invariants.addAll(t.invariants);
+				ret.extra = t.extra;
 				break;
 			case NOOP:
 				if(x.sub instanceof Sig)
@@ -228,6 +230,7 @@ public class Visitor extends VisitQuery<DefAndInvariants> {
 					t = (DefAndInvariants) x.sub.accept(this);
 					ret.def = t.def;
 					ret.invariants.addAll(t.invariants);
+					ret.extra = t.extra;
 				}
 				break;
 			default:
@@ -237,7 +240,8 @@ public class Visitor extends VisitQuery<DefAndInvariants> {
 		
 		}
 		ident--;
-		sprintln("Unary Expression returning '" + ret.def + "' with " + ret.invariants.size() + " invariants: " + ret.invariants);
+		
+		sprintln("Unary Expression returning " + ret);
 		
 		return ret;
 	}	
@@ -263,8 +267,14 @@ public class Visitor extends VisitQuery<DefAndInvariants> {
 				s.append(">>");
 				
 				ret.invariants.add("{def} != null");
-				ret.invariants.addAll(left.invariants);
-				ret.invariants.addAll(right.invariants);
+				
+				if(left.extra != null && !left.extra.isEmpty()){
+					ret.invariants.add("{def}.ForAll(e => e.Item1.Equals(" + left.extra + "))");
+				}
+				if(right.extra != null && !right.extra.isEmpty()){
+					ret.invariants.add("{def}.ForAll(e => e.Item2.Equals(" + right.extra + "))");
+					
+				}
 								
 				ret.def = s.toString();
 				break;
@@ -289,7 +299,7 @@ public class Visitor extends VisitQuery<DefAndInvariants> {
 				break;
 		}
 		ident--;
-		sprintln("Binary Expression returning '" + ret + "'");
+		sprintln("Binary Expression returning " + ret );
 		return ret;
 	}
 	
