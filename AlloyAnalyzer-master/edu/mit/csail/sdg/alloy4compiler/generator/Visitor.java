@@ -269,10 +269,10 @@ public class Visitor extends VisitQuery<DefAndInvariants> {
 				ret.invariants.add("{def} != null");
 				
 				if(left.extra != null && !left.extra.isEmpty()){
-					ret.invariants.add("{def}.ForAll(e => e.Item1.Equals(" + left.extra + "))");
+					ret.invariants.add("Contract.ForAll({def}, e => e.Item1.Equals(" + left.extra + "))");
 				}
 				if(right.extra != null && !right.extra.isEmpty()){
-					ret.invariants.add("{def}.ForAll(e => e.Item2.Equals(" + right.extra + "))");
+					ret.invariants.add("Contract.ForAll({def}, e => e.Item2.Equals(" + right.extra + "))");
 					
 				}
 								

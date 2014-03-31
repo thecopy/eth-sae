@@ -55,7 +55,9 @@ public final class CSharpGeneratorTests {
 
     // determines whether there were failures during the execution of the entire test suite
     boolean okay = true;
-
+    
+    boolean saveInDist = false;
+    
     // specify the number of tests here
     for (int i = 0; i < 2; i++) {
       try {
@@ -68,7 +70,8 @@ public final class CSharpGeneratorTests {
         CompModule world = world = CompUtil.parseEverything_fromFile(A4Reporter.NOP, null, f);
 
         // generate C# code
-        CodeGenerator.writeCode(world, f, contracts[i], true);
+        
+        CodeGenerator.writeCode(world, f, contracts[i], saveInDist);
 
         // read code files to strings
         File f1 = new File(f + codeExt);
@@ -104,6 +107,9 @@ public final class CSharpGeneratorTests {
         else {
           okay = false;
           System.out.println("Failed");
+          byte[] buff = new byte[2048];
+          int r = pr.getInputStream().read(buff);
+          System.out.println("ERROR: " + new String(buff,0,r) + "[read buffer end]");
         }
 
         // generate C# tests
@@ -144,6 +150,9 @@ public final class CSharpGeneratorTests {
         else {
           okay = false;
           System.out.println("Failed");
+          byte[] buff = new byte[2048];
+          int r = pr.getInputStream().read(buff);
+          System.out.println("ERROR: " + new String(buff,0,r) + "[read buffer end]");
         }
         if (!code[i].equals("") || !test[i].equals("")) {
           pr = rt.exec("C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\csc.exe /R:System.Diagnostics.Contracts.dll /nologo /D:CONTRACTS_FULL /out:" + f + testCompExt + " " + (code[i].equals("") ? f : code[i]) + codeExt + " " + (test[i].equals("") ? f : test[i]) + testExt);
@@ -154,6 +163,9 @@ public final class CSharpGeneratorTests {
           else {
             okay = false;
             System.out.println("Failed");
+            byte[] buff = new byte[2048];
+            int r = pr.getInputStream().read(buff);
+            System.out.println("ERROR: " + new String(buff,0,r) + "[read buffer end]");
           }
         }
 
