@@ -176,11 +176,10 @@ public class CodeGeneratorVisitor extends VisitQuery<DefAndInvariants> {
 	@Override
 	public DefAndInvariants visit(ExprCall x) throws Err {
 		sprintln("Visit call expression: " + x.toString());
-		print("[ CALL EXPRESSION]");
+		print("[ CALL EXPRESSION ]");
 		return new DefAndInvariants("??? /* ExprCall */");
 	}
 
-	
 	@Override
 	public DefAndInvariants visit(Field x) throws Err {
 		sprintln("Visit field expression: " + x);
@@ -239,6 +238,10 @@ public class CodeGeneratorVisitor extends VisitQuery<DefAndInvariants> {
 					ret.invariants.addAll(t.invariants);
 					ret.extra = t.extra;
 				}
+				break;
+			case CLOSURE:
+				t = x.sub.accept(this);
+				ret.def = "Helper.Closure(" + t.def + ")";
 				break;
 			default:
 				ret.def = "??? /*ExprUnary. Unkown Operator Type: \"" + x.op + "\" (" + x.op.name() + ")*/";
