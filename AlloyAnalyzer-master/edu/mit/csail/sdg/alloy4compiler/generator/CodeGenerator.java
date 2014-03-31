@@ -3,14 +3,19 @@ package edu.mit.csail.sdg.alloy4compiler.generator;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4.SafeList;
 import edu.mit.csail.sdg.alloy4.ErrorFatal;
+import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Func;
 import edu.mit.csail.sdg.alloy4compiler.ast.Module;
 import edu.mit.csail.sdg.alloy4compiler.generator.CodeGeneratorVisitor;
+import edu.mit.csail.sdg.alloy4compiler.generator.DefAndInvariants;
 
 public final class CodeGenerator {
 
@@ -39,11 +44,51 @@ public final class CodeGenerator {
 				  || sig.label.equals("none")
 				  || sig.label.equals("String")){
 			  
-			  continue; // these are hard coded sigs. We dont care about these
+			  continue; // these are hard coded sigs. We dont care about those
 		  }
 		  
 		  out.print(sig.accept(v).def);
 	  }
+	  
+	  System.out.println("  * Handling Functions");
+	  out.print("public static class FuncClass {\r\n");
+	  for(Func func : funcs){
+		  DefAndInvariants returnType = func.returnDecl.accept(v);
+
+		  out.print("  public static " + returnType.def + " " + func.label.substring(5) + " (");
+		  
+		  ArrayList<String> requires = new ArrayList<String>();
+		  boolean first = true;
+		  for(Decl decl : func.decls){
+			  DefAndInvariants d = decl.expr.accept(v);
+			  for(ExprHasName name : decl.names){
+				  if(!first)
+					  out.print(", ");
+				  out.print(d.def + " " + name.label);
+				  first = false;
+
+				  for(String inv : d.invariants)
+					  requires.add(inv.replace("{def}", name.label));
+			  }
+		  }
+		  out.print("){\r\n");
+		  
+		  for(String req : requires){
+			  out.print("    Contract.Requires(" + req + ");\r\n");
+		  }
+		  for(String ensure : returnType.invariants){
+			  out.print("    Contract.Ensures(" + 
+					  ensure.replace("{def}", "Contract.Result<" + returnType.def + ">()")
+					  + ");\r\n");
+		  }
+		  
+		  DefAndInvariants body = func.getBody().accept(v);
+		  out.print("\r\n");
+		  out.print("    " + body.def);
+		  
+		  out.print("\r\n  }\r\n");
+	  }
+	  out.print("}\r\n");
 	  
 	  out.flush();
 	  out.close();

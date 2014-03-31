@@ -33,6 +33,10 @@ public class CodeGeneratorVisitor extends VisitQuery<DefAndInvariants> {
 	
 	private PrintWriter out;
 	int ident = 0;
+	public void setIdent(int i){
+		ident = i;
+	}
+	
 	public CodeGeneratorVisitor(PrintWriter out) throws Exception{
 		if(out == null)
 			throw new Exception("ArgumentNullException: out");
@@ -129,6 +133,7 @@ public class CodeGeneratorVisitor extends VisitQuery<DefAndInvariants> {
 		
 		s.append("}\r\n\r\n");
 		System.out.println("* Sig visit completed!");
+		
 		return new DefAndInvariants(s.toString());
 	}
 	
@@ -136,41 +141,43 @@ public class CodeGeneratorVisitor extends VisitQuery<DefAndInvariants> {
 	public DefAndInvariants visit(ExprBad x) throws Err {
 		sprintln("Visit bad code.");
 		println("  // Illegal code: " + x.toString());
-		return null;
+		return new DefAndInvariants("??? /* ExprBad */");
 	}
 	
 	@Override
 	public DefAndInvariants visit(ExprConstant x) throws Err {
 		sprintln("Visit constant expression of type " + x.type());
-		
+		DefAndInvariants ret = new DefAndInvariants();
+		ret.def = "?";
 		if(x.type().equals(ExprConstant.Op.NUMBER)){
-			print(x.num());
+		}else if(x.type().toString().equals("{PrimitiveBoolean}")){
+			ret.def = "bool";
 		}else if(x.type().equals(ExprConstant.Op.FALSE)){
-			print("false");
+			ret.def = "false";
 		}else if(x.type().equals(ExprConstant.Op.TRUE)){
-			print("true");
+			ret.def = "true";
 		}else if(x.type().equals(ExprConstant.Op.STRING)){
-			print(x.string);
+			ret.def = "string";
 		}else if(x.type().equals(ExprConstant.Op.EMPTYNESS)){
-			print("null");
+
 		}else if(x.type().equals(ExprConstant.Op.NEXT)){
-			print("++");
+
 		}else if(x.type().equals(ExprConstant.Op.MAX)){
-			print("Int32.MaxValue");
+
 		}else if(x.type().equals(ExprConstant.Op.MIN)){
-			print("Int32.MinValue");
+
 		}else{
 			print("! ECONSTTYPE: " + x.type());
 		}
 		
-		return null;
+		return ret;
 	}
 	
 	@Override
 	public DefAndInvariants visit(ExprCall x) throws Err {
 		sprintln("Visit call expression: " + x.toString());
 		print("[ CALL EXPRESSION]");
-		return null;
+		return new DefAndInvariants("??? /* ExprCall */");
 	}
 
 	
@@ -234,8 +241,7 @@ public class CodeGeneratorVisitor extends VisitQuery<DefAndInvariants> {
 				}
 				break;
 			default:
-				println(x.op.name() + "[" + x.sub.accept(this) + "]");
-				ret.def = "?";
+				ret.def = "??? /*ExprUnary. Unkown Operator Type: \"" + x.op + "\" (" + x.op.name() + ")*/";
 				break;
 		
 		}
@@ -295,7 +301,7 @@ public class CodeGeneratorVisitor extends VisitQuery<DefAndInvariants> {
 				ret.join(x.right.accept(this));
 				break;
 			default:
-				ret.def = "Unkown Binary Expression Case: " + x.op;
+				ret.def = "??? /*ExprBinary Unkown Operator Type: \"" + x.op + "\" (" + x.op.name() + ")*/";
 				break;
 		}
 		ident--;
@@ -322,14 +328,14 @@ public class CodeGeneratorVisitor extends VisitQuery<DefAndInvariants> {
 		
 		println("  }");
 		
-		return null;
+		return new DefAndInvariants("??? /* ExprITE */");
 	}
 	
 	@Override
 	public DefAndInvariants visit(ExprLet x) throws Err {
 		sprintln("Visit let expression");
 		println("  TO DO: 'Let' Expressions");
-		return null;
+		return new DefAndInvariants("??? /* ExprLet */");
 	}	
 	
 	@Override
@@ -344,7 +350,7 @@ public class CodeGeneratorVisitor extends VisitQuery<DefAndInvariants> {
 		
 		print(x.args.toString());
 		
-		return null;
+		return new DefAndInvariants("??? /* ExprList */");
 	}
 	
 	@Override
@@ -353,14 +359,14 @@ public class CodeGeneratorVisitor extends VisitQuery<DefAndInvariants> {
 		
 		print(x.type() + " " + x.label + " = ");
 		
-		return null;
+		return new DefAndInvariants("??? /* ExprVar */");
 	}
 	
 	@Override
 	public DefAndInvariants visit(ExprQt x) throws Err {
 		sprintln("Visit quantified expression: " + x.toString());
 		println("!ENOTIMPL:QT:" + x.toString() + "!");
-		return null;
+		return new DefAndInvariants("??? /* ExprQt */");
 	}
 	
 
