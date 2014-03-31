@@ -11,9 +11,9 @@ public class Platform {
 }
 
 public class Man {
-  public ISet<Tuple<Platform, Platform>> between;
   public Platform ceiling;
   public Platform floor;
+  public ISet<Tuple<Platform, Platform>> between;
 
   [ContractInvariantMethod]
   private void ObjectInvariant() {

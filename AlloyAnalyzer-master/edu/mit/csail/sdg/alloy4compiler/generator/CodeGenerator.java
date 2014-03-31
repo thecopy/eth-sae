@@ -10,7 +10,7 @@ import edu.mit.csail.sdg.alloy4.ErrorFatal;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Func;
 import edu.mit.csail.sdg.alloy4compiler.ast.Module;
-import edu.mit.csail.sdg.alloy4compiler.generator.Visitor;
+import edu.mit.csail.sdg.alloy4compiler.generator.CodeGeneratorVisitor;
 
 public final class CodeGenerator {
 
@@ -32,7 +32,7 @@ public final class CodeGenerator {
 			  	 +"using System.Collections.Generic;\r\n"
 			  	 +"using System.Diagnostics.Contracts;\r\n");
 	  
-	  Visitor v = new Visitor(out);
+	  CodeGeneratorVisitor v = new CodeGeneratorVisitor(out);
 	  for(Sig sig : sigs){
 		  if(sig.label.equals("univ") || sig.label.equals("Int")
 				  || sig.label.equals("seq/Int")
