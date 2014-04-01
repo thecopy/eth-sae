@@ -15,7 +15,7 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Func;
 import edu.mit.csail.sdg.alloy4compiler.ast.Module;
 import edu.mit.csail.sdg.alloy4compiler.generator.CodeGeneratorVisitor;
-import edu.mit.csail.sdg.alloy4compiler.generator.DefAndInvariants;
+import edu.mit.csail.sdg.alloy4compiler.generator.NodeInfo;
 
 public final class CodeGenerator {
 
@@ -47,24 +47,27 @@ public final class CodeGenerator {
 			  continue; // these are hard coded sigs. We dont care about those
 		  }
 		  
-		  out.print(sig.accept(v).def);
+		  out.print(sig.accept(v).typeName);
 	  }
 	  
 	  System.out.println("  * Handling Functions");
 	  out.print("public static class FuncClass {\r\n");
 	  for(Func func : funcs){
-		  DefAndInvariants returnType = func.returnDecl.accept(v);
+		  System.out.println("  ** Parsing function " + func.label.substring(5));
+		  System.out.println("  *** Resolving function return type...");
+		  NodeInfo returnType = func.returnDecl.accept(v);
 
-		  out.print("  public static " + returnType.def + " " + func.label.substring(5) + " (");
-		  
+		  out.print("  public static " + returnType.typeName + " " + func.label.substring(5) + " (");
+
+		  System.out.println("  *** Resolving function parameters...");
 		  ArrayList<String> requires = new ArrayList<String>();
 		  boolean first = true;
 		  for(Decl decl : func.decls){
-			  DefAndInvariants d = decl.expr.accept(v);
+			  NodeInfo d = decl.expr.accept(v);
 			  for(ExprHasName name : decl.names){
 				  if(!first)
 					  out.print(", ");
-				  out.print(d.def + " " + name.label);
+				  out.print(d.typeName + " " + name.label);
 				  first = false;
 
 				  for(String inv : d.invariants)
@@ -78,16 +81,28 @@ public final class CodeGenerator {
 		  }
 		  for(String ensure : returnType.invariants){
 			  out.print("    Contract.Ensures(" + 
-					  ensure.replace("{def}", "Contract.Result<" + returnType.def + ">()")
+					  ensure.replace("{def}", "Contract.Result<" + returnType.typeName + ">()")
 					  + ");\r\n");
 		  }
 		  
-		  DefAndInvariants body = func.getBody().accept(v);
+		  System.out.println("  *** Resolving function body...");
+		  NodeInfo body = func.getBody().accept(v);
 		  out.print("\r\n");
-		  out.print("    " + body.def);
+		  out.print("    return " + body.csharpCode + ";");
 		  
 		  out.print("\r\n  }\r\n");
 	  }
+	  out.print("}\r\n");
+	  
+	  
+	  System.out.println("  * Printing Helper Class");
+	  out.print("public static class Helper {\r\n");
+	  out.print("  public static ISet<Tuple<L, R>> Closure<L, R>(ISet<Tuple<L, R>> set) {\r\n");
+	  out.print("    return null; // TODO: Implement\r\n");
+	  out.print("  }\r\n");
+	  out.print("  public static ISet<Tuple<L, R>> RClosure<L, R>(ISet<Tuple<L, R>> set) {\r\n");
+	  out.print("    return null; // TODO: Implement\r\n");
+	  out.print("  }\r\n");
 	  out.print("}\r\n");
 	  
 	  out.flush();

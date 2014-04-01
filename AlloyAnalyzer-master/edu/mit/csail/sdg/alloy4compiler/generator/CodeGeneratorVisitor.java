@@ -29,7 +29,7 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Type.ProductType;
 import edu.mit.csail.sdg.alloy4compiler.ast.VisitQuery;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 
-public class CodeGeneratorVisitor extends VisitQuery<DefAndInvariants> {
+public class CodeGeneratorVisitor extends VisitQuery<NodeInfo> {
 	
 	private PrintWriter out;
 	int ident = 0;
@@ -47,7 +47,8 @@ public class CodeGeneratorVisitor extends VisitQuery<DefAndInvariants> {
 	
 	
 	@Override
-	public DefAndInvariants visit(Sig x) throws Err{		
+	public NodeInfo visit(Sig x) throws Err{	
+		ident++;	
 		String name = x.label.substring(5);
 		String parentName = null;
 		
@@ -72,15 +73,14 @@ public class CodeGeneratorVisitor extends VisitQuery<DefAndInvariants> {
 		System.out.println("* Visit Sig: " + x.label + " (" + decls.size() + " field declarations)");
 		System.out.println("* Sig is PrimSig = " + (x instanceof PrimSig)
 				+ ". Sig is SubSetSig: " + (x instanceof SubsetSig));
-		ident++;
 		
 		ArrayList<String> invariants = new ArrayList<String>();
 		for(Decl decl : decls){
 			System.out.println("\r\n Field Declaration: " + decl.names + " (" + decl.names.size() + " fields)");
-			DefAndInvariants defAndInvariants = (DefAndInvariants)decl.expr.accept(this);
+			NodeInfo defAndInvariants = (NodeInfo)decl.expr.accept(this);
 			
 			for(ExprHasName n : decl.names){
-				s.append("  public " + defAndInvariants.def + " " + n.label + ";\r\n"); 
+				s.append("  public " + defAndInvariants.typeName + " " + n.label + ";\r\n"); 
 				
 				StringBuilder invariantAggregated = new StringBuilder();
 				for(String inv : defAndInvariants.invariants){
@@ -129,35 +129,36 @@ public class CodeGeneratorVisitor extends VisitQuery<DefAndInvariants> {
 			s.append("  }\r\n");
 		}
 		
-		ident--;
 		
 		s.append("}\r\n\r\n");
 		System.out.println("* Sig visit completed!");
-		
-		return new DefAndInvariants(s.toString());
+
+		ident--;
+		return new NodeInfo(s.toString());
 	}
 	
 	@Override
-	public DefAndInvariants visit(ExprBad x) throws Err {
+	public NodeInfo visit(ExprBad x) throws Err {
 		sprintln("Visit bad code.");
-		println("  // Illegal code: " + x.toString());
-		return new DefAndInvariants("??? /* ExprBad */");
+		sprintln("  // Illegal code: " + x.toString());
+		return new NodeInfo("??? /* ExprBad */");
 	}
 	
 	@Override
-	public DefAndInvariants visit(ExprConstant x) throws Err {
+	public NodeInfo visit(ExprConstant x) throws Err {
+		ident++;
 		sprintln("Visit constant expression of type " + x.type());
-		DefAndInvariants ret = new DefAndInvariants();
-		ret.def = "?";
+		NodeInfo ret = new NodeInfo();
+		ret.typeName = "?";
 		if(x.type().equals(ExprConstant.Op.NUMBER)){
 		}else if(x.type().toString().equals("{PrimitiveBoolean}")){
-			ret.def = "bool";
+			ret.typeName = "bool";
 		}else if(x.type().equals(ExprConstant.Op.FALSE)){
-			ret.def = "false";
+			ret.typeName = "false";
 		}else if(x.type().equals(ExprConstant.Op.TRUE)){
-			ret.def = "true";
+			ret.typeName = "true";
 		}else if(x.type().equals(ExprConstant.Op.STRING)){
-			ret.def = "string";
+			ret.typeName = "string";
 		}else if(x.type().equals(ExprConstant.Op.EMPTYNESS)){
 
 		}else if(x.type().equals(ExprConstant.Op.NEXT)){
@@ -167,209 +168,261 @@ public class CodeGeneratorVisitor extends VisitQuery<DefAndInvariants> {
 		}else if(x.type().equals(ExprConstant.Op.MIN)){
 
 		}else{
-			print("! ECONSTTYPE: " + x.type());
+			sprintln("! ECONSTTYPE: " + x.type());
 		}
-		
+
+		ident--;
 		return ret;
 	}
 	
 	@Override
-	public DefAndInvariants visit(ExprCall x) throws Err {
+	public NodeInfo visit(ExprCall x) throws Err {
 		sprintln("Visit call expression: " + x.toString());
-		print("[ CALL EXPRESSION ]");
-		return new DefAndInvariants("??? /* ExprCall */");
+		sprintln("[ CALL EXPRESSION ]");
+		return new NodeInfo("??? /* ExprCall */");
 	}
 
 	@Override
-	public DefAndInvariants visit(Field x) throws Err {
+	public NodeInfo visit(Field x) throws Err {
+		ident++;
 		sprintln("Visit field expression: " + x);
 		
-		DefAndInvariants s;
+		NodeInfo s;
 		
 		Expr e = x.type().toExpr();
 		if(e instanceof ExprBinary)
 			if(((ExprBinary) e).right instanceof Sig){
 				sprintln("Field is Binary Expression with right expression of type Sig");
 				Sig signature = (Sig)((ExprBinary)e).right;
-				s = new DefAndInvariants(signature.label.substring(5));
+				s = new NodeInfo(signature.label.substring(5));
 			}else{
 				s = ((ExprBinary)e).right.accept(this);
 			}
 		else
-			s = new DefAndInvariants("Unknown Field Expression");
+			s = new NodeInfo("Unknown Field Expression");
 
 		s.invariants.add(x.label + " != null");
-		s.extra = x.label;
+		s.fieldName = x.label;
 		sprintln("Field Expression returning: " + s);
+		ident--;
 		return s;
 	}
 	
 	@Override
-	public DefAndInvariants visit(ExprUnary x) throws Err {
+	public NodeInfo visit(ExprUnary x) throws Err {
+		ident++;
 		sprintln("Visit unary expression ('" + x.toString() + "') with OP: '" + x.op + "' (" + x.op.name() + ") and sub: " + x.sub.toString() + ", type: " + x.type());
 		
-		DefAndInvariants ret = new DefAndInvariants();
-		DefAndInvariants t;
-		ident++;
+		NodeInfo ret = new NodeInfo();
+		NodeInfo t;
 		
 		switch(x.op){ 
 			case ONEOF:
 				ret.invariants.add("{def} != null");
 			case LONEOF:
 				t = x.sub.accept(this);
-				ret.def = t.def;
+				ret.typeName = t.typeName;
 				ret.invariants.addAll(t.invariants);
-				ret.extra = t.extra;
+				ret.fieldName = t.fieldName;
 				break;
 			case SETOF:
-				t = (DefAndInvariants) x.sub.accept(this);
-				ret.def += "ISet<" + t.def + ">";
+				t = (NodeInfo) x.sub.accept(this);
+				ret.typeName += "ISet<" + t.typeName + ">";
 				ret.invariants.add("{def} != null");				
 				ret.invariants.add("Contract.ForAll({def}, e => e != null)");
 				ret.invariants.addAll(t.invariants);
-				ret.extra = t.extra;
+				ret.fieldName = t.fieldName;
 				break;
 			case NOOP:
 				if(x.sub instanceof Sig)
-					ret.def = ((Sig)x.sub).label.substring(5); // No invariant can be extracted here
+					ret.typeName = ((Sig)x.sub).label.substring(5); // No invariant can be extracted here
 				else{
-					t = (DefAndInvariants) x.sub.accept(this);
-					ret.def = t.def;
+					t = (NodeInfo) x.sub.accept(this);
+					ret.typeName = t.typeName;
 					ret.invariants.addAll(t.invariants);
-					ret.extra = t.extra;
+					ret.fieldName = t.fieldName;
+					ret.csharpCode = t.csharpCode;
 				}
 				break;
 			case CLOSURE:
 				t = x.sub.accept(this);
-				ret.def = "Helper.Closure(" + t.def + ")";
+				ret.typeName = "Object";
+				ret.csharpCode = "Helper.Closure(" + t.fieldName + ")";
 				break;
 			default:
-				ret.def = "??? /*ExprUnary. Unkown Operator Type: \"" + x.op + "\" (" + x.op.name() + ")*/";
+				ret.typeName = "??? /*ExprUnary. Unkown Operator Type: \"" + x.op + "\" (" + x.op.name() + ")*/";
 				break;
 		
 		}
-		ident--;
 		
 		sprintln("Unary Expression returning " + ret);
-		
+
+		ident--;
 		return ret;
 	}	
 
 	@Override
-	public DefAndInvariants visit(ExprBinary x) throws Err {
+	public NodeInfo visit(ExprBinary x) throws Err {
+		ident++;
 		sprintln("Visit binary expression (OP=" + x.op.name() + ", '" + x.op + "' ) [" + x + "]");
 		
 		StringBuilder s = new StringBuilder();
-		DefAndInvariants ret = new DefAndInvariants();
+		NodeInfo ret = new NodeInfo();
 		
-		ident++;
 		switch (x.op) {
 			case ARROW: // "->" (Set Tuples)
-				DefAndInvariants left = x.left.accept(this);
-				DefAndInvariants right = x.right.accept(this);
-				sprintln("Got left: " + left);
-				sprintln("Got right: " + right);
 				s.append("ISet<Tuple<");
-				s.append(left.def);
+				
+				if(x.left instanceof Sig){
+					s.append(((Sig)x.left).label.substring(5));
+				}else{
+					sprintln("Visiting left, type " + x.left.type() + "(" + x.left.getClass() + ")");
+					NodeInfo left = x.left.accept(this);
+					s.append(left.typeName);
+					if(left.fieldName != null && !left.fieldName.isEmpty()){
+						ret.invariants.add("Contract.ForAll({def}, e => e != null && e.Item1.Equals(" + left.fieldName + "))");
+					}
+				}
 				s.append(", ");
-				s.append(right.def);
+				if(x.right instanceof Sig){
+					s.append(((Sig)x.right).label.substring(5));
+
+				}else{
+					sprintln("Visiting right, type " + x.right.type() + "(" + x.right.getClass() + ")");
+					NodeInfo right = x.right.accept(this);
+					s.append(right.typeName);
+					
+					if(right.fieldName != null && !right.fieldName.isEmpty()){
+						ret.invariants.add("Contract.ForAll({def}, e => e != null && e.Item2.Equals(" + right.fieldName + "))");
+					}
+				}
 				s.append(">>");
 				
-				ret.invariants.add("{def} != null");
-				
-				if(left.extra != null && !left.extra.isEmpty()){
-					ret.invariants.add("Contract.ForAll({def}, e => e != null && e.Item1.Equals(" + left.extra + "))");
-				}
-				if(right.extra != null && !right.extra.isEmpty()){
-					ret.invariants.add("Contract.ForAll({def}, e => e != null && e.Item2.Equals(" + right.extra + "))");
-				}
-								
-				ret.def = s.toString();
+				ret.invariants.add("{def} != null");								
+				ret.typeName = s.toString();
 				break;
 			case ANY_ARROW_LONE: // "-> lone" (Tuple) (Lone can be null (0 or 1))
-				left = x.left.accept(this);
-				right = x.right.accept(this);
+				NodeInfo left = x.left.accept(this);
+				NodeInfo right = x.right.accept(this);
 				s.append("Map<");
-				s.append(left.def);
+				s.append(left.typeName);
 				s.append(", ");
-				s.append(right.def);
+				s.append(right.typeName);
 				s.append(">");
 				
-				ret.def = s.toString();
+				ret.typeName = s.toString();
 				ret.invariants.add("Contract.ForAll({def}, e => e != null)");
 				ret.invariants.addAll(left.invariants);
 				ret.invariants.addAll(right.invariants);
 				break;
+				
 			case JOIN:
-				ret.join(x.right.accept(this));
+				sprintln("Visiting left, type " + x.left.type() + "(" + x.left.getClass() + ")");
+				left = x.left.accept(this);
+				sprintln("Visiting right, type " + x.right.type() + "(" + x.right.getClass() + ")");
+				right = x.right.accept(this);
+				
+				if(false == left.fieldName.isEmpty()){
+					ret.fieldName = left.fieldName + ".";
+				}
+				ret.fieldName += right.fieldName;
+				ret.typeName = right.typeName;
+				break;
+				
+			case EQUALS:
+				left = x.left.accept(this);
+				right = x.right.accept(this);
+				s.append("(");
+				s.append(left.fieldName);
+				s.append(".Equals(");
+				s.append(right.fieldName);
+				s.append("))");
+				
+				ret.typeName = "bool";
+				ret.csharpCode = s.toString();
+				ret.invariants.addAll(left.invariants);
+				ret.invariants.addAll(right.invariants);
 				break;
 			default:
-				ret.def = "??? /*ExprBinary Unkown Operator Type: \"" + x.op + "\" (" + x.op.name() + ")*/";
+				ret.typeName = "??? /*ExprBinary Unkown Operator Type: \"" + x.op + "\" (" + x.op.name() + ")*/";
 				break;
 		}
-		ident--;
 		sprintln("Binary Expression returning " + ret );
+		ident--;
 		return ret;
 	}
 	
 	
 	@Override
-	public DefAndInvariants visit(ExprITE x) throws Err {
+	public NodeInfo visit(ExprITE x) throws Err {
 		sprintln("Visit IF-ELSE expression");
 		
-		print("  if (");
+		sprintln("  if (");
 		
 			x.cond.accept(this);
 		
-		println("){");
+		sprintln("){");
 		
 			x.left.accept(this);
 		
-		println("  }else{");
+		sprintln("  }else{");
 		
 			x.right.accept(this);
 		
-		println("  }");
+		sprintln("  }");
 		
-		return new DefAndInvariants("??? /* ExprITE */");
+		return new NodeInfo("??? /* ExprITE */");
 	}
 	
 	@Override
-	public DefAndInvariants visit(ExprLet x) throws Err {
+	public NodeInfo visit(ExprLet x) throws Err {
 		sprintln("Visit let expression");
-		println("  TO DO: 'Let' Expressions");
-		return new DefAndInvariants("??? /* ExprLet */");
+		sprintln("  TO DO: 'Let' Expressions");
+		return new NodeInfo("??? /* ExprLet */");
 	}	
 	
 	@Override
-	public DefAndInvariants visit(ExprList x) throws Err {
+	public NodeInfo visit(ExprList x) throws Err {
 		sprintln("Visit List expression.");
 		
 		switch(x.op){
 			default:
-				print("!EOP:ExprList:" + x.op + "!");
+				sprintln("!EOP:ExprList:" + x.op + "!");
 				break;
 		}
 		
-		print(x.args.toString());
+		sprintln(x.args.toString());
 		
-		return new DefAndInvariants("??? /* ExprList */");
+		return new NodeInfo("??? /* ExprList */");
 	}
 	
 	@Override
-	public DefAndInvariants visit(ExprVar x) throws Err {
+	public NodeInfo visit(ExprVar x) throws Err {
+		ident++;
 		sprintln("Visit Variable expression: " + x.toString());
 		
-		print(x.type() + " " + x.label + " = ");
+		sprintln(x.type() + " " + x.label + " = ");
+		Expr e = x.type().toExpr();
 		
-		return new DefAndInvariants("??? /* ExprVar */");
+		String typeName = null;
+		String fieldName = x.label;
+		
+		if(e instanceof PrimSig){
+			typeName = ((PrimSig)e).label.substring(5);
+		}else{
+			typeName = e.accept(this).typeName;
+		}
+
+		sprintln("Variable expression returning typeName = " + typeName + ", fieldName = " + fieldName);
+		ident--;		
+		return new NodeInfo(typeName, fieldName);
 	}
 	
 	@Override
-	public DefAndInvariants visit(ExprQt x) throws Err {
+	public NodeInfo visit(ExprQt x) throws Err {
 		sprintln("Visit quantified expression: " + x.toString());
-		println("!ENOTIMPL:QT:" + x.toString() + "!");
-		return new DefAndInvariants("??? /* ExprQt */");
+		sprintln("!ENOTIMPL:QT:" + x.toString() + "!");
+		return new NodeInfo("??? /* ExprQt */");
 	}
 	
 
@@ -379,18 +432,5 @@ public class CodeGeneratorVisitor extends VisitQuery<DefAndInvariants> {
 			idents += "  ";
 		
 		System.out.print(idents + s + "\r\n");
-	}
-	
-	private void print(Object s){
-		String idents = "";
-		for(int i = 0; i < ident; i++)
-			idents += "  ";
-		
-		out.print(idents + s);
-		System.out.print(">" + idents + s);
-	}
-	
-	private void println(String s){
-		print(s + "\r\n");
 	}
 }
