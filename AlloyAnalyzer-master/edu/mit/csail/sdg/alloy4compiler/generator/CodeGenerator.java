@@ -24,7 +24,7 @@ public final class CodeGenerator {
 		  String originalFilename, PrintWriter out, 
 		  boolean checkContracts) throws Exception, Err {
 
-	  System.out.println(" ** Got to constructor");
+	  System.out.println(" ** Got to constructor of CodeGenerator");
 	  System.out.println(" ** Got sigs:  " + sigs);
 	  System.out.println(" ** Got funcs:  " + funcs);
 	  System.out.println(" ** Got originalFilename:  " + originalFilename);
