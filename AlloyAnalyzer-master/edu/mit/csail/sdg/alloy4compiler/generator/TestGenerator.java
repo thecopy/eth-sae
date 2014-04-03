@@ -41,18 +41,10 @@ public final class TestGenerator {
 			  	 +"using System.Diagnostics.Contracts;\r\n");
 	  
 	  TestGeneratorVisitor v = new TestGeneratorVisitor(out);
-	  for(Sig sig : sigs){
-		  if(sig.label.equals("univ") || sig.label.equals("Int")
-				  || sig.label.equals("seq/Int")
-				  || sig.label.equals("none")
-				  || sig.label.equals("String")){
-			  
-			  continue; // these are hard coded sigs. We don't care about those
-		  }
-		  
-		  out.print(sig.accept(v).typeName);
+	  for(Pair<String, Expr> assertion : assertions){
+		  System.out.println(" * Parsing " + assertion.a);
+		  out.println(assertion.b.accept(v).csharpCode);
 	  }
-	  
 	  
 	  out.flush();
 	  out.close();

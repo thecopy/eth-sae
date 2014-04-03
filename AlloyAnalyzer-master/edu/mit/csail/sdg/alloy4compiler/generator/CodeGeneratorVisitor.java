@@ -185,22 +185,46 @@ public class CodeGeneratorVisitor extends VisitQuery<NodeInfo> {
 	@Override
 	public NodeInfo visit(Field x) throws Err {
 		ident++;
-		sprintln("Visit field expression: " + x);
+		sprintln("Visit field expression: " + x + ", type: " + x.type());
 		
-		NodeInfo s;
+		NodeInfo s = new NodeInfo();
 		
 		Expr e = x.type().toExpr();
-		if(e instanceof ExprBinary)
-			if(((ExprBinary) e).right instanceof Sig){
-				sprintln("Field is Binary Expression with right expression of type Sig");
-				Sig signature = (Sig)((ExprBinary)e).right;
-				s = new NodeInfo(signature.label.substring(5));
-			}else{
-				s = ((ExprBinary)e).right.accept(this);
+		sprintln("Type have arity " + x.type().arity());
+		if(e instanceof ExprBinary){
+			ExprBinary bin = (ExprBinary)e;
+			if(x.type().arity() == 2){
+				s.typeName = ((Sig)bin.right).label.substring(5);
+				s.sig = (PrimSig)bin.right;
 			}
-		else
+			else{ 
+				// Arity = 3 since we arent supposed to support higher
+				// So assume left is another binary with.
+				ExprBinary binLeft = (ExprBinary)bin.left;
+				NodeInfo left = null;
+				NodeInfo right = null;
+				
+				if(binLeft.right instanceof Sig){
+					left = new NodeInfo(((Sig)binLeft.right).label.substring(5));
+				}else{
+					left = binLeft.right.accept(this); 		// x.left.right
+				}
+				if(bin.right instanceof Sig){
+					right = new NodeInfo(((Sig)bin.right).label.substring(5));
+				}else{
+					right = bin.right.accept(this); 		// x.left.right
+				}
+				
+				s.typeName = "Tuple<";
+				s.typeName += left.typeName;
+				s.typeName += ",";
+				s.typeName += right.typeName;
+				s.typeName += ">";
+			}
+		}else{
 			s = new NodeInfo("Unknown Field Expression");
-
+		}
+		
 		s.invariants.add(x.label + " != null");
 		s.fieldName = x.label;
 		sprintln("Field Expression returning: " + s);
@@ -234,9 +258,10 @@ public class CodeGeneratorVisitor extends VisitQuery<NodeInfo> {
 				ret.fieldName = t.fieldName;
 				break;
 			case NOOP:
-				if(x.sub instanceof Sig)
+				if(x.sub instanceof Sig){
 					ret.typeName = ((Sig)x.sub).label.substring(5); // No invariant can be extracted here
-				else{
+					ret.sig = (PrimSig)x.sub;
+				}else{
 					t = (NodeInfo) x.sub.accept(this);
 					ret.typeName = t.typeName;
 					ret.invariants.addAll(t.invariants);
@@ -274,6 +299,7 @@ public class CodeGeneratorVisitor extends VisitQuery<NodeInfo> {
 				s.append("ISet<Tuple<");
 				
 				if(x.left instanceof Sig){
+					sprintln("Left is of type Sig. Will not visit!");
 					s.append(((Sig)x.left).label.substring(5));
 				}else{
 					sprintln("Visiting left, type " + x.left.type() + "(" + x.left.getClass() + ")");
@@ -285,6 +311,7 @@ public class CodeGeneratorVisitor extends VisitQuery<NodeInfo> {
 				}
 				s.append(", ");
 				if(x.right instanceof Sig){
+					sprintln("Right is of type Sig. Will not visit!");
 					s.append(((Sig)x.right).label.substring(5));
 
 				}else{
@@ -315,7 +342,39 @@ public class CodeGeneratorVisitor extends VisitQuery<NodeInfo> {
 				ret.invariants.addAll(left.invariants);
 				ret.invariants.addAll(right.invariants);
 				break;
+			case ONE_ARROW_ONE: // Tuple
+				left = x.left.accept(this);
+				right = x.right.accept(this);
+				s.append("Tuple<");
+				s.append(left.typeName);
+				s.append(",");
+				s.append(right.typeName);
+				s.append(">");
 				
+				ret.typeName = s.toString();
+				ret.invariants.add("{def} != null");
+				ret.invariants.addAll(left.invariants);
+				ret.invariants.addAll(right.invariants);
+				break;
+			case PLUS: // +, or logical disjunction A (V) B
+				left = x.left.accept(this);
+				right = x.right.accept(this);
+				
+				String typeName = ASPHelper.findCommonBaseClass(left.sig, right.sig).typeName;
+				
+				if(left.typeName.equals(right.typeName))
+					typeName = left.typeName;
+				
+				s.append("ISet<");
+				s.append(typeName);
+				s.append(">");
+
+				ret.typeName = s.toString();
+				ret.invariants.add("{def} != null");
+				ret.invariants.addAll(left.invariants);
+				ret.invariants.addAll(right.invariants);
+				
+				break;
 			case JOIN:
 				sprintln("Visiting left, type " + x.left.type() + "(" + x.left.getClass() + ")");
 				left = x.left.accept(this);
@@ -344,7 +403,7 @@ public class CodeGeneratorVisitor extends VisitQuery<NodeInfo> {
 				ret.invariants.addAll(right.invariants);
 				break;
 			default:
-				ret.typeName = "??? /*ExprBinary Unkown Operator Type: \"" + x.op + "\" (" + x.op.name() + ")*/";
+				ret.typeName = "Object /*ExprBinary Unkown Operator Type: \"" + x.op + "\" (" + x.op.name() + ")*/";
 				break;
 		}
 		sprintln("Binary Expression returning " + ret );
@@ -400,8 +459,7 @@ public class CodeGeneratorVisitor extends VisitQuery<NodeInfo> {
 	public NodeInfo visit(ExprVar x) throws Err {
 		ident++;
 		sprintln("Visit Variable expression: " + x.toString());
-		
-		sprintln(x.type() + " " + x.label + " = ");
+
 		Expr e = x.type().toExpr();
 		
 		String typeName = null;
