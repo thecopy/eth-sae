@@ -360,7 +360,7 @@ public class CodeGeneratorVisitor extends VisitQuery<NodeInfo> {
 				left = x.left.accept(this);
 				right = x.right.accept(this);
 				
-				String typeName = ASPHelper.findCommonBaseClass(left.sig, right.sig).typeName;
+				String typeName = ASPHelper.findFirstCommonClass(left.sig, right.sig).typeName;
 				
 				if(left.typeName.equals(right.typeName))
 					typeName = left.typeName;

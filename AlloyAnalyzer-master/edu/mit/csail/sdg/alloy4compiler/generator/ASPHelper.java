@@ -5,7 +5,14 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 import edu.mit.csail.sdg.alloy4compiler.ast.VisitQuery;
 
 public class ASPHelper {
-	public static NodeInfo findCommonBaseClass(PrimSig a, PrimSig b){
+	public static NodeInfo findFirstCommonClass(PrimSig a, PrimSig b){
+		return findCommonParentClass(a, b, true);
+	}
+	public static NodeInfo findDeepestCommonClass(PrimSig a, PrimSig b){
+		return findCommonParentClass(a, b, false);
+	}
+	
+	public static NodeInfo findCommonParentClass(PrimSig a, PrimSig b, boolean first){
 		if(a == null || b == null){
 			System.out.println("The supplied classes are not non-null");
 			return new NodeInfo("Object");
@@ -26,8 +33,12 @@ public class ASPHelper {
 				if(currentBaseB == null || currentBaseB.label.equals("univ"))
 					break;
 				
-				if(currentBaseA.label.equals(currentBaseB.label))
+				if(currentBaseA.label.equals(currentBaseB.label)){
 					deepestCommon = currentBaseB;
+					
+					if(first)
+						return new NodeInfo(deepestCommon.label.substring(5));
+				}
 				
 				currentBaseB = currentBaseB.parent;
 			}

@@ -1,4 +1,5 @@
-sig Base {}
+sig SuperBase {}
+sig Base extends SuperBase {}
 sig A extends Base {}
 sig B extends Base {}
 sig C {
