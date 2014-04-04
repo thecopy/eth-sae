@@ -43,15 +43,15 @@ public final class CSharpGeneratorTests {
 
     String path = "..\\edu\\mit\\csail\\sdg\\alloy4compiler\\generator\\";
     // specify whether to define Code Contracts checking in the code file
-    boolean[] contracts = {false, false};
+    boolean[] contracts = {false, false,false};
     // specify whether the test should succeed
-    boolean[] expected = {false, false};
+    boolean[] expected = {false, false,false};
     // specify the type of the error
-    String[] error = {"Assertion failed","Assertion failed"};
+    String[] error = {"Assertion failed","Assertion failed","Assertion failed"};
     // specify the code file
-    String[] code = {"",""};
+    String[] code = {"","",""};
     // specify the test file
-    String[] test = {"",""};
+    String[] test = {"","",""};
 
     // determines whether there were failures during the execution of the entire test suite
     boolean okay = true;
@@ -59,7 +59,7 @@ public final class CSharpGeneratorTests {
     boolean saveInDist = false;
     
     // specify the number of tests here
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < 3; i++) {
       try {
         System.out.println("------- test" + i + " -------");
         String f = filename + i + alloyExt;

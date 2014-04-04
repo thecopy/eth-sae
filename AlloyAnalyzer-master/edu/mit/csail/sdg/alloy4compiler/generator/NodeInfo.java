@@ -2,11 +2,15 @@ package edu.mit.csail.sdg.alloy4compiler.generator;
 
 import java.util.ArrayList;
 
+import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
+
 public class NodeInfo {
 	public String typeName = "";
 	public ArrayList<String> invariants = new ArrayList<String>();
 	public String fieldName = "";
 	public String csharpCode = "";
+	public PrimSig sig = null;
+	
 	public NodeInfo() {}
 	
 	public NodeInfo(String typeName){

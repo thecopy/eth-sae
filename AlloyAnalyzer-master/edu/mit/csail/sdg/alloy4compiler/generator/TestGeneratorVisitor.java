@@ -63,12 +63,6 @@ public class TestGeneratorVisitor extends VisitQuery<NodeInfo> {
 		sprintln("Visit ExprConstant expression: " + x.toString());
 		return new NodeInfo("??? /* ExprConstant */");
 	}
-	
-	@Override
-	public NodeInfo visit(ExprCall x) throws Err {
-		sprintln("Visit ExprCall expression: " + x.toString());
-		return new NodeInfo("??? /* ExprCall */");
-	}
 
 	@Override
 	public NodeInfo visit(Field x) throws Err {
@@ -78,9 +72,42 @@ public class TestGeneratorVisitor extends VisitQuery<NodeInfo> {
 	
 	@Override
 	public NodeInfo visit(ExprUnary x) throws Err {
-		sprintln("Visit ExprUnary expression: " + x.toString());
-		return new NodeInfo("??? /* ExprUnary */");
+		ident++;
+		
+		sprintln("Visit ExprUnary expression of type " + x.op + " with sub " + x.sub + ": " + x.toString());
+		
+		NodeInfo n = new NodeInfo();
+		
+		switch(x.op){
+			case NOOP:
+				n = x.sub.accept(this);
+				break;
+			default:
+				sprintln("Unkown OP type: " + x.op + "(" + x.op.name() + ")");
+				break;
+		}
+
+		ident--;
+		return n;
 	}	
+	
+	@Override
+	public NodeInfo visit(ExprQt x) throws Err {
+		ident++;
+		
+		sprintln("Visit ExprQt expression with op: " + x.op + " with sub " + x.sub);
+		
+		x.sub.accept(this);
+		
+		ident--;
+		return new NodeInfo("??? /* ExprQt */");
+	}
+	
+	@Override
+	public NodeInfo visit(ExprCall x) throws Err {
+		sprintln("Visit ExprCall expression: " + x.toString());
+		return new NodeInfo("??? /* ExprCall */");
+	}
 
 	@Override
 	public NodeInfo visit(ExprBinary x) throws Err {
@@ -111,12 +138,6 @@ public class TestGeneratorVisitor extends VisitQuery<NodeInfo> {
 	public NodeInfo visit(ExprVar x) throws Err {
 		sprintln("Visit ExprVar expression: " + x.toString());
 		return new NodeInfo("??? /* ExprVar */");
-	}
-	
-	@Override
-	public NodeInfo visit(ExprQt x) throws Err {
-		sprintln("Visit ExprQt expression: " + x.toString());
-		return new NodeInfo("??? /* ExprQt */");
 	}
 
 	private void sprintln(Object s){
