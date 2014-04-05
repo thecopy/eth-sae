@@ -3,7 +3,6 @@
 sig Platform {}
 sig Man {
   ceiling, floor: one Platform,
-  wifes: set Woman,
   between: floor -> ceiling
 }
 

@@ -5,11 +5,17 @@ import java.util.ArrayList;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 
 public class NodeInfo {
+	public enum FieldModifier {
+		Set,
+		One
+	}
+	
 	public String typeName = "";
 	public ArrayList<String> invariants = new ArrayList<String>();
 	public String fieldName = "";
 	public String csharpCode = "";
 	public PrimSig sig = null;
+	public FieldModifier fieldModifier = FieldModifier.One;
 	
 	public NodeInfo() {}
 	
@@ -30,6 +36,6 @@ public class NodeInfo {
 	
 	@Override
 	public String toString() {
-		return "TypeName = " + typeName + " FieldName = " + fieldName + " C#-Code: " + csharpCode + "(" + invariants + ")";
+		return "TypeName = " + typeName + "(" + fieldModifier +") FieldName = " + fieldName + " C#-Code: " + csharpCode + "(" + invariants + ")";
 	}
 }
