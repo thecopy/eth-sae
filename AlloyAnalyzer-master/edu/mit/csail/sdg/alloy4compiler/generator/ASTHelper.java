@@ -5,6 +5,13 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 import edu.mit.csail.sdg.alloy4compiler.ast.VisitQuery;
 
 public class ASTHelper {
+	public static String extractGeneratedInstanceName(String s){
+		  String name = s.substring(0, s.indexOf("$"));
+		  name += s.substring(s.indexOf("$") + 1);
+		  
+		  return name;
+	}
+	
 	public static NodeInfo findFirstCommonClass(PrimSig a, PrimSig b){
 		return findCommonParentClass(a, b, true);
 	}

@@ -189,10 +189,22 @@ public class TestGeneratorVisitor extends VisitQuery<NodeInfoTest> {
 		switch (x.op) {
 			case ONE:
 				ret.csharpCode = argType + "Set.Where(";
+				subExprBuilder.append(".Count() == 1");
+				break;
+			case SOME:
+				ret.csharpCode = argType + "Set.Where(";
+				subExprBuilder.append(".Count() > 1");
+				break;
+			case LONE:
+				ret.csharpCode = argType + "Set.Where(";
+				subExprBuilder.append(".Count() <= 1");
+				break;
+			case NO:
+				ret.csharpCode = argType + "Set.Where(";
+				subExprBuilder.append(".Count() == 0");
 				break;
 			case ALL:
 				ret.csharpCode = "Contract.ForAll(" + argType + "Set, ";
-				subExprBuilder.append(".Count() == " + expect);
 				break;
 			default:
 				sprintln("Unkown ExprQt.Op: " + x.op);
@@ -241,8 +253,7 @@ public class TestGeneratorVisitor extends VisitQuery<NodeInfoTest> {
 			NodeInfoTest declInfo = decl.expr.accept(this);
 			sprintln(declInfo);
 			for(ExprHasName declname : decl.names){
-				argBuilder.append(", ");
-				argBuilder.append(declInfo.typeName);
+				argBuilder.append(",");
 				argBuilder.append(" ");
 				argBuilder.append(declname.label);
 			}

@@ -15,7 +15,10 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.Module;
 import edu.mit.csail.sdg.alloy4compiler.ast.Command;
+import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
+import edu.mit.csail.sdg.alloy4compiler.translator.A4Tuple;
+import edu.mit.csail.sdg.alloy4compiler.translator.A4TupleSet;
 
 public final class TestGenerator {
 
@@ -32,6 +35,7 @@ public final class TestGenerator {
 	  System.out.println(" ** Got assertions:  " + assertions);
 	  System.out.println(" ** Got cmds:  " + cmds);
 	  
+
 	  out.println("// This C# file is generated from " + originalFilename + "\r\n");
 	  out.println("#undef CONTRACTS_FULL\r\n");
 	  
@@ -41,6 +45,48 @@ public final class TestGenerator {
 			  	 +"using System.Diagnostics.Contracts;\r\n");
 	  out.println("public static class Test {");
 	  out.println("  public static void Main(string[] args) {");
+	  
+	  
+	  System.out.println(" * Producing environment...");
+	  
+	  for(Sig sig : sigs){
+		  if(sig.label.equals("univ") || sig.label.equals("Int")
+				  || sig.label.equals("seq/Int")
+				  || sig.label.equals("none")
+				  || sig.label.equals("String")
+				  || sig.isAbstract != null){
+			  continue;
+		  }
+		  
+		  String name = sig.label.substring(5);
+		  String setName = name + "Set";
+		  System.out.println(" A4Tuple For sig " + name);
+		  out.println("    " + "var " + setName + " = new HashSet<" + name + ">();");
+		  
+		  A4TupleSet tuples = solution.eval(sig);
+		  int i = 0;
+		  for(A4Tuple _ : tuples){
+			  String instanceName = (name + i++);
+			  out.println("    " + name + " " + instanceName + ";");
+			  if(sig.isOne != null){
+				  out.println("    " + setName + ".Add(" + instanceName + " = " + name + ".Instance);");
+			  }else{
+				  out.println("    " + setName + ".Add(" + instanceName + " = new " + name + "());");
+			  }
+		  }
+
+		  for(Field f : sig.getFields()){
+			  A4TupleSet fieldTuples = solution.eval(f);
+			  for(A4Tuple field : fieldTuples){
+				  String objName = ASTHelper.extractGeneratedInstanceName(field.atom(0));
+				  String refName = ASTHelper.extractGeneratedInstanceName(field.atom(1));
+				  
+				  out.println("    " + objName + "." + f.label + " = " + refName + ";");
+			  }
+		  }
+		  
+		  out.println("");
+	  }
 	  
 	  TestGeneratorVisitor v = new TestGeneratorVisitor(out);
 	  for(Pair<String, Expr> assertion : assertions){
@@ -60,7 +106,7 @@ public final class TestGenerator {
 		  v.setExpect(cmd.expects);
 		  NodeInfoTest node = cmd.formula.accept(v);
 		  
-		  out.println("  Contract.Assert(" + node.csharpCode + ");");
+		  out.println("    Contract.Assert(" + node.csharpCode + ", \"" + cmd.label + "\");");
 	  }
 	  
 	  out.println("  }\r\n}");

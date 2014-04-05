@@ -45,7 +45,7 @@ public final class CSharpGeneratorTests {
     // specify whether to define Code Contracts checking in the code file
     boolean[] contracts = {false, false,false};
     // specify whether the test should succeed
-    boolean[] expected = {false, false,false};
+    boolean[] expected = {true, false,false};
     // specify the type of the error
     String[] error = {"Assertion failed","Assertion failed","Assertion failed"};
     // specify the code file
@@ -59,7 +59,7 @@ public final class CSharpGeneratorTests {
     boolean saveInDist = false;
     
     // specify the number of tests here
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 1; i++) {
       try {
         System.out.println("------- test" + i + " -------");
         String f = filename + i + alloyExt;
@@ -184,6 +184,7 @@ public final class CSharpGeneratorTests {
         pr = rt.exec(f + testCompExt);
         System.out.print("Code and test execution: ");
         int exitCode = pr.waitFor();
+        
         if (expected[i]) {
           if (exitCode == 0) {
             System.out.println("SUCCESS");
