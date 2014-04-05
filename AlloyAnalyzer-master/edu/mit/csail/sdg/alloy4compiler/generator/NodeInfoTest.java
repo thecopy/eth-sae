@@ -12,7 +12,7 @@ public class NodeInfoTest {
 	
 	public String typeName = "";
 	public ArrayList<String> invariants = new ArrayList<String>();
-	public ArrayList<String> args = new ArrayList<String>();
+	public ArrayList<ArgumentDescriptor> args = new ArrayList<ArgumentDescriptor>();
 	public String fieldName = "";
 	public String csharpCode = "";
 	public PrimSig sig = null;

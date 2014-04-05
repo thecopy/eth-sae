@@ -37,6 +37,11 @@ public class TestGeneratorVisitor extends VisitQuery<NodeInfoTest> {
 	public void setIdent(int i){
 		ident = i;
 	}
+	int expect = 0;
+	public void setExpect(int i){
+		this.expect = i;
+		
+	}
 	
 	public TestGeneratorVisitor(PrintWriter out) throws Exception{
 		if(out == null)
@@ -108,6 +113,9 @@ public class TestGeneratorVisitor extends VisitQuery<NodeInfoTest> {
 			case NOT:
 				n = x.sub.accept(this);
 			break;
+			case ONEOF:
+				n = x.sub.accept(this);
+				break;
 			case NOOP:
 				n = x.sub.accept(this);
 				break;
@@ -159,9 +167,39 @@ public class TestGeneratorVisitor extends VisitQuery<NodeInfoTest> {
 		ident++;
 		NodeInfoTest ret = new NodeInfoTest();
 		
-		sprintln("Visit ExprQt expression with op: " + x.op + " with sub " + x.sub);
+		sprintln("Visit ExprQt  with op: " + x.op + " with sub " + x.sub);
 		
-		ret = x.sub.accept(this);
+		StringBuilder subExprBuilder = new StringBuilder();
+		String argType = "?";
+		for(Decl decl : x.decls){
+			NodeInfoTest exprInfo = decl.expr.deNOP().accept(this);
+			argType = exprInfo.typeName;
+			
+			for(ExprHasName expr : decl.names){
+				subExprBuilder.append(expr.label);
+			}
+		}
+
+		NodeInfoTest subRet = x.sub.accept(this);
+		
+		subExprBuilder.append(" => ");
+		subExprBuilder.append(subRet.csharpCode);
+		subExprBuilder.append(")");
+		
+		switch (x.op) {
+			case ONE:
+				ret.csharpCode = argType + "Set.Where(";
+				break;
+			case ALL:
+				ret.csharpCode = "Contract.ForAll(" + argType + "Set, ";
+				subExprBuilder.append(".Count() == " + expect);
+				break;
+			default:
+				sprintln("Unkown ExprQt.Op: " + x.op);
+				break;
+		}
+		
+		ret.csharpCode += subExprBuilder.toString();
 		
 		sprintln("ExprQt returning " + ret);
 		ident--;
@@ -189,7 +227,7 @@ public class TestGeneratorVisitor extends VisitQuery<NodeInfoTest> {
 		sprintln("Visit ExprCall expression: " + x.toString());
 		for(Expr arg : x.args){
 			NodeInfoTest argInfo = arg.accept(this);
-			ret.args.add(argInfo.fieldName);
+			ret.args.add(new ArgumentDescriptor(argInfo.fieldName, argInfo.typeName));
 		}
 		
 		Func func = x.fun;
