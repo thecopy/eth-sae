@@ -39,13 +39,31 @@ public final class TestGenerator {
 			  	 +"using System.Linq;\r\n"
 			  	 +"using System.Collections.Generic;\r\n"
 			  	 +"using System.Diagnostics.Contracts;\r\n");
+	  out.println("public static class Test {");
+	  out.println("  public static void Main(string[] args) {");
 	  
 	  TestGeneratorVisitor v = new TestGeneratorVisitor(out);
 	  for(Pair<String, Expr> assertion : assertions){
+		  v.setIdent(1);
 		  System.out.println(" * Parsing " + assertion.a);
-		  out.println(assertion.b.accept(v).csharpCode);
+		  //out.println(assertion.b.accept(v).csharpCode);
 	  }
 	  
+	  System.out.println("* Handling commands");
+	  for(Command cmd : cmds){
+		  System.out.println("  Label: " + cmd.label);
+		  System.out.println("  Bitwidth: " + cmd.bitwidth);
+		  System.out.println("  Max Sequence: " + cmd.maxseq);
+		  System.out.println("  Overall Scope: " + cmd.overall);
+		  System.out.println("  Expect: " + cmd.expects);
+		  System.out.println("  Is: " + (cmd.check ? "'check'" : "'run'"));
+		  
+		  NodeInfoTest node = cmd.formula.accept(v);
+		  
+		  out.println("  Contract.Assert(" + node.csharpCode + ");");
+	  }
+	  
+	  out.println("  }\r\n}");
 	  out.flush();
 	  out.close();
 	  

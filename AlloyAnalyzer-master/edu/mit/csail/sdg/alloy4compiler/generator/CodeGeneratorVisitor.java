@@ -486,7 +486,6 @@ public class CodeGeneratorVisitor extends VisitQuery<NodeInfo> {
 						ret.invariants.add("(" + left.fieldName + ".Equals(e) || " + right.fieldName + ".Equals(e))");
 					}
 				}
-				
 				break;
 			case JOIN:
 				sprintln("Visiting left, type " + x.left.type() + "(" + x.left.getClass() + ")");
