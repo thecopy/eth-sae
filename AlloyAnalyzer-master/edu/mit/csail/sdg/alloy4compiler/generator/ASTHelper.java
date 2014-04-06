@@ -1,10 +1,59 @@
 package edu.mit.csail.sdg.alloy4compiler.generator;
 
+import java.util.HashSet;
+
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprBinary;
+import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary.Op;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 import edu.mit.csail.sdg.alloy4compiler.ast.VisitQuery;
 
 public class ASTHelper {
+	public static NodeInfo generateInvariantsForSetOperation(ExprBinary x, NodeInfo ret, NodeInfo left, NodeInfo right){
+		ret.types = left.getTypes();
+		for(String type : right.getTypes()){
+			if(!ret.types.contains(type)){
+				ret.types.add(type);
+			}
+		}
+		StringBuilder typeCheckBuilder = new StringBuilder();
+		
+		for(String type : ret.getTypes())
+			typeCheckBuilder.append(" || {def} is " + type);
+
+		if(x.left.deNOP() instanceof Sig){ // If this is the case, assume that multiplicity is one
+			ret.invariants.add("(" + typeCheckBuilder.toString().substring(4) + ")");
+		}else{	
+			ret.invariants.add("Contract.ForAll({def}, e => " + typeCheckBuilder.toString().substring(4).replace("{def}", "e") + ")");
+			
+			if(!left.fieldName.isEmpty() && !right.fieldName.isEmpty()){
+				switch(x.op){
+				case PLUS:
+					ret.invariants.add("Contract.ForAll({def}, e => " + left.fieldName + ".Contains(e) || " + right.fieldName + ".Contains(e))");					
+					ret.invariants.add("Contract.ForAll(" + left.fieldName + ", e => {def}.Contains(e))");
+					ret.invariants.add("Contract.ForAll(" + right.fieldName + ", e => {def}.Contains(e))");
+					ret.fieldName = left.fieldName + ".Union<" + ret.typeName + ">(" + right.fieldName + ")";
+					break;
+				case MINUS:
+					ret.invariants.add("Contract.ForAll({def}, e => " + left.fieldName + ".Contains(e) && " + right.fieldName + ".Contains(e) == false)");
+					ret.fieldName = left.fieldName + ".Except<" + ret.typeName + ">(" + right.fieldName + ")";
+					break;
+				case INTERSECT:
+					ret.fieldName = left.fieldName + ".Intersect<" + ret.typeName + ">(" + right.fieldName + ")";					
+					ret.invariants.add("Contract.ForAll({def}, e => " + left.fieldName + ".Contains(e) && "	+ right.fieldName + ".Contains(e))");
+					ret.invariants.add("Contract.ForAll({def}, e => e is " + left.typeName + " && e is " + right.typeName + ") ");
+					break;
+				default:
+					System.out.println("Errornous OP type in generateInvariantsForSetOperation: " + x.op);
+					break;
+				}
+			}
+		}
+		
+		return ret;
+	}
+	
 	public static String extractGeneratedInstanceName(String s){
 		  String name = s.substring(0, s.indexOf("$"));
 		  name += s.substring(s.indexOf("$") + 1);

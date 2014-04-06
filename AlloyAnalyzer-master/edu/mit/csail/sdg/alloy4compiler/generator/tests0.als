@@ -12,7 +12,7 @@ pred Above[m, n: Man] {
 
 assert BelowToo { all m: Man | one n: Man | m.Above[n] }
 
-check BelowToo for 2 expect 1
+check BelowToo for 3 expect 1
 
 /* dates */
 
