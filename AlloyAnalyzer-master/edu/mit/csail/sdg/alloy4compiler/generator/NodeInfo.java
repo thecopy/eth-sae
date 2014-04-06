@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
+import edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor.InvariantConstraint;
 
 public class NodeInfo {
 	public enum FieldModifier {
@@ -20,7 +21,14 @@ public class NodeInfo {
 		return types;
 	}
 	
-	public ArrayList<String> invariants = new ArrayList<String>();
+	public ArrayList<InvariantDescriptor> invariants = new ArrayList<InvariantDescriptor>();
+	public void addInvariant(String inv){
+		invariants.add(new InvariantDescriptor(inv));
+	}
+	public void addInvariant(String inv, InvariantConstraint invariantConstraint){
+		invariants.add(new InvariantDescriptor(inv, invariantConstraint));
+	}
+	
 	public String fieldName = "";
 	public String csharpCode = "";
 	public PrimSig sig = null;
@@ -46,5 +54,8 @@ public class NodeInfo {
 	@Override
 	public String toString() {
 		return "TypeName = " + typeName + " FieldName = " + fieldName + " C#-Code: " + csharpCode + "(" + invariants + ")";
+	}
+	public void addAllInvariants(ArrayList<InvariantDescriptor> toAdd) {
+		this.invariants.addAll(toAdd);
 	}
 }

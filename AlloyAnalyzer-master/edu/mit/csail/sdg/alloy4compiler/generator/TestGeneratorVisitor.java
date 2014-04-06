@@ -30,6 +30,12 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Type.ProductType;
 import edu.mit.csail.sdg.alloy4compiler.ast.VisitQuery;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
 
+///
+///
+///     A lot of this has been directly copied from CodeGeneratorVisitor
+///
+///
+
 public class TestGeneratorVisitor extends VisitQuery<NodeInfoTest> {
 	
 	private PrintWriter out;
@@ -67,66 +73,173 @@ public class TestGeneratorVisitor extends VisitQuery<NodeInfoTest> {
 	@Override
 	public NodeInfoTest visit(ExprConstant x) throws Err {
 		ident++;
-		sprintln("Visit constant expression of type " + x.type());
+		sprintln("Visit constant expression with OP " + x.op + " and type " + x.type());
 		NodeInfoTest ret = new NodeInfoTest();
 		ret.typeName = "?";
-		if(x.type().equals(ExprConstant.Op.NUMBER)){
-		}else if(x.type().toString().equals("{PrimitiveBoolean}")){
+
+		switch(x.op){
+		case NUMBER:
+			ret.typeName = "int";
+			ret.fieldName = Integer.toString(x.num);	
+			ret.csharpCode = ret.fieldName;
+			break;
+		case FALSE:
 			ret.typeName = "bool";
-		}else if(x.type().equals(ExprConstant.Op.FALSE)){
-			ret.typeName = "false";
-		}else if(x.type().equals(ExprConstant.Op.TRUE)){
-			ret.typeName = "true";
-		}else if(x.type().equals(ExprConstant.Op.STRING)){
+			ret.fieldName = "false";
+			ret.csharpCode = ret.fieldName;
+			break;
+		case TRUE:
+			ret.typeName = "bool";
+			ret.fieldName = "true";
+			ret.csharpCode = ret.fieldName;
+			break;
+		case MAX:
+			ret.typeName = "int";
+			ret.fieldName = "Int32.MaxValue";
+			ret.csharpCode = ret.fieldName;
+			break;
+		case MIN:
+			ret.typeName = "int";
+			ret.fieldName = "Int32.MinValue";
+			ret.csharpCode = ret.fieldName;
+			break;
+		case STRING:
 			ret.typeName = "string";
-		}else if(x.type().equals(ExprConstant.Op.EMPTYNESS)){
-
-		}else if(x.type().equals(ExprConstant.Op.NEXT)){
-
-		}else if(x.type().equals(ExprConstant.Op.MAX)){
-
-		}else if(x.type().equals(ExprConstant.Op.MIN)){
-
-		}else{
+			ret.fieldName = x.string;
+			ret.csharpCode = ret.fieldName;
+			break;
+		default:
 			sprintln("! ECONSTTYPE: " + x.type());
+			break;
 		}
-
 		ident--;
 		return ret;
 	}
 
 	@Override
 	public NodeInfoTest visit(Field x) throws Err {
-		sprintln("Visit Field expression: " + x.toString());
-		return new NodeInfoTest("??? /* Field */");
+		ident++;
+		sprintln("Visit field expression: " + x + ", type: " + x.type());
+
+		NodeInfoTest s = new NodeInfoTest();
+
+		Expr e = x.type().toExpr();
+		if(e instanceof ExprBinary){
+			ExprBinary bin = (ExprBinary)e;
+			if(x.type().arity() == 2){
+				s.typeName = ((Sig)bin.right).label.substring(5);
+				s.sig = (PrimSig)bin.right;
+			}
+			else{ 
+				// Arity = 3 since we aren't supposed to support higher
+				// Assume left is another binary with -> operator
+				ExprBinary binLeft = (ExprBinary)bin.left;
+				NodeInfoTest left = null;
+				NodeInfoTest right = null;
+
+				if(binLeft.right instanceof Sig){
+					left = new NodeInfoTest(((Sig)binLeft.right).label.substring(5));
+				}else{
+					left = binLeft.right.accept(this); 		// x.left.right
+				}
+				if(bin.right instanceof Sig){
+					right = new NodeInfoTest(((Sig)bin.right).label.substring(5));
+				}else{
+					right = bin.right.accept(this); 		// x.left.right
+				}
+
+				s.typeName = "ISet<Tuple<";
+				s.typeName += left.typeName;
+				s.typeName += ",";
+				s.typeName += right.typeName;
+				s.typeName += ">>";
+			}
+		}else{
+			s = new NodeInfoTest("Unknown Field Expression");
+		}
+
+		s.fieldName = x.label;
+		sprintln("Field Expression returning: " + s);
+		ident--;
+		return s;
 	}
 	
 	@Override
 	public NodeInfoTest visit(ExprUnary x) throws Err {
 		ident++;
-		
-		sprintln("Visit ExprUnary expression of type " + x.op + " with sub " + x.sub + ": " + x.toString());
-		
-		NodeInfoTest n = new NodeInfoTest();
-		
-		switch(x.op){
-			case NOT:
-				n = x.sub.accept(this);
+		sprintln("Visit unary expression ('" + x.toString() + "') with OP: '" + x.op + "' (" + x.op.name() + ") and sub: " + x.sub.toString() + ", type: " + x.type());
+		NodeInfoTest ret = new NodeInfoTest();
+		NodeInfoTest t;
+
+		switch(x.op){ 
+		case ONEOF:
+		case LONEOF:
+			t = x.sub.accept(this);
+			ret.typeName = t.typeName;
+			ret.invariants.addAll(t.invariants);
+			ret.fieldName = t.fieldName;
 			break;
-			case ONEOF:
-				n = x.sub.accept(this);
-				break;
-			case NOOP:
-				n = x.sub.accept(this);
-				break;
-			default:
-				sprintln("Unkown OP type: " + x.op + "(" + x.op.name() + ")");
-				break;
+		case SOMEOF:
+		case SETOF:
+			t = (NodeInfoTest) x.sub.accept(this);
+			ret.typeName += "ISet<" + t.typeName + ">";
+			//ret = ASTHelper.generateInvariantsForSetOperation(x, ret, left, right);
+			ret.invariants.addAll(t.invariants);
+			ret.fieldName = t.fieldName;
+			break;
+		case NOOP:
+			ret = x.sub.accept(this);
+			break;
+		case CLOSURE:
+			t = x.sub.accept(this);
+			ret.typeName = "Object";
+			ret.csharpCode = "Helper.Closure(" + t.fieldName + ")";
+			break;
+		case RCLOSURE:
+			t = x.sub.accept(this);
+			ret.typeName = "Object";	
+			ret.csharpCode = "Helper.RClosure(" + t.fieldName + ")";
+			break;
+		case CAST2INT:
+			ret = x.sub.accept(this);
+			ret.typeName = "int";
+			ret.csharpCode = "(int)" + ret.csharpCode;
+			ret.fieldName = "(int)" + ret.fieldName;
+			break;
+		case CARDINALITY:
+			t = x.sub.accept(this);
+			ret.typeName = "int";
+			ret.csharpCode = t.fieldName + ".Count()";
+			ret.fieldName = t.fieldName + ".Count()";
+			break;
+		case CAST2SIGINT: // no idea what this is
+			ret = x.sub.accept(this);
+			break;
+		case NOT:
+			t = x.sub.accept(this);
+			ret.csharpCode = "!(" + t.csharpCode + ")";
+			ret.fieldName = "!(" + t.csharpCode + ")";
+			ret.typeName = "bool";
+			break;
+		case TRANSPOSE: // hm?
+			ret = x.sub.accept(this); // i dont know
+			break;
+			// We do not have to support these
+		case EXACTLYOF:
+		case NO:
+		case SOME:
+		case LONE:
+		case ONE:
+		default:
+			ret.typeName = "??? /*ExprUnary. Unkown Operator Type: \"" + x.op + "\" (" + x.op.name() + ")*/";
+			break;
+
 		}
 
-		sprintln("ExprUnary returning " + n);
+		sprintln("Unary Expression returning " + ret);
+
 		ident--;
-		return n;
+		return ret;
 	}	
 	
 	@Override
@@ -221,14 +334,23 @@ public class TestGeneratorVisitor extends VisitQuery<NodeInfoTest> {
 	@Override
 	public NodeInfoTest visit(ExprVar x) throws Err {
 		ident++;
-		
-		sprintln("Visit ExprVar expression: " + x.toString());
-		
-		sprintln("Label: " + x.label);
-		
-		ident--;
+		sprintln("Visit Variable expression: " + x.toString());
 
-		return new NodeInfoTest("", x.label);
+		Expr e = x.type().toExpr();
+
+		String typeName = null;
+		String fieldName = x.label;
+
+		if(e instanceof PrimSig){
+			typeName = ((PrimSig)e).label.substring(5);
+		}else{
+			typeName = e.accept(this).typeName;
+		}
+
+		sprintln("Variable expression returning typeName = " + typeName + ", fieldName = " + fieldName);
+
+		ident--;		
+		return new NodeInfoTest(typeName, fieldName);
 	}
 	
 	@Override
@@ -268,8 +390,150 @@ public class TestGeneratorVisitor extends VisitQuery<NodeInfoTest> {
 
 	@Override
 	public NodeInfoTest visit(ExprBinary x) throws Err {
-		sprintln("Visit ExprBinary expression: " + x.toString());
-		return new NodeInfoTest("??? /* ExprBinary */");
+		ident++;
+		sprintln("Visit binary expression (mult=" + x.mult + ", type=" + x.type() + ", type size=" + x.type().size() + ") (OP=" + x.op.name() + ", '" + x.op + "' ) [" + x + "].");
+
+		StringBuilder s = new StringBuilder();
+		NodeInfoTest ret = new NodeInfoTest();
+
+		switch (x.op) {
+		case ARROW: // "set -> set " (Set of Tuples)
+			NodeInfoTest left = x.left.accept(this);
+			NodeInfoTest right = x.right.accept(this);
+			
+			s.append("ISet<Tuple<");
+			s.append(left.typeName);
+			s.append(", ");
+			s.append(right.typeName);
+			s.append(">>");	
+
+			ret.typeName = s.toString();
+			break;
+		case ANY_ARROW_LONE: // "A -> lone B" (Tuple) (Lone can be null (0 or 1))
+			left = x.left.accept(this);
+			right = x.right.accept(this);
+			s.append("ISet<Tuple<");
+			s.append(left.typeName);
+			s.append(", ");
+			s.append(right.typeName);
+			s.append(">>");
+
+			break;
+		case ONE_ARROW_ONE: // Set of Tuples with one-to-one mapping
+			left = x.left.accept(this);
+			right = x.right.accept(this);
+			s.append("ISet<Tuple<");
+			s.append(left.typeName);
+			s.append(",");
+			s.append(right.typeName);
+			s.append(">>");
+
+			break;
+
+		case INTERSECT:
+			left = x.left.accept(this);
+			right = x.right.accept(this);
+
+			String typeName = ASTHelper.findFirstCommonClass(left.sig, right.sig).typeName;
+			if(left.typeName.equals(right.typeName))
+				typeName = left.typeName;
+
+			ret.typeName = typeName;
+					
+			break;
+
+		case MINUS: // Set Difference, -
+			left = x.left.accept(this);
+			right = x.right.accept(this);
+
+			typeName = ASTHelper.findFirstCommonClass(left.sig, right.sig).typeName;
+
+			if(left.typeName.equals(right.typeName))
+				typeName = left.typeName;
+
+			s.append(typeName);
+
+			ret.typeName = typeName;
+
+			break;
+
+		case PLUS: // Union, +, or logical disjunction
+			left = x.left.accept(this);
+			right = x.right.accept(this);
+
+			typeName = ASTHelper.findFirstCommonClass(left.sig, right.sig).typeName;
+
+			if(left.typeName.equals(right.typeName))
+				typeName = left.typeName;
+
+			ret.typeName = typeName;
+			ret.fieldName = left.fieldName + ".Union<" + ret.typeName + ">(" + right.fieldName + ")";
+			break;
+
+		case JOIN:
+			sprintln("Visiting left, type " + x.left.type() + "(" + x.left.getClass() + ")");
+			left = x.left.accept(this);
+			sprintln("Visiting right, type " + x.right.type() + "(" + x.right.getClass() + ")");
+			right = x.right.accept(this);
+
+			if(false == left.fieldName.isEmpty()){
+				ret.fieldName = left.fieldName + ".";
+			}
+			ret.fieldName += right.fieldName;
+			ret.typeName = right.typeName;
+			break;
+
+		case EQUALS:
+			left = x.left.accept(this);
+			right = x.right.accept(this);
+			s.append("(");
+			s.append(left.fieldName);
+			s.append(".Equals(");
+			s.append(right.fieldName);
+			s.append("))");
+
+			ret.typeName = "bool";
+			ret.csharpCode = s.toString();
+			ret.invariants.addAll(left.invariants);
+			ret.invariants.addAll(right.invariants);
+			break;
+
+		case NOT_LTE:
+		case GT:
+		case NOT_GTE:
+		case LT:
+		case NOT_LT:
+		case GTE:
+		case NOT_GT:
+		case LTE:
+		case MUL:
+		case AND:
+		case DIV:
+		case NOT_EQUALS:
+		case OR:
+		case REM:
+			left = x.left.accept(this);
+			right = x.right.accept(this);
+			ret = ASTHelper.handleSimpleBinaryOperator(x, ret, left, right);
+			break;
+		case IMPLIES:
+			break;
+			// These we do not have to support
+		case ISSEQ_ARROW_LONE:
+		case DOMAIN:
+		case RANGE:
+		case PLUSPLUS:
+		case SHL:
+		case SHA:
+		case SHR:
+			
+		default:
+			ret.typeName = "Object /*ExprBinary Unkown Operator Type: \"" + x.op + "\" (" + x.op.name() + ")*/";
+			break;
+		}
+		sprintln("Binary " + x.op.name() + " Expression returning " + ret );
+		ident--;
+		return ret;
 	}
 	
 	
@@ -281,8 +545,26 @@ public class TestGeneratorVisitor extends VisitQuery<NodeInfoTest> {
 	
 	@Override
 	public NodeInfoTest visit(ExprLet x) throws Err {
+		ident++;
 		sprintln("Visit ExprLet expression: " + x.toString());
-		return new NodeInfoTest("??? /* ExprLet */");
+
+		NodeInfoTest ret = new NodeInfoTest();
+
+		NodeInfoTest sub = x.sub.accept(this);
+		NodeInfoTest var = x.var.accept(this);
+		NodeInfoTest newVal = x.expr.accept(this);
+		
+		if(sub == null)
+			sprintln("sub == null");
+		if(var == null)
+			sprintln("var == null");
+		if(newVal == null)
+			sprintln("newVal == null");
+		ret.csharpCode = "{ " + newVal.typeName + " " + var.fieldName + " = " + newVal.fieldName + "; return  " + sub.csharpCode + ";}";
+		
+		ident--;
+		sprintln("Visit ExprLet expression: " + ret);
+		return ret;
 	}	
 
 	private void sprintln(Object s){

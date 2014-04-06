@@ -12,12 +12,14 @@ import edu.mit.csail.sdg.alloy4.SafeList;
 import edu.mit.csail.sdg.alloy4.ErrorFatal;
 import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Func;
 import edu.mit.csail.sdg.alloy4compiler.ast.Module;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.SubsetSig;
 import edu.mit.csail.sdg.alloy4compiler.generator.CodeGeneratorVisitor;
+import edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor.InvariantConstraint;
 import edu.mit.csail.sdg.alloy4compiler.generator.NodeInfo;
 
 public final class CodeGenerator {
@@ -75,7 +77,7 @@ public final class CodeGenerator {
 			
 			ArrayList<String> invariants = new ArrayList<String>();
 			for(Decl decl : decls){
-				System.out.println("\r\n Field Declaration: " + decl.names + " (" + decl.names.size() + " fields)");
+				System.out.println("\r\n Field Declaration: " + decl.names + " (" + decl.names.size() + " fields, mult=" + decl.expr.mult +")");
 				NodeInfo defAndInvariants = (NodeInfo)decl.expr.accept(v);
 				
 				String finalTypeName = defAndInvariants.typeName;
@@ -85,10 +87,37 @@ public final class CodeGenerator {
 					s.append("  public " + finalTypeName + " " + n.label + ";\r\n"); 
 					
 					StringBuilder invariantAggregated = new StringBuilder();
-					for(String inv : defAndInvariants.invariants){
-						if(inv.isEmpty()) continue;
+					for(InvariantDescriptor inv : defAndInvariants.invariants){
+						if(inv.invariant.isEmpty()) continue; // dont want empty invariants
 						
-						String finalInvariant = inv.replace("{def}", n.label);
+						// If invariant is only for sets, check that this is a set
+						if(inv.invariantConstraint.equals(InvariantConstraint.SET_ONLY)){
+							
+							if(false == (decl.expr.deNOP() instanceof ExprUnary))
+									continue; // cannot be set if not ExprUnary.op = SET/SOME
+							
+							ExprUnary unaryExpr =(ExprUnary )decl.expr.deNOP();
+							// If the unary op is not declaring a set or some, then this is not a set, go to the next invariant
+							if(false == (unaryExpr.op.equals(ExprUnary.Op.SOMEOF) ||	unaryExpr.op.equals(ExprUnary.Op.SETOF))){
+								continue;
+							}
+						}
+						
+						// If invariant is only when not a set, check that this is not a set
+						if(inv.invariantConstraint.equals(InvariantConstraint.NONSET_ONLY)){
+							
+							if(decl.expr.deNOP() instanceof ExprUnary){
+								
+								ExprUnary unaryExpr =(ExprUnary )decl.expr.deNOP();		
+								// If the unary op is declaring a set or some, go to the next invariant
+								if(unaryExpr.op.equals(ExprUnary.Op.SOMEOF) ||	unaryExpr.op.equals(ExprUnary.Op.SETOF)){
+									continue;
+								}
+								
+							}
+						}
+						
+						String finalInvariant = inv.invariant.replace("{def}", n.label);
 						System.out.print("  Transforming '" + inv + "' to '" + finalInvariant + "'\r\n");
 						
 						String before = "";
@@ -155,8 +184,8 @@ public final class CodeGenerator {
 				  out.print(d.typeName + " " + name.label);
 				  first = false;
 
-				  for(String inv : d.invariants)
-					  requires.add(inv.replace("{def}", name.label));
+				  for(InvariantDescriptor inv : d.invariants)
+					  requires.add(inv.invariant.replace("{def}", name.label));
 			  }
 		  }
 		  out.print("){\r\n");
@@ -164,9 +193,9 @@ public final class CodeGenerator {
 		  for(String req : requires){
 			  out.print("    Contract.Requires(" + req + ");\r\n");
 		  }
-		  for(String ensure : returnType.invariants){
+		  for(InvariantDescriptor ensure : returnType.invariants){
 			  out.print("    Contract.Ensures(" + 
-					  ensure.replace("{def}", "Contract.Result<" + returnType.typeName + ">()")
+					  ensure.invariant.replace("{def}", "Contract.Result<" + returnType.typeName + ">()")
 					  + ");\r\n");
 		  }
 		  

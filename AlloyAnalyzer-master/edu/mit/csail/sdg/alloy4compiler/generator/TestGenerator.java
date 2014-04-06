@@ -21,6 +21,7 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.Module;
 import edu.mit.csail.sdg.alloy4compiler.ast.Command;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.Field;
+import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Solution;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4Tuple;
 import edu.mit.csail.sdg.alloy4compiler.translator.A4TupleSet;
@@ -50,67 +51,97 @@ public final class TestGenerator {
 			  	 +"using System.Diagnostics.Contracts;\r\n");
 	  out.println("public static class Test {");
 	  out.println("  public static void Main(string[] args) {");
+
 	  
-	  
-	  System.out.println(" * Producing environment..."); 
-	  Set<Pair<Sig,String>> abstractSigsWithSingl = new HashSet<Pair<Sig,String>>();
+	  System.out.println(" * Declaring environment..."); 
 	  for(Sig sig : sigs){
 		  if(sig.label.equals("univ") || sig.label.equals("Int")
 				  || sig.label.equals("seq/Int")
 				  || sig.label.equals("none")
-				  || sig.label.equals("String")){
+				  || sig.label.equals("String")
+				  || sig.isAbstract != null){
 			  continue;
 		  }
+		  String name = sig.label.substring(5);
+		  
+		  A4TupleSet tuples = solution.eval(sig);
+		  int i = 0;
+		  for(A4Tuple _ : tuples){
+			  System.out.println("Declaring...");
+			  String instanceName = (name + i++);
+			  out.println("    " + name + " " + instanceName + ";");
+		  }
+	  }
+
+	  
+	  HashSet<String> instantiatedSets = new HashSet<String>();
+	  HashSet<String> instantiatedVariables = new HashSet<String>();
+	  
+	  System.out.println(" * Instantiating environment..."); 
+	  for(Sig sig : sigs){
+		  if(sig.label.equals("univ") || sig.label.equals("Int")
+				  || sig.label.equals("seq/Int")
+				  || sig.label.equals("none")
+				  || sig.label.equals("String")
+				  || sig.isAbstract != null){
+			  continue;
+		  }
+		  PrimSig primSig = (PrimSig)sig;
 		  
 		  String name = sig.label.substring(5);
 		  String setName = name + "Set";
 		  System.out.println(" A4Tuple For sig " + name);
+
 		  out.println("    " + "var " + setName + " = new HashSet<" + name + ">();");
 		  
-		  boolean isChildOfAbst = false;
-		  for(Pair<Sig,String> p : abstractSigsWithSingl){
-			  if(sig.isSameOrDescendentOf(p.a)){
-				  isChildOfAbst = true;
-				  name = p.b;
-				  break;
+		  instantiatedSets.add(setName);
+		  
+		  A4TupleSet tuples = solution.eval(sig);
+		  int i = 0;
+		  for(A4Tuple _ : tuples){
+			  System.out.println("Instantiating...");
+			  String instanceName = (name + i++);
+			  if(!instantiatedVariables.contains(instanceName)){
+				  if(sig.isOne != null){
+					  out.println("    " + instanceName + " = " + name + ".Instance;");
+				  }else{
+					  out.println("    " + instanceName + " = new " + name + "();");
+				  }
+				  instantiatedVariables.add(instanceName);
+			  }
+			  
+			  out.println("    " + setName + ".Add(" + instanceName + ");");
+			  
+			  PrimSig parent = primSig.parent;
+			  while(parent != null && !parent.label.equals("univ")){
+				  System.out.println("Handling parent " + parent);
+				  String parentName = parent.label.substring(5);
+				  String parentSetName = parentName + "Set";
+				  if(!instantiatedSets.contains(parentSetName)){					  
+					  out.println("    " + "var " + parentSetName + " = new HashSet<" + parentName + ">();");
+					  instantiatedSets.add(parentSetName);
+				  }
+				  
+				  out.println("    " + parentSetName + ".Add(" + instanceName + ");");
+				  parent = parent.parent;
 			  }
 		  }
 		  
-		  if(sig.isAbstract != null){
-			  boolean foundSingleton = false;
-			  for(Sig s : sigs){
-				  if(s.isOne != null && s.isSameOrDescendentOf(sig)){
-					  name = s.label.substring(5);
-					  foundSingleton = true;
-					  abstractSigsWithSingl.add(new Pair(sig,name));
-					  break;
-				  }
-			  }
-			  if(foundSingleton){
-				  out.println("    " + name + " " + name + "0;");
-				  out.println("    " + setName + ".Add(" + name + "0 = " + name + ".Instance);");
-			  }
-		  } else if(isChildOfAbst) {
-			  out.println("    " + setName + ".Add(" + name + "0);");
-		  } else {	  
-			  A4TupleSet tuples = solution.eval(sig);
-			  int i = 0;
-			  for(A4Tuple _ : tuples){
-				  String instanceName = (name + i++);
-				  out.println("    " + name + " " + instanceName + ";");
-				  if(sig.isOne != null){
-					  out.println("    " + setName + ".Add(" + instanceName + " = " + name + ".Instance);");
-				  }else{
-					  out.println("    " + setName + ".Add(" + instanceName + " = new " + name + "());");
-				  }
-			  }
-		  }
 
 		  for(Field f : sig.getFields()){
 			  A4TupleSet fieldTuples = solution.eval(f);
 			  for(A4Tuple field : fieldTuples){
 				  String objName = ASTHelper.extractGeneratedInstanceName(field.atom(0));
 				  String refName = ASTHelper.extractGeneratedInstanceName(field.atom(1));
+				  String typeName = field.atom(1).substring(0,field.atom(1).indexOf("$"));
+				  if(!instantiatedVariables.contains(refName)){
+					  if(sig.isOne != null){
+						  out.println("    " + refName + " = " + typeName + ".Instance;");
+					  }else{
+						  out.println("    " + refName + " = new " + typeName + "();");
+					  }
+					  instantiatedVariables.add(refName);
+				  }
 				  
 				  out.println("    " + objName + "." + f.label + " = " + refName + ";");
 			  }

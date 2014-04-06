@@ -1,8 +1,9 @@
 /*  ceilings and floors */
 
 sig Platform {}
-sig Man {
+sig Man extends Person {
   ceiling, floor: one Platform,
+  wifes: one Woman,
   between: floor -> ceiling
 }
 
@@ -20,7 +21,6 @@ sig Date {}
 fun Closure[date: Date -> Date]: Date -> Date {^date}
 
 /* genealogy */
-
-abstract sig Person {}
+abstract sig Person  {}
 sig Woman extends Person {}
-one sig Eve extends Woman {}
+sig Eve extends Woman {}

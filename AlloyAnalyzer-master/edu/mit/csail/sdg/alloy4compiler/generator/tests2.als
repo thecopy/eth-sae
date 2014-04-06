@@ -1,10 +1,11 @@
-sig A {}
-sig B {}
-sig D {
-	x: set A,
-    E: x+x
+sig B{}
+sig A{
+  field: B
 }
 
-pred checker[s:D] {
-	#s.x > 1 && #s.E > 2
+assert foo {
+  not
+    // always holds, if you remove "not", no instance can be found.
+    all a:A | let b = a+a | #(b.field) != 0
 }
+check foo for 3

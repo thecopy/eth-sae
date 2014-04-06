@@ -8,8 +8,70 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary.Op;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 import edu.mit.csail.sdg.alloy4compiler.ast.VisitQuery;
+import edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor.InvariantConstraint;
 
 public class ASTHelper {
+	public static NodeInfoTest handleSimpleBinaryOperator(ExprBinary x, NodeInfoTest ret, NodeInfoTest left, NodeInfoTest right){
+		String operator = "???";
+		ret.typeName = "bool";
+		
+		switch (x.op) {
+		case NOT_LTE:
+		case GT:
+			operator = ">";
+			break;
+		case NOT_GTE:
+		case LT:
+			operator = "<";
+			break;
+		case NOT_LT:
+		case GTE:
+			operator = ">=";
+			break;
+		case NOT_GT:
+		case LTE:
+			operator = "<=";
+			break;
+		case MUL:
+			operator = "*";
+			ret.typeName = "int";
+			break;
+		case AND:
+			operator = "&&";
+			break;
+		case DIV:
+			operator = "/";
+			ret.typeName = "int";
+			break;
+		case NOT_EQUALS:
+			operator = "!=";
+			break;
+		case OR:
+			operator = "||";
+			break;
+		case REM:
+			operator = "%";
+			ret.typeName = "int";
+			break;
+		}
+		
+
+		StringBuilder s = new StringBuilder();
+		s.append("(");
+		s.append(left.fieldName);
+		s.append(") ");
+		s.append(operator);
+		s.append(" (");
+		s.append(right.fieldName);
+		s.append(")");
+		
+		ret.csharpCode = s.toString();
+		ret.invariants.addAll(left.invariants);
+		ret.invariants.addAll(right.invariants);
+		
+		return ret;
+	}
+	
 	public static NodeInfo handleSimpleBinaryOperator(ExprBinary x, NodeInfo ret, NodeInfo left, NodeInfo right){
 		String operator = "???";
 		ret.typeName = "bool";
@@ -70,45 +132,39 @@ public class ASTHelper {
 		
 		return ret;
 	}
+	
 	public static NodeInfo generateInvariantsForSetOperation(ExprBinary x, NodeInfo ret, NodeInfo left, NodeInfo right){
-		ret.types = left.getTypes();
-		for(String type : right.getTypes()){
-			if(!ret.types.contains(type)){
-				ret.types.add(type);
-			}
-		}
 		StringBuilder typeCheckBuilder = new StringBuilder();
 		
 		for(String type : ret.getTypes())
 			typeCheckBuilder.append(" || {def} is " + type);
 
-		if(x.left.deNOP() instanceof Sig){ // If this is the case, assume that multiplicity is one
-			ret.invariants.add("(" + typeCheckBuilder.toString().substring(4) + ")");
-		}else{	
-			ret.invariants.add("Contract.ForAll({def}, e => " + typeCheckBuilder.toString().substring(4).replace("{def}", "e") + ")");
-			
-			if(!left.fieldName.isEmpty() && !right.fieldName.isEmpty()){
-				switch(x.op){
-				case PLUS:
-					ret.invariants.add("Contract.ForAll({def}, e => " + left.fieldName + ".Contains(e) || " + right.fieldName + ".Contains(e))");					
-					ret.invariants.add("Contract.ForAll(" + left.fieldName + ", e => {def}.Contains(e))");
-					ret.invariants.add("Contract.ForAll(" + right.fieldName + ", e => {def}.Contains(e))");
-					ret.fieldName = left.fieldName + ".Union<" + ret.typeName + ">(" + right.fieldName + ")";
-					break;
-				case MINUS:
-					ret.invariants.add("Contract.ForAll({def}, e => " + left.fieldName + ".Contains(e) && " + right.fieldName + ".Contains(e) == false)");
-					ret.fieldName = left.fieldName + ".Except<" + ret.typeName + ">(" + right.fieldName + ")";
-					break;
-				case INTERSECT:
-					ret.fieldName = left.fieldName + ".Intersect<" + ret.typeName + ">(" + right.fieldName + ")";					
-					ret.invariants.add("Contract.ForAll({def}, e => " + left.fieldName + ".Contains(e) && "	+ right.fieldName + ".Contains(e))");
-					ret.invariants.add("Contract.ForAll({def}, e => e is " + left.typeName + " && e is " + right.typeName + ") ");
-					break;
-				default:
-					System.out.println("Errornous OP type in generateInvariantsForSetOperation: " + x.op);
-					break;
-				}
+		ret.addInvariant("(" + typeCheckBuilder.toString().substring(4) + ")", InvariantConstraint.NONSET_ONLY);
+		ret.addInvariant("Contract.ForAll({def}, e => " + typeCheckBuilder.toString().substring(4).replace("{def}", "e") + ")", InvariantConstraint.SET_ONLY);
+
+		if(!left.fieldName.isEmpty() && !right.fieldName.isEmpty()){
+			switch(x.op){
+			case PLUS:
+				ret.addInvariant("Contract.ForAll({def}, e => " + left.fieldName + ".Contains(e) || " + right.fieldName + ".Contains(e))", InvariantConstraint.SET_ONLY);					
+				ret.addInvariant("Contract.ForAll(" + left.fieldName + ", e => {def}.Contains(e))", InvariantConstraint.SET_ONLY);
+				ret.addInvariant("Contract.ForAll(" + right.fieldName + ", e => {def}.Contains(e))", InvariantConstraint.SET_ONLY);
+				ret.fieldName = left.fieldName + ".Union<" + ret.typeName + ">(" + right.fieldName + ")";
+				break;
+			case MINUS:
+				ret.addInvariant("Contract.ForAll({def}, e => " + left.fieldName + ".Contains(e) && " + right.fieldName + ".Contains(e) == false)", InvariantConstraint.SET_ONLY);
+				ret.fieldName = left.fieldName + ".Except<" + ret.typeName + ">(" + right.fieldName + ")";
+				break;
+			case INTERSECT:
+				ret.fieldName = left.fieldName + ".Intersect<" + ret.typeName + ">(" + right.fieldName + ")";					
+				ret.addInvariant("Contract.ForAll({def}, e => " + left.fieldName + ".Contains(e) && "	+ right.fieldName + ".Contains(e))", InvariantConstraint.SET_ONLY);
+				ret.addInvariant("Contract.ForAll(" + left.fieldName + ", e => " + right.fieldName + ".Contains(e))", InvariantConstraint.SET_ONLY);
+				ret.addInvariant("Contract.ForAll(" + right.fieldName + ", e => " + left.fieldName + ".Contains(e))", InvariantConstraint.SET_ONLY);
+				break;
+			default:
+				System.out.println("Errornous OP type in generateInvariantsForSetOperation: " + x.op);
+				break;
 			}
+
 		}
 		
 		return ret;
