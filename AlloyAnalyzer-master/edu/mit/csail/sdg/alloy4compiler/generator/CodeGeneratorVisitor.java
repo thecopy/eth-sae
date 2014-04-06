@@ -75,36 +75,50 @@ public class CodeGeneratorVisitor extends VisitQuery<NodeInfo> {
 		return new NodeInfo("??? /* ExprBad */");
 	}
 	
+	// We do not have to support: IDEN, NEXT, EMPTYNESS 
 	@Override
 	public NodeInfo visit(ExprConstant x) throws Err {
+	
 		ident++;
-		sprintln("Visit constant expression of type " + x.type());
+		sprintln("Visit constant expression with OP " + x.op + " and type " + x.type());
 		NodeInfo ret = new NodeInfo();
 		ret.typeName = "?";
-		if(x.type().is_int() || x.type().is_small_int()){
-			ret.typeName = "int";
-			ret.fieldName = Integer.toString(x.num);
-			ret.csharpCode = Integer.toString(x.num);
-		}else if(x.type().toString().equals("{PrimitiveBoolean}")){
-			ret.typeName = "bool";
-		}else if(x.type().equals(ExprConstant.Op.FALSE)){
-			ret.typeName = "false";
-		}else if(x.type().equals(ExprConstant.Op.TRUE)){
-			ret.typeName = "true";
-		}else if(x.type().equals(ExprConstant.Op.STRING)){
-			ret.typeName = "string";
-		}else if(x.type().equals(ExprConstant.Op.EMPTYNESS)){
-
-		}else if(x.type().equals(ExprConstant.Op.NEXT)){
-
-		}else if(x.type().equals(ExprConstant.Op.MAX)){
-
-		}else if(x.type().equals(ExprConstant.Op.MIN)){
-
-		}else{
-			sprintln("! ECONSTTYPE: " + x.type());
+		
+		switch(x.op){
+			case NUMBER:
+				ret.typeName = "int";
+				ret.fieldName = Integer.toString(x.num);	
+				ret.csharpCode = ret.fieldName;
+				break;
+			case FALSE:
+				ret.typeName = "bool";
+				ret.fieldName = "false";
+				ret.csharpCode = ret.fieldName;
+				break;
+			case TRUE:
+				ret.typeName = "bool";
+				ret.fieldName = "true";
+				ret.csharpCode = ret.fieldName;
+				break;
+			case MAX:
+				ret.typeName = "int";
+				ret.fieldName = "Int32.MaxValue";
+				ret.csharpCode = ret.fieldName;
+				break;
+			case MIN:
+				ret.typeName = "int";
+				ret.fieldName = "Int32.MinValue";
+				ret.csharpCode = ret.fieldName;
+				break;
+			case STRING:
+				ret.typeName = "string";
+				ret.fieldName = x.string;
+				ret.csharpCode = ret.fieldName;
+				break;
+			default:
+				sprintln("! ECONSTTYPE: " + x.type());
+				break;
 		}
-
 		ident--;
 		return ret;
 	}
@@ -472,27 +486,41 @@ public class CodeGeneratorVisitor extends VisitQuery<NodeInfo> {
 	public NodeInfo visit(ExprITE x) throws Err {
 		sprintln("Visit IF-ELSE expression");
 		
-		sprintln("  if (");
+		NodeInfo ret = new NodeInfo();
+		NodeInfo cond = x.cond.accept(this);
+		NodeInfo left = x.left.accept(this);
+		NodeInfo right = x.right.accept(this);
 		
-			x.cond.accept(this);
+		StringBuilder s = new StringBuilder();
 		
-		sprintln("){");
 		
-			x.left.accept(this);
+		s.append("(");		
+		s.append(cond.csharpCode);		
+		s.append(") \r\n  ? (");		
+		s.append(left.csharpCode);		
+		s.append(")\r\n  : (");		
+		s.append(right.csharpCode);		
+		s.append(");\r\n");
 		
-		sprintln("  }else{");
+		ret.typeName = ASTHelper.findFirstCommonClass(left.sig, right.sig).typeName;
 		
-			x.right.accept(this);
-		
-		sprintln("  }");
-		
-		return new NodeInfo("??? /* ExprITE */");
+		ret.csharpCode = s.toString();
+		ret.fieldName = s.toString();
+		return ret;
 	}
 	
+	// let x = e | A  =	A with every occurrence of x replaced by expression e
 	@Override
 	public NodeInfo visit(ExprLet x) throws Err {
-		sprintln("Visit let expression");
-		sprintln("  TO DO: 'Let' Expressions");
+		ident++;
+		
+		NodeInfo ret = new NodeInfo();
+		
+		NodeInfo sub = x.sub.accept(this);
+		NodeInfo var = x.var.accept(this);
+		NodeInfo newVal = x.expr.accept(this);
+				
+		ident--;
 		return new NodeInfo("??? /* ExprLet */");
 	}	
 	

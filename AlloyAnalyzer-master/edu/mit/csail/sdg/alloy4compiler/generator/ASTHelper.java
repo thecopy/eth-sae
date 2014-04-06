@@ -62,7 +62,7 @@ public class ASTHelper {
 		s.append(operator);
 		s.append(" (");
 		s.append(right.fieldName);
-		s.append("))");
+		s.append(")");
 		
 		ret.csharpCode = s.toString();
 		ret.invariants.addAll(left.invariants);
