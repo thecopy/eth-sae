@@ -429,20 +429,35 @@ public class CodeGeneratorVisitor extends VisitQuery<NodeInfo> {
 				ret.invariants.addAll(left.invariants);
 				ret.invariants.addAll(right.invariants);
 				break;
+				
+			case NOT_LTE:
 			case GT:
+			case NOT_GTE:
+			case LT:
+			case NOT_LT:
+			case GTE:
+			case NOT_GT:
+			case LTE:
+			case MUL:
+			case AND:
+			case DIV:
+			case NOT_EQUALS:
+			case OR:
+			case REM:
 				left = x.left.accept(this);
 				right = x.right.accept(this);
-				
-				s.append("(");
-				s.append(left.fieldName);
-				s.append(") > (");
-				s.append(right.fieldName);
-				s.append("))");
-				
-				ret.typeName = "bool";
-				ret.csharpCode = s.toString();
-				ret.invariants.addAll(left.invariants);
-				ret.invariants.addAll(right.invariants);
+				ret = ASTHelper.handleSimpleBinaryOperator(x, ret, left, right);
+				break;
+			case IMPLIES:
+				break;
+			// These we do not have to support
+			case ISSEQ_ARROW_LONE:
+			case DOMAIN:
+			case RANGE:
+			case PLUSPLUS:
+			case SHL:
+			case SHA:
+			case SHR:
 			default:
 				ret.typeName = "Object /*ExprBinary Unkown Operator Type: \"" + x.op + "\" (" + x.op.name() + ")*/";
 				break;
@@ -483,17 +498,36 @@ public class CodeGeneratorVisitor extends VisitQuery<NodeInfo> {
 	
 	@Override
 	public NodeInfo visit(ExprList x) throws Err {
-		sprintln("Visit List expression.");
+		// stolen from TestGeneratorVisitor
+		ident++;
+		sprintln("Visit ExprList expression: " + x.toString());
+		NodeInfo ret = new NodeInfo();
 		
+		NodeInfo[] argNodes = new NodeInfo[x.args.size()];
+		for(int i = 0; i < x.args.size(); i++){
+			sprintln("Going into arg in ExprList...");
+			Expr arg = x.args.get(i);
+			argNodes[i] = arg.accept(this);
+		}
+		String combiner = "/* ??? */";
 		switch(x.op){
-			default:
-				sprintln("!EOP:ExprList:" + x.op + "!");
+			case AND:
+				combiner = "&&";
 				break;
+			case OR:
+				combiner = "||";
+				break;
+			default:
+				sprintln("Unsupported ExprList.OP: " + x.op);
 		}
 		
-		sprintln(x.args.toString());
-		
-		return new NodeInfo("??? /* ExprList */");
+		for(NodeInfo argNode : argNodes){
+			ret.csharpCode += " " + combiner + " " + argNode.csharpCode;
+		}
+		ret.csharpCode = ret.csharpCode.substring(4);
+		sprintln("ExprList returning " + ret);
+		ident--;
+		return ret;
 	}
 	
 	@Override

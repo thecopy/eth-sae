@@ -154,7 +154,7 @@ public class TestGeneratorVisitor extends VisitQuery<NodeInfoTest> {
 		}
 		
 		for(NodeInfoTest argNode : argNodes){
-			ret.csharpCode = " " + combiner + " " + argNode.csharpCode;
+			ret.csharpCode += " " + combiner + " " + argNode.csharpCode;
 		}
 		ret.csharpCode = ret.csharpCode.substring(4);
 		sprintln("ExprList returning " + ret);

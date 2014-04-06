@@ -10,6 +10,66 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 import edu.mit.csail.sdg.alloy4compiler.ast.VisitQuery;
 
 public class ASTHelper {
+	public static NodeInfo handleSimpleBinaryOperator(ExprBinary x, NodeInfo ret, NodeInfo left, NodeInfo right){
+		String operator = "???";
+		ret.typeName = "bool";
+		
+		switch (x.op) {
+		case NOT_LTE:
+		case GT:
+			operator = ">";
+			break;
+		case NOT_GTE:
+		case LT:
+			operator = "<";
+			break;
+		case NOT_LT:
+		case GTE:
+			operator = ">=";
+			break;
+		case NOT_GT:
+		case LTE:
+			operator = "<=";
+			break;
+		case MUL:
+			operator = "*";
+			ret.typeName = "int";
+			break;
+		case AND:
+			operator = "&&";
+			break;
+		case DIV:
+			operator = "/";
+			ret.typeName = "int";
+			break;
+		case NOT_EQUALS:
+			operator = "!=";
+			break;
+		case OR:
+			operator = "||";
+			break;
+		case REM:
+			operator = "%";
+			ret.typeName = "int";
+			break;
+		}
+		
+
+		StringBuilder s = new StringBuilder();
+		s.append("(");
+		s.append(left.fieldName);
+		s.append(") ");
+		s.append(operator);
+		s.append(" (");
+		s.append(right.fieldName);
+		s.append("))");
+		
+		ret.csharpCode = s.toString();
+		ret.invariants.addAll(left.invariants);
+		ret.invariants.addAll(right.invariants);
+		
+		return ret;
+	}
 	public static NodeInfo generateInvariantsForSetOperation(ExprBinary x, NodeInfo ret, NodeInfo left, NodeInfo right){
 		ret.types = left.getTypes();
 		for(String type : right.getTypes()){

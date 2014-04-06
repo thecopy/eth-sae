@@ -6,5 +6,5 @@ sig D {
 }
 
 pred checker[s:D] {
-	#s.x > 2
+	#s.x > 1 && #s.E > 2
 }
