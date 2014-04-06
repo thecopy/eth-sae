@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4.SafeList;
@@ -14,6 +15,8 @@ import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Func;
 import edu.mit.csail.sdg.alloy4compiler.ast.Module;
+import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
+import edu.mit.csail.sdg.alloy4compiler.ast.Sig.SubsetSig;
 import edu.mit.csail.sdg.alloy4compiler.generator.CodeGeneratorVisitor;
 import edu.mit.csail.sdg.alloy4compiler.generator.NodeInfo;
 
@@ -47,7 +50,89 @@ public final class CodeGenerator {
 			  continue; // these are hard coded sigs. We dont care about those
 		  }
 		  
-		  out.print(sig.accept(v).typeName);
+		  String name = sig.label.substring(5);
+			String parentName = null;
+			
+			if(sig instanceof PrimSig){
+				PrimSig parent = ((PrimSig)sig).parent;
+				if(parent != null && !parent.builtin){
+					parentName = parent.label.substring(5);
+					if(parentName.equals("Object"))
+						System.out.println("***** TODO: Change so type name cannot be 'Object'");
+				}
+			}
+			
+			StringBuilder s = new StringBuilder();
+			
+			s.append(((sig.isAbstract != null) ? "abstract " : "")
+					+ "public"
+					+ (" class " + name)
+					+ ((parentName != null) ? (" : " + parentName) : "")
+					+ " {\r\n");
+			
+			SafeList<Decl> decls = sig.getFieldDecls();
+			System.out.println("* Visit Sig: " + sig.label + " (" + decls.size() + " field declarations)");
+			
+			ArrayList<String> invariants = new ArrayList<String>();
+			for(Decl decl : decls){
+				System.out.println("\r\n Field Declaration: " + decl.names + " (" + decl.names.size() + " fields)");
+				NodeInfo defAndInvariants = (NodeInfo)decl.expr.accept(v);
+				
+				String finalTypeName = defAndInvariants.typeName;
+				
+				for(ExprHasName n : decl.names){
+					
+					s.append("  public " + finalTypeName + " " + n.label + ";\r\n"); 
+					
+					StringBuilder invariantAggregated = new StringBuilder();
+					for(String inv : defAndInvariants.invariants){
+						if(inv.isEmpty()) continue;
+						
+						String finalInvariant = inv.replace("{def}", n.label);
+						System.out.print("  Transforming '" + inv + "' to '" + finalInvariant + "'\r\n");
+						
+						String before = "";
+						if(invariantAggregated.length() != 0)
+							before = " && ";
+						
+						invariants.add(finalInvariant);
+						
+						invariantAggregated.append(before + finalInvariant);
+					}
+					
+					//invariants.add(invariantAggregated.toString());
+				}
+			}
+
+			if(invariants.size() > 0){
+				System.out.println("  Printing Invariants");
+				s.append("\r\n");
+				s.append("  [ContractInvariantMethod]\r\n");
+				s.append("  private void ObjectInvariant() {\r\n");
+				for(String inv : new HashSet<String>(invariants)){
+					if(false == inv.isEmpty())
+					s.append("    Contract.Invariant(" + inv + ");\r\n");
+				}
+				s.append("  }\r\n");
+			}
+			invariants.clear();
+			
+			// Singleton
+			if(sig.isOne != null || sig.isLone != null){
+				s.append("  private static " + name + " instance;\r\n");
+				s.append("  private " + name + "() {}\r\n");
+				s.append("  public static " + name + " Instance {\r\n");
+				s.append("    get{\r\n");
+				s.append("      if(instance == null) instance = new " + name + "();\r\n");
+				s.append("      return instance;\r\n");
+				s.append("    }\r\n");
+				s.append("  }\r\n");
+			}
+			
+			
+			s.append("}\r\n\r\n");
+			System.out.println("* Sig visit completed!");
+			out.print(s.toString());
 	  }
 	  
 	  System.out.println("  * Handling Functions");
@@ -88,8 +173,11 @@ public final class CodeGenerator {
 		  System.out.println("  *** Resolving function body...");
 		  NodeInfo body = func.getBody().accept(v);
 		  out.print("\r\n");
-		  out.print("    return " + body.csharpCode + ";");
-		  
+		  if(body.csharpCode == null || body.csharpCode.isEmpty()){
+			  out.print("    return " + body.fieldName + ";");
+		  }else{
+			  out.print("    return " + body.csharpCode + ";");
+		  }
 		  out.print("\r\n  }\r\n");
 	  }
 	  out.print("}\r\n");

@@ -59,7 +59,7 @@ public final class CSharpGeneratorTests {
     boolean saveInDist = false;
     
     // specify the number of tests here
-    for (int i = 0; i < 1; i++) {
+    for (int i = 0; i < 3; i++) {
       try {
         System.out.println("------- test" + i + " -------");
         String f = filename + i + alloyExt;
@@ -70,7 +70,6 @@ public final class CSharpGeneratorTests {
         CompModule world = world = CompUtil.parseEverything_fromFile(A4Reporter.NOP, null, f);
 
         // generate C# code
-        
         CodeGenerator.writeCode(world, f, contracts[i], saveInDist);
 
         // read code files to strings

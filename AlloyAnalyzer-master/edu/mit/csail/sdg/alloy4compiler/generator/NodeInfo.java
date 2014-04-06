@@ -1,6 +1,7 @@
 package edu.mit.csail.sdg.alloy4compiler.generator;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 
@@ -11,6 +12,14 @@ public class NodeInfo {
 	}
 	
 	public String typeName = "";
+	public HashSet<String> types = new HashSet<String>();
+	public HashSet<String> getTypes() {
+		if(types.size() == 0)
+			types.add(typeName);
+		
+		return types;
+	}
+	
 	public ArrayList<String> invariants = new ArrayList<String>();
 	public String fieldName = "";
 	public String csharpCode = "";

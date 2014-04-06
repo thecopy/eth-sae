@@ -11,6 +11,7 @@ public static class Test {
     var PlatformSet = new HashSet<Platform>();
     Platform Platform0;
     PlatformSet.Add(Platform0 = new Platform());
+
     var ManSet = new HashSet<Man>();
     Man Man0;
     ManSet.Add(Man0 = new Man());
@@ -20,8 +21,11 @@ public static class Test {
     Man1.ceiling = Platform0;
     Man0.floor = Platform0;
     Man1.floor = Platform0;
+
     var DateSet = new HashSet<Date>();
+
     var PersonSet = new HashSet<Person>();
+    
     Eve Eve0;
     PersonSet.Add(Eve0 = Eve.Instance);
     var WomanSet = new HashSet<Woman>();

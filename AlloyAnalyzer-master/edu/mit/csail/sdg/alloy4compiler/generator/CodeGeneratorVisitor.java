@@ -51,95 +51,21 @@ public class CodeGeneratorVisitor extends VisitQuery<NodeInfo> {
 	@Override
 	public NodeInfo visit(Sig x) throws Err{	
 		ident++;	
-		String name = x.label.substring(5);
-		String parentName = null;
 		
-		if(x instanceof PrimSig){
-			PrimSig parent = ((PrimSig)x).parent;
-			if(parent != null && !parent.builtin){
-				parentName = parent.label.substring(5);
-				if(parentName.equals("Object"))
-					sprintln("***** TODO: Change so type name cannot be 'Object'");
-			}
+		sprintln("Visit Sig: " + x.label);
+		String finalLabel = x.label;
+		if(x.label.startsWith("this/")){
+			finalLabel = x.label.substring(5);
+		} else if (x.label.equals("Int")){
+			finalLabel = "int";
+		}else{
+			finalLabel = x.label;
 		}
+		NodeInfo ret = new NodeInfo(finalLabel);
+		ret.sig = (PrimSig)x;
 		
-		StringBuilder s = new StringBuilder();
-		
-		s.append(((x.isAbstract != null) ? "abstract " : "")
-				+ "public"
-				+ (" class " + name)
-				+ ((parentName != null) ? (" : " + parentName) : "")
-				+ " {\r\n");
-		
-		SafeList<Decl> decls = x.getFieldDecls();
-		System.out.println("* Visit Sig: " + x.label + " (" + decls.size() + " field declarations)");
-		System.out.println("* Sig is PrimSig = " + (x instanceof PrimSig)
-				+ ". Sig is SubSetSig: " + (x instanceof SubsetSig));
-		
-		ArrayList<String> invariants = new ArrayList<String>();
-		for(Decl decl : decls){
-			System.out.println("\r\n Field Declaration: " + decl.names + " (" + decl.names.size() + " fields)");
-			NodeInfo defAndInvariants = (NodeInfo)decl.expr.accept(this);
-			
-			String finalTypeName = defAndInvariants.typeName;
-			
-			for(ExprHasName n : decl.names){
-				
-				s.append("  public " + finalTypeName + " " + n.label + ";\r\n"); 
-				
-				StringBuilder invariantAggregated = new StringBuilder();
-				for(String inv : defAndInvariants.invariants){
-					if(inv.isEmpty()) continue;
-					
-					String finalInvariant = inv.replace("{def}", n.label);
-					System.out.print("  Transforming '" + inv + "' to '" + finalInvariant + "'\r\n");
-					
-					String before = "";
-					if(invariantAggregated.length() != 0)
-						before = " && ";
-					
-					invariantAggregated.append(before + finalInvariant);
-				}
-				
-				invariants.add(invariantAggregated.toString());
-			}
-		}
-
-		if(invariants.size() > 0){
-			System.out.println("  Printing Invariants");
-			s.append("\r\n");
-			s.append("  [ContractInvariantMethod]\r\n");
-			s.append("  private void ObjectInvariant() {\r\n");
-			for(String inv : invariants){
-				if(false == inv.isEmpty())
-				s.append("    Contract.Invariant(" + inv + ");\r\n");
-			}
-			s.append("  }\r\n");
-		}
-		invariants.clear();
-		
-		// Singleton
-		if(x.isOne != null || x.isLone != null){
-			s.append("  private static " + name + " instance;\r\n");
-			s.append("  private " + name + "() {}\r\n");
-			s.append("  public static " + name + " Instance {\r\n");
-			ident++;
-				s.append("    get{\r\n");
-				ident++;
-					s.append("      if(instance == null) instance = new " + name + "();\r\n");
-					s.append("      return instance;\r\n");
-				ident--;
-				s.append("    }\r\n");
-			ident--;
-			s.append("  }\r\n");
-		}
-		
-		
-		s.append("}\r\n\r\n");
-		System.out.println("* Sig visit completed!");
-
 		ident--;
-		return new NodeInfo(s.toString());
+		return ret;
 	}
 	
 	@Override
@@ -149,33 +75,50 @@ public class CodeGeneratorVisitor extends VisitQuery<NodeInfo> {
 		return new NodeInfo("??? /* ExprBad */");
 	}
 	
+	// We do not have to support: IDEN, NEXT, EMPTYNESS 
 	@Override
 	public NodeInfo visit(ExprConstant x) throws Err {
+	
 		ident++;
-		sprintln("Visit constant expression of type " + x.type());
+		sprintln("Visit constant expression with OP " + x.op + " and type " + x.type());
 		NodeInfo ret = new NodeInfo();
 		ret.typeName = "?";
-		if(x.type().equals(ExprConstant.Op.NUMBER)){
-		}else if(x.type().toString().equals("{PrimitiveBoolean}")){
-			ret.typeName = "bool";
-		}else if(x.type().equals(ExprConstant.Op.FALSE)){
-			ret.typeName = "false";
-		}else if(x.type().equals(ExprConstant.Op.TRUE)){
-			ret.typeName = "true";
-		}else if(x.type().equals(ExprConstant.Op.STRING)){
-			ret.typeName = "string";
-		}else if(x.type().equals(ExprConstant.Op.EMPTYNESS)){
-
-		}else if(x.type().equals(ExprConstant.Op.NEXT)){
-
-		}else if(x.type().equals(ExprConstant.Op.MAX)){
-
-		}else if(x.type().equals(ExprConstant.Op.MIN)){
-
-		}else{
-			sprintln("! ECONSTTYPE: " + x.type());
+		
+		switch(x.op){
+			case NUMBER:
+				ret.typeName = "int";
+				ret.fieldName = Integer.toString(x.num);	
+				ret.csharpCode = ret.fieldName;
+				break;
+			case FALSE:
+				ret.typeName = "bool";
+				ret.fieldName = "false";
+				ret.csharpCode = ret.fieldName;
+				break;
+			case TRUE:
+				ret.typeName = "bool";
+				ret.fieldName = "true";
+				ret.csharpCode = ret.fieldName;
+				break;
+			case MAX:
+				ret.typeName = "int";
+				ret.fieldName = "Int32.MaxValue";
+				ret.csharpCode = ret.fieldName;
+				break;
+			case MIN:
+				ret.typeName = "int";
+				ret.fieldName = "Int32.MinValue";
+				ret.csharpCode = ret.fieldName;
+				break;
+			case STRING:
+				ret.typeName = "string";
+				ret.fieldName = x.string;
+				ret.csharpCode = ret.fieldName;
+				break;
+			default:
+				sprintln("! ECONSTTYPE: " + x.type());
+				break;
 		}
-
 		ident--;
 		return ret;
 	}
@@ -197,15 +140,13 @@ public class CodeGeneratorVisitor extends VisitQuery<NodeInfo> {
 		Expr e = x.type().toExpr();
 		if(e instanceof ExprBinary){
 			ExprBinary bin = (ExprBinary)e;
-			sprintln("Binary Type have arity " + x.type().arity() + " and mult: " + bin.right.mult());
-			sprintln("Field mult= " + x.mult());
 			if(x.type().arity() == 2){
 				s.typeName = ((Sig)bin.right).label.substring(5);
 				s.sig = (PrimSig)bin.right;
 			}
 			else{ 
-				// Arity = 3 since we arent supposed to support higher
-				// So assume left is another binary with -> operator
+				// Arity = 3 since we aren't supposed to support higher
+				// Assume left is another binary with -> operator
 				ExprBinary binLeft = (ExprBinary)bin.left;
 				NodeInfo left = null;
 				NodeInfo right = null;
@@ -221,14 +162,11 @@ public class CodeGeneratorVisitor extends VisitQuery<NodeInfo> {
 					right = bin.right.accept(this); 		// x.left.right
 				}
 				
-				sprintln("!ERROR: Arity=3 Assumes mult() = SETOF. This is " + e.mult());
-
 				s.typeName = "ISet<Tuple<";
 				s.typeName += left.typeName;
 				s.typeName += ",";
 				s.typeName += right.typeName;
 				s.typeName += ">>";
-				s.fieldModifier = FieldModifier.Set;
 			}
 		}else{
 			s = new NodeInfo("Unknown Field Expression");
@@ -245,7 +183,6 @@ public class CodeGeneratorVisitor extends VisitQuery<NodeInfo> {
 	public NodeInfo visit(ExprUnary x) throws Err {
 		ident++;
 		sprintln("Visit unary expression ('" + x.toString() + "') with OP: '" + x.op + "' (" + x.op.name() + ") and sub: " + x.sub.toString() + ", type: " + x.type());
-		sprintln("x.mult() = " + x.mult());
 		NodeInfo ret = new NodeInfo();
 		NodeInfo t;
 		
@@ -259,21 +196,18 @@ public class CodeGeneratorVisitor extends VisitQuery<NodeInfo> {
 				ret.invariants.addAll(t.invariants);
 				ret.fieldName = t.fieldName;
 				break;
+			case SOMEOF:
+				ret.invariants.add("{def}.Count() > 0");
 			case SETOF:
 				t = (NodeInfo) x.sub.accept(this);
 				ret.typeName += "ISet<" + t.typeName + ">";
-				ret.fieldModifier = FieldModifier.Set;
 				ret.invariants.add("{def} != null");
+				ret.invariants.add("Contract.ForAll({def}, e => e != null)");
 				ret.invariants.addAll(t.invariants);
 				ret.fieldName = t.fieldName;
 				break;
 			case NOOP:
-				if(x.sub instanceof Sig){
-					ret.typeName = ((Sig)x.sub).label.substring(5); // No invariant can be extracted here
-					ret.sig = (PrimSig)x.sub;
-				}else{
-					ret = (NodeInfo) x.sub.accept(this);
-				}
+				ret = x.sub.accept(this);
 				break;
 			case CLOSURE:
 				t = x.sub.accept(this);
@@ -281,14 +215,47 @@ public class CodeGeneratorVisitor extends VisitQuery<NodeInfo> {
 				ret.fieldModifier = t.fieldModifier;
 				ret.csharpCode = "Helper.Closure(" + t.fieldName + ")";
 				break;
+			case RCLOSURE:
+				t = x.sub.accept(this);
+				ret.typeName = "Object";
+				ret.fieldModifier = t.fieldModifier;
+				ret.csharpCode = "Helper.RClosure(" + t.fieldName + ")";
+				break;
+			case CAST2INT:
+				ret = x.sub.accept(this);
+				ret.typeName = "int";
+				ret.csharpCode = "(int)" + ret.csharpCode;
+				ret.fieldName = "(int)" + ret.fieldName;
+				break;
+			case CARDINALITY:
+				t = x.sub.accept(this);
+				ret.typeName = "int";
+				ret.csharpCode = t.fieldName + ".Count()";
+				ret.fieldName = t.fieldName + ".Count()";
+				break;
+			case CAST2SIGINT: // no idea what this is
+				ret = x.sub.accept(this);
+				break;
+			case NOT:
+				t = x.sub.accept(this);
+				ret.csharpCode = "!(" + t.csharpCode + ")";
+				ret.fieldName = "!(" + t.csharpCode + ")";
+				ret.typeName = "bool";
+				break;
+			case TRANSPOSE: // hm?
+				ret = x.sub.accept(this); // i dont know
+				break;
+			// We do not have to support these
+			case EXACTLYOF:
+			case NO:
+			case SOME:
+			case LONE:
+			case ONE:
 			default:
 				ret.typeName = "??? /*ExprUnary. Unkown Operator Type: \"" + x.op + "\" (" + x.op.name() + ")*/";
 				break;
 		
 		}
-		
-		if(ret.fieldModifier == FieldModifier.Set)
-			ret.invariants.add("Contract.ForAll({def}, e => e != null)");
 		
 		sprintln("Unary Expression returning " + ret);
 
@@ -299,8 +266,7 @@ public class CodeGeneratorVisitor extends VisitQuery<NodeInfo> {
 	@Override
 	public NodeInfo visit(ExprBinary x) throws Err {
 		ident++;
-		sprintln("Visit binary expression (OP=" + x.op.name() + ", '" + x.op + "' ) [" + x + "].");
-		sprintln("x.mult() = " + x.mult() + ", x.mult = " + x.mult + ", x.type() = " + x.type());
+		sprintln("Visit binary expression (mult=" + x.mult + ", type=" + x.type() + ", type size=" + x.type().size() + ") (OP=" + x.op.name() + ", '" + x.op + "' ) [" + x + "].");
 		
 		StringBuilder s = new StringBuilder();
 		NodeInfo ret = new NodeInfo();
@@ -364,7 +330,7 @@ public class CodeGeneratorVisitor extends VisitQuery<NodeInfo> {
 				ret.invariants.addAll(left.invariants);
 				ret.invariants.addAll(right.invariants);
 				break;
-			case ONE_ARROW_ONE: // Set of Tuples whith one-to-one mapping
+			case ONE_ARROW_ONE: // Set of Tuples with one-to-one mapping
 				left = x.left.accept(this);
 				right = x.right.accept(this);
 				s.append("ISet<Tuple<");
@@ -397,29 +363,18 @@ public class CodeGeneratorVisitor extends VisitQuery<NodeInfo> {
 				String typeName = ASTHelper.findFirstCommonClass(left.sig, right.sig).typeName;
 				if(left.typeName.equals(right.typeName))
 					typeName = left.typeName;
-				
-				ret.typeName = typeName;
 
-				if(x.mult().equals(Op.SETOF)){
-					ret.typeName = "ISet<" + ret.typeName + ">";
+				ret.typeName = typeName;
+				ret.invariants.add("{def} != null");
 					
-					ret.invariants.add("Contract.ForAll({def}, e => e is " + left.typeName + " || e is " + right.typeName + ")");
-					if(!left.fieldName.isEmpty() && !right.fieldName.isEmpty()){
-						ret.invariants.add("Contract.ForAll({def}, e => "
-								+ left.fieldName + ".Contains(e) && "
-								+ right.fieldName + ".Contains(e)");
-						
-						if(x.left.mult().equals(Op.SETOF) && x.right.mult().equals(Op.SETOF)){
-							ret.fieldName = left.fieldName + ".Intersect<" + typeName + ">(" + right.fieldName + ")";
-						}
-					}
-				}else{
-					ret.invariants.add("({def} is " + left.typeName + " || {def} is " + right.typeName +")");
-					if(!left.fieldName.isEmpty() && !right.fieldName.isEmpty()){
-						ret.invariants.add("(" + left.fieldName + ".Equals(e) && " + right.fieldName + ".Equals(e))");
+				ret.types = left.getTypes();
+				for(String type : right.getTypes()){
+					if(!ret.types.contains(type)){
+						ret.types.add(type);
 					}
 				}
 				
+				ret = ASTHelper.generateInvariantsForSetOperation(x, ret, left, right);						
 				break;
 			case MINUS: // Set Difference, -
 				left = x.left.accept(this);
@@ -434,26 +389,10 @@ public class CodeGeneratorVisitor extends VisitQuery<NodeInfo> {
 
 				ret.typeName = typeName;
 				ret.invariants.add("{def} != null");
-
-				if(x.mult().equals(Op.SETOF)){
-					ret.typeName = "ISet<" + ret.typeName + ">";
-					
-					ret.invariants.add("Contract.ForAll({def}, e => e is " + left.typeName + ")");
-					if(!left.fieldName.isEmpty() && !right.fieldName.isEmpty()){
-						ret.invariants.add("Contract.ForAll({def}, e => "
-								+ left.fieldName + ".Contains(e)");
-						
-						if(x.left.mult().equals(Op.SETOF) && x.right.mult().equals(Op.SETOF)){
-							ret.fieldName = left.fieldName + ".Except<" + typeName + ">(" + right.fieldName + ")";
-						}
-					}
-				}else{
-					ret.invariants.add("({def} is " + left.typeName + ")");
-					if(!left.fieldName.isEmpty() && !right.fieldName.isEmpty()){
-						ret.invariants.add("(" + left.fieldName + ".Equals(e))");
-					}
-				}
 				
+				ret.types = left.getTypes();
+				
+				ret = ASTHelper.generateInvariantsForSetOperation(x, ret, left, right);
 				break;
 			case PLUS: // Union, +, or logical disjunction
 				left = x.left.accept(this);
@@ -467,25 +406,15 @@ public class CodeGeneratorVisitor extends VisitQuery<NodeInfo> {
 				ret.typeName = typeName;
 				ret.invariants.add("{def} != null");
 				
-				if(x.mult().equals(Op.SETOF)){
-					ret.typeName = "ISet<" + ret.typeName + ">";
-					
-					ret.invariants.add("Contract.ForAll({def}, e => e is " + left.typeName + " || e is " + right.typeName + ")");
-					if(!left.fieldName.isEmpty() && !right.fieldName.isEmpty()){
-						ret.invariants.add("Contract.ForAll({def}, e => "
-								+ left.fieldName + ".Contains(e) || "
-								+ right.fieldName + ".Contains(e)");
-						
-						if(x.left.mult().equals(Op.SETOF) && x.right.mult().equals(Op.SETOF)){
-							ret.fieldName = left.fieldName + ".Union<" + typeName + ">(" + right.fieldName + ")";
-						}
-					}
-				}else{
-					ret.invariants.add("({def} is " + left.typeName + " || {def} is " + right.typeName +")");
-					if(!left.fieldName.isEmpty() && !right.fieldName.isEmpty()){
-						ret.invariants.add("(" + left.fieldName + ".Equals(e) || " + right.fieldName + ".Equals(e))");
+				ret.types = left.getTypes();
+				for(String type : right.getTypes()){
+					if(!ret.types.contains(type)){
+						ret.types.add(type);
 					}
 				}
+				
+				ret = ASTHelper.generateInvariantsForSetOperation(x, ret, left, right);
+				
 				break;
 			case JOIN:
 				sprintln("Visiting left, type " + x.left.type() + "(" + x.left.getClass() + ")");
@@ -514,6 +443,35 @@ public class CodeGeneratorVisitor extends VisitQuery<NodeInfo> {
 				ret.invariants.addAll(left.invariants);
 				ret.invariants.addAll(right.invariants);
 				break;
+				
+			case NOT_LTE:
+			case GT:
+			case NOT_GTE:
+			case LT:
+			case NOT_LT:
+			case GTE:
+			case NOT_GT:
+			case LTE:
+			case MUL:
+			case AND:
+			case DIV:
+			case NOT_EQUALS:
+			case OR:
+			case REM:
+				left = x.left.accept(this);
+				right = x.right.accept(this);
+				ret = ASTHelper.handleSimpleBinaryOperator(x, ret, left, right);
+				break;
+			case IMPLIES:
+				break;
+			// These we do not have to support
+			case ISSEQ_ARROW_LONE:
+			case DOMAIN:
+			case RANGE:
+			case PLUSPLUS:
+			case SHL:
+			case SHA:
+			case SHR:
 			default:
 				ret.typeName = "Object /*ExprBinary Unkown Operator Type: \"" + x.op + "\" (" + x.op.name() + ")*/";
 				break;
@@ -528,43 +486,76 @@ public class CodeGeneratorVisitor extends VisitQuery<NodeInfo> {
 	public NodeInfo visit(ExprITE x) throws Err {
 		sprintln("Visit IF-ELSE expression");
 		
-		sprintln("  if (");
+		NodeInfo ret = new NodeInfo();
+		NodeInfo cond = x.cond.accept(this);
+		NodeInfo left = x.left.accept(this);
+		NodeInfo right = x.right.accept(this);
 		
-			x.cond.accept(this);
+		StringBuilder s = new StringBuilder();
 		
-		sprintln("){");
 		
-			x.left.accept(this);
+		s.append("(");		
+		s.append(cond.csharpCode);		
+		s.append(") \r\n  ? (");		
+		s.append(left.csharpCode);		
+		s.append(")\r\n  : (");		
+		s.append(right.csharpCode);		
+		s.append(");\r\n");
 		
-		sprintln("  }else{");
+		ret.typeName = ASTHelper.findFirstCommonClass(left.sig, right.sig).typeName;
 		
-			x.right.accept(this);
-		
-		sprintln("  }");
-		
-		return new NodeInfo("??? /* ExprITE */");
+		ret.csharpCode = s.toString();
+		ret.fieldName = s.toString();
+		return ret;
 	}
 	
+	// let x = e | A  =	A with every occurrence of x replaced by expression e
 	@Override
 	public NodeInfo visit(ExprLet x) throws Err {
-		sprintln("Visit let expression");
-		sprintln("  TO DO: 'Let' Expressions");
+		ident++;
+		
+		NodeInfo ret = new NodeInfo();
+		
+		NodeInfo sub = x.sub.accept(this);
+		NodeInfo var = x.var.accept(this);
+		NodeInfo newVal = x.expr.accept(this);
+				
+		ident--;
 		return new NodeInfo("??? /* ExprLet */");
 	}	
 	
 	@Override
 	public NodeInfo visit(ExprList x) throws Err {
-		sprintln("Visit List expression.");
+		// stolen from TestGeneratorVisitor
+		ident++;
+		sprintln("Visit ExprList expression: " + x.toString());
+		NodeInfo ret = new NodeInfo();
 		
+		NodeInfo[] argNodes = new NodeInfo[x.args.size()];
+		for(int i = 0; i < x.args.size(); i++){
+			sprintln("Going into arg in ExprList...");
+			Expr arg = x.args.get(i);
+			argNodes[i] = arg.accept(this);
+		}
+		String combiner = "/* ??? */";
 		switch(x.op){
-			default:
-				sprintln("!EOP:ExprList:" + x.op + "!");
+			case AND:
+				combiner = "&&";
 				break;
+			case OR:
+				combiner = "||";
+				break;
+			default:
+				sprintln("Unsupported ExprList.OP: " + x.op);
 		}
 		
-		sprintln(x.args.toString());
-		
-		return new NodeInfo("??? /* ExprList */");
+		for(NodeInfo argNode : argNodes){
+			ret.csharpCode += " " + combiner + " " + argNode.csharpCode;
+		}
+		ret.csharpCode = ret.csharpCode.substring(4);
+		sprintln("ExprList returning " + ret);
+		ident--;
+		return ret;
 	}
 	
 	@Override
