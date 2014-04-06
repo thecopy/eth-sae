@@ -219,6 +219,18 @@ public class CodeGeneratorVisitor extends VisitQuery<NodeInfo> {
 				ret.csharpCode = t.fieldName + ".Count()";
 				ret.fieldName = t.fieldName + ".Count()";
 				break;
+			case CAST2SIGINT: // no idea what this is
+				ret = x.sub.accept(this);
+				break;
+			case NOT:
+				t = x.sub.accept(this);
+				ret.csharpCode = "!(" + t.csharpCode + ")";
+				ret.fieldName = "!(" + t.csharpCode + ")";
+				ret.typeName = "bool";
+				break;
+			case TRANSPOSE: // hm?
+				ret = x.sub.accept(this); // i dont know
+				break;
 			// We do not have to support these
 			case EXACTLYOF:
 			case NO:
