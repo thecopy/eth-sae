@@ -92,7 +92,10 @@ public final class TestGenerator {
 		  String setName = name + "Set";
 		  System.out.println(" A4Tuple For sig " + name);
 
-		  out.println("    " + "var " + setName + " = new HashSet<" + name + ">();");
+		  if(!instantiatedSets.contains(setName)){					  
+			  out.println("    " + "var " + setName + " = new HashSet<" + name + ">();");
+			  instantiatedSets.add(setName);
+		  }
 		  
 		  instantiatedSets.add(setName);
 		  
