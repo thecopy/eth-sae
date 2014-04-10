@@ -36,10 +36,10 @@ public final class TestGenerator {
 		  String originalFilename, 
 		  PrintWriter out) throws Exception {
 	  
-	  System.out.println(" ** Got to constructor of TestGenerator");
-	  System.out.println(" ** Got sigs:  " + sigs);
-	  System.out.println(" ** Got assertions:  " + assertions);
-	  System.out.println(" ** Got cmds:  " + cmds);
+	  //System.out.println(" ** Got to constructor of TestGenerator");
+	  //System.out.println(" ** Got sigs:  " + sigs);
+	  //System.out.println(" ** Got assertions:  " + assertions);
+	  //System.out.println(" ** Got cmds:  " + cmds);
 	  
 
 	  out.println("// This C# file is generated from " + originalFilename + "\r\n");
@@ -53,7 +53,7 @@ public final class TestGenerator {
 	  out.println("  public static void Main(string[] args) {");
 
 	  
-	  System.out.println(" * Declaring environment..."); 
+	  //System.out.println(" * Declaring environment..."); 
 	  for(Sig sig : sigs){
 		  if(sig.label.equals("univ") || sig.label.equals("Int")
 				  || sig.label.equals("seq/Int")
@@ -67,7 +67,7 @@ public final class TestGenerator {
 		  A4TupleSet tuples = solution.eval(sig);
 		  int i = 0;
 		  for(A4Tuple _ : tuples){
-			  System.out.println("Declaring...");
+			  //System.out.println("Declaring...");
 			  String instanceName = (name + i++);
 			  out.println("    " + name + " " + instanceName + ";");
 		  }
@@ -77,7 +77,7 @@ public final class TestGenerator {
 	  HashSet<String> instantiatedSets = new HashSet<String>();
 	  HashSet<String> instantiatedVariables = new HashSet<String>();
 	  
-	  System.out.println(" * Instantiating environment..."); 
+	  //System.out.println(" * Instantiating environment..."); 
 	  for(Sig sig : sigs){
 		  if(sig.label.equals("univ") || sig.label.equals("Int")
 				  || sig.label.equals("seq/Int")
@@ -90,7 +90,7 @@ public final class TestGenerator {
 		  
 		  String name = sig.label.substring(5);
 		  String setName = name + "Set";
-		  System.out.println(" A4Tuple For sig " + name);
+		  //System.out.println(" A4Tuple For sig " + name);
 
 		  if(!instantiatedSets.contains(setName)){					  
 			  out.println("    " + "var " + setName + " = new HashSet<" + name + ">();");
@@ -102,7 +102,7 @@ public final class TestGenerator {
 		  A4TupleSet tuples = solution.eval(sig);
 		  int i = 0;
 		  for(A4Tuple _ : tuples){
-			  System.out.println("Instantiating...");
+			  //System.out.println("Instantiating...");
 			  String instanceName = (name + i++);
 			  if(!instantiatedVariables.contains(instanceName)){
 				  if(sig.isOne != null){
@@ -117,7 +117,7 @@ public final class TestGenerator {
 			  
 			  PrimSig parent = primSig.parent;
 			  while(parent != null && !parent.label.equals("univ")){
-				  System.out.println("Handling parent " + parent);
+				  //System.out.println("Handling parent " + parent);
 				  String parentName = parent.label.substring(5);
 				  String parentSetName = parentName + "Set";
 				  if(!instantiatedSets.contains(parentSetName)){					  
@@ -133,20 +133,49 @@ public final class TestGenerator {
 
 		  for(Field f : sig.getFields()){
 			  A4TupleSet fieldTuples = solution.eval(f);
+			  boolean isOne = f.decl().expr.toString().contains("one");
 			  for(A4Tuple field : fieldTuples){
+				  int arity = field.arity();
 				  String objName = ASTHelper.extractGeneratedInstanceName(field.atom(0));
-				  String refName = ASTHelper.extractGeneratedInstanceName(field.atom(1));
-				  String typeName = field.atom(1).substring(0,field.atom(1).indexOf("$"));
-				  if(!instantiatedVariables.contains(refName)){
-					  if(sig.isOne != null){
-						  out.println("    " + refName + " = " + typeName + ".Instance;");
-					  }else{
-						  out.println("    " + refName + " = new " + typeName + "();");
-					  }
-					  instantiatedVariables.add(refName);
+				  String refName1 = ASTHelper.extractGeneratedInstanceName(field.atom(1));
+				  String typeName1 = field.atom(1).substring(0,field.atom(1).indexOf("$"));
+				  String refName2 = "";
+				  String typeName2 = "";
+				  if(arity > 2){
+					  refName2 = ASTHelper.extractGeneratedInstanceName(field.atom(2));
+					  typeName2 = field.atom(2).substring(0,field.atom(2).indexOf("$"));
 				  }
-				  
-				  out.println("    " + objName + "." + f.label + " = " + refName + ";");
+				  if(!instantiatedVariables.contains(refName1)){
+					  if(sig.isOne != null){
+						  out.println("    " + refName1 + " = " + typeName1 + ".Instance;");
+					  }else{
+						  out.println("    " + refName1 + " = new " + typeName1 + "();");
+					  }
+					  instantiatedVariables.add(refName1);
+				  }
+				  if(refName2 != "" && !instantiatedVariables.contains(refName2)){
+					  if(sig.isOne != null){
+						  out.println("    " + refName2 + " = " + typeName2 + ".Instance;");
+					  }else{
+						  out.println("    " + refName2 + " = new " + typeName2 + "();");
+					  }
+					  instantiatedVariables.add(refName2);
+				  }
+				  if(arity > 2){
+					  if(!instantiatedSets.contains(objName + "." + f.label)){
+						  out.println("    " + objName + "." + f.label + " = new HashSet<Tuple<" + typeName1 + ", " + typeName2 +">>();");
+						  instantiatedSets.add(objName+ "." + f.label);
+					  }
+					  out.println("    " + objName + "." + f.label + ".Add(new Tuple<" + typeName1 + ", " + typeName2 +">(" + refName1 + ", " + refName2 + "));");
+				  } else if(arity == 2 && !isOne){
+					  if(!instantiatedSets.contains(objName + "." + f.label)){
+						  out.println("    " + objName + "." + f.label + " = new HashSet<" + typeName1 + ">();");
+						  instantiatedSets.add(objName+ "." + f.label);
+					  }
+					  out.println("    " + objName + "." + f.label + ".Add(" + refName1 + ");");
+				  } else {
+					  out.println("    " + objName + "." + f.label + " = " + refName1 + ";");
+				  }
 			  }
 		  }
 		  
@@ -156,18 +185,18 @@ public final class TestGenerator {
 	  TestGeneratorVisitor v = new TestGeneratorVisitor(out);
 	  for(Pair<String, Expr> assertion : assertions){
 		  v.setIdent(1);
-		  System.out.println(" * Parsing " + assertion.a);
+		  //System.out.println(" * Parsing " + assertion.a);
 		  //out.println(assertion.b.accept(v).csharpCode);
 	  }
 	  
-	  System.out.println("* Handling commands");
+	  //System.out.println("* Handling commands");
 	  for(Command cmd : cmds){
-		  System.out.println("  Label: " + cmd.label);
-		  System.out.println("  Bitwidth: " + cmd.bitwidth);
-		  System.out.println("  Max Sequence: " + cmd.maxseq);
-		  System.out.println("  Overall Scope: " + cmd.overall);
-		  System.out.println("  Expect: " + cmd.expects);
-		  System.out.println("  Is: " + (cmd.check ? "'check'" : "'run'"));
+		  //System.out.println("  Label: " + cmd.label);
+		  //System.out.println("  Bitwidth: " + cmd.bitwidth);
+		  //System.out.println("  Max Sequence: " + cmd.maxseq);
+		  //System.out.println("  Overall Scope: " + cmd.overall);
+		  //System.out.println("  Expect: " + cmd.expects);
+		  //System.out.println("  Is: " + (cmd.check ? "'check'" : "'run'"));
 		  v.setExpect(cmd.expects);
 		  NodeInfoTest node = cmd.formula.accept(v);
 		  
