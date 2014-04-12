@@ -53,6 +53,14 @@ public class ASTHelper {
 			operator = "%";
 			ret.typeName = "int";
 			break;
+		case IPLUS:
+			operator = "+";
+			ret.typeName = "int";
+			break;
+		case IMINUS:
+			operator = "-";
+			ret.typeName = "int";
+			break;
 		}
 		
 
@@ -114,6 +122,14 @@ public class ASTHelper {
 			operator = "%";
 			ret.typeName = "int";
 			break;
+		case IPLUS:
+			operator = "+";
+			ret.typeName = "int";
+			break;
+		case IMINUS:
+			operator = "-";
+			ret.typeName = "int";
+			break;
 		}
 		
 
@@ -155,7 +171,8 @@ public class ASTHelper {
 				ret.fieldName = left.fieldName + ".Except<" + ret.typeName + ">(" + right.fieldName + ")";
 				break;
 			case INTERSECT:
-				ret.fieldName = left.fieldName + ".Intersect<" + ret.typeName + ">(" + right.fieldName + ")";					
+				ret.initialization = left.fieldName + ".Intersect<" + ret.typeName + ">(" + right.fieldName + ")";	
+				ret.fieldName = left.fieldName;	
 				ret.addInvariant("Contract.ForAll({def}, e => " + left.fieldName + ".Contains(e) && "	+ right.fieldName + ".Contains(e))", InvariantConstraint.SET_ONLY);
 				ret.addInvariant("Contract.ForAll(" + left.fieldName + ", e => " + right.fieldName + ".Contains(e))", InvariantConstraint.SET_ONLY);
 				ret.addInvariant("Contract.ForAll(" + right.fieldName + ", e => " + left.fieldName + ".Contains(e))", InvariantConstraint.SET_ONLY);

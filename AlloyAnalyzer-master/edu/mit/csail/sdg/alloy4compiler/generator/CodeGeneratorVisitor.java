@@ -128,7 +128,18 @@ public class CodeGeneratorVisitor extends VisitQuery<NodeInfo> {
 	public NodeInfo visit(ExprCall x) throws Err {
 		sprintln("Visit call expression: " + x.toString());
 		sprintln("[ CALL EXPRESSION ]");
-		return new NodeInfo("??? /* ExprCall */");
+
+		NodeInfo s = new NodeInfo();
+		s.fieldName = x.fun.label.substring(5) + "(";
+		boolean first = true;
+		for(Expr arg: x.args){
+			if(!first)
+				s.fieldName += ", ";
+			first = false;
+			s.fieldName += arg.toString();
+		}
+		s.fieldName += ")";
+		return s;
 	}
 
 	@Override
@@ -247,7 +258,8 @@ public class CodeGeneratorVisitor extends VisitQuery<NodeInfo> {
 		case TRANSPOSE: // hm?
 			ret = x.sub.accept(this); // i dont know
 			break;
-			// We do not have to support these
+		
+		// We do not have to support these
 		case EXACTLYOF:
 		case NO:
 		case SOME:
@@ -796,7 +808,68 @@ public class CodeGeneratorVisitor extends VisitQuery<NodeInfo> {
 			ret.invariants.addAll(left.invariants);
 			ret.invariants.addAll(right.invariants);
 			break;
-
+			
+		case IMPLIES:
+			left = x.left.accept(this);
+			right = x.right.accept(this);
+			s.append("(!(");
+			s.append(left.csharpCode);
+			s.append(") || ((");
+			s.append(left.csharpCode + ") && (" + right.csharpCode);
+			s.append(")))");
+			
+			ret.csharpCode = s.toString();
+			ret.invariants.addAll(left.invariants);
+			ret.invariants.addAll(right.invariants);
+			break;
+			
+			
+		case IFF:
+			left = x.left.accept(this);
+			right = x.right.accept(this);
+			s.append("(!(");
+			s.append(left.csharpCode);
+			s.append(") && !(");
+			s.append(right.csharpCode);
+			s.append(")) || ((");
+			s.append(left.csharpCode + ") && (" + right.csharpCode);
+			s.append("))");
+			
+			ret.csharpCode = s.toString();
+			ret.invariants.addAll(left.invariants);
+			ret.invariants.addAll(right.invariants);
+			break;
+			
+		case IN:
+			left = x.left.accept(this);
+			right = x.right.accept(this);
+			s.append("(");
+			s.append(right.fieldName);
+			s.append(".Contains(");
+			s.append(left.fieldName);
+			s.append("))");
+			
+			ret.csharpCode = s.toString();
+			ret.invariants.addAll(left.invariants);
+			ret.invariants.addAll(right.invariants);
+			break;
+			
+		case NOT_IN:
+			left = x.left.accept(this);
+			right = x.right.accept(this);
+			s.append("!(");
+			s.append(right.fieldName);
+			s.append(".Contains(");
+			s.append(left.fieldName);
+			s.append("))");
+			
+			ret.csharpCode = s.toString();
+			ret.invariants.addAll(left.invariants);
+			ret.invariants.addAll(right.invariants);
+			break;
+			
+		case IPLUS:
+		case IMINUS:
 		case NOT_LTE:
 		case GT:
 		case NOT_GTE:
@@ -815,9 +888,8 @@ public class CodeGeneratorVisitor extends VisitQuery<NodeInfo> {
 			right = x.right.accept(this);
 			ret = ASTHelper.handleSimpleBinaryOperator(x, ret, left, right);
 			break;
-		case IMPLIES:
-			break;
-			// These we do not have to support
+
+		// These we do not have to support
 		case ISSEQ_ARROW_LONE:
 		case DOMAIN:
 		case RANGE:

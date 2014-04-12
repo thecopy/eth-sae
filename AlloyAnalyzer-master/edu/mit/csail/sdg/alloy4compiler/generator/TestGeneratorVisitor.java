@@ -498,10 +498,6 @@ public class TestGeneratorVisitor extends VisitQuery<NodeInfoTest> {
 			ret.invariants.addAll(right.invariants);
 			break;
 			
-		case IPLUS:
-			break;
-		case IMINUS:
-			break;
 		case IMPLIES:
 			break;
 		case IN:
@@ -511,6 +507,8 @@ public class TestGeneratorVisitor extends VisitQuery<NodeInfoTest> {
 		case IFF:
 			break;
 			
+		case IPLUS:
+		case IMINUS:
 		case NOT_LTE:
 		case GT:
 		case NOT_GTE:
