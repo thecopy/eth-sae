@@ -29,13 +29,15 @@ public final class CodeGenerator {
 		  String originalFilename, PrintWriter out, 
 		  boolean checkContracts) throws Exception, Err {
 
-	  System.out.println(" ** Got to constructor of CodeGenerator");
-	  System.out.println(" ** Got sigs:  " + sigs);
-	  System.out.println(" ** Got funcs:  " + funcs);
-	  System.out.println(" ** Got originalFilename:  " + originalFilename);
+	  //System.out.println(" ** Got to constructor of CodeGenerator");
+	  //System.out.println(" ** Got sigs:  " + sigs);
+	  //System.out.println(" ** Got funcs:  " + funcs);
+	  //System.out.println(" ** Got originalFilename:  " + originalFilename);
 	  
 	  out.println("// This C# file is generated from " + originalFilename + "\r\n");
-	  out.println("#undef CONTRACTS_FULL\r\n");
+	  if(!checkContracts){
+		  out.println("#undef CONTRACTS_FULL\r\n");
+	  }
 	  
 	  out.println("using System;\r\n"
 			  	 +"using System.Linq;\r\n"
@@ -59,8 +61,9 @@ public final class CodeGenerator {
 				PrimSig parent = ((PrimSig)sig).parent;
 				if(parent != null && !parent.builtin){
 					parentName = parent.label.substring(5);
-					if(parentName.equals("Object"))
-						System.out.println("***** TODO: Change so type name cannot be 'Object'");
+					if(parentName.equals("Object")){
+						//System.out.println("***** TODO: Change so type name cannot be 'Object'");
+					}
 				}
 			}
 			
@@ -73,11 +76,11 @@ public final class CodeGenerator {
 					+ " {\r\n");
 			
 			SafeList<Decl> decls = sig.getFieldDecls();
-			System.out.println("* Visit Sig: " + sig.label + " (" + decls.size() + " field declarations)");
+			//System.out.println("* Visit Sig: " + sig.label + " (" + decls.size() + " field declarations)");
 			
 			ArrayList<String> invariants = new ArrayList<String>();
 			for(Decl decl : decls){
-				System.out.println("\r\n Field Declaration: " + decl.names + " (" + decl.names.size() + " fields, mult=" + decl.expr.mult +")");
+				//System.out.println("\r\n Field Declaration: " + decl.names + " (" + decl.names.size() + " fields, mult=" + decl.expr.mult +")");
 				NodeInfo defAndInvariants = (NodeInfo)decl.expr.accept(v);
 				
 				String finalTypeName = defAndInvariants.typeName;
@@ -118,7 +121,7 @@ public final class CodeGenerator {
 						}
 						
 						String finalInvariant = inv.invariant.replace("{def}", n.label);
-						System.out.print("  Transforming '" + inv + "' to '" + finalInvariant + "'\r\n");
+						//System.out.print("  Transforming '" + inv + "' to '" + finalInvariant + "'\r\n");
 						
 						String before = "";
 						if(invariantAggregated.length() != 0)
@@ -134,7 +137,7 @@ public final class CodeGenerator {
 			}
 
 			if(invariants.size() > 0){
-				System.out.println("  Printing Invariants");
+				//System.out.println("  Printing Invariants");
 				s.append("\r\n");
 				s.append("  [ContractInvariantMethod]\r\n");
 				s.append("  private void ObjectInvariant() {\r\n");
@@ -160,20 +163,20 @@ public final class CodeGenerator {
 			
 			
 			s.append("}\r\n\r\n");
-			System.out.println("* Sig visit completed!");
+			//System.out.println("* Sig visit completed!");
 			out.print(s.toString());
 	  }
 	  
-	  System.out.println("  * Handling Functions");
+	  //System.out.println("  * Handling Functions");
 	  out.print("public static class FuncClass {\r\n");
 	  for(Func func : funcs){
-		  System.out.println("  ** Parsing function " + func.label.substring(5));
-		  System.out.println("  *** Resolving function return type...");
+		  //System.out.println("  ** Parsing function " + func.label.substring(5));
+		  //System.out.println("  *** Resolving function return type...");
 		  NodeInfo returnType = func.returnDecl.accept(v);
 
 		  out.print("  public static " + returnType.typeName + " " + func.label.substring(5) + " (");
 
-		  System.out.println("  *** Resolving function parameters...");
+		  //System.out.println("  *** Resolving function parameters...");
 		  ArrayList<String> requires = new ArrayList<String>();
 		  boolean first = true;
 		  for(Decl decl : func.decls){
@@ -199,7 +202,7 @@ public final class CodeGenerator {
 					  + ");\r\n");
 		  }
 		  
-		  System.out.println("  *** Resolving function body...");
+		  //System.out.println("  *** Resolving function body...");
 		  NodeInfo body = func.getBody().accept(v);
 		  out.print("\r\n");
 		  if(body.csharpCode == null || body.csharpCode.isEmpty()){
@@ -212,7 +215,7 @@ public final class CodeGenerator {
 	  out.print("}\r\n");
 	  
 	  
-	  System.out.println("  * Printing Helper Class");
+	  //System.out.println("  * Printing Helper Class");
 	  out.print("public static class Helper {\r\n");
 	  out.print("  public static ISet<Tuple<L, R>> Closure<L, R>(ISet<Tuple<L, R>> set) {\r\n");
 	  out.print("    ISet<Tuple<L, R>> closure = new HashSet<Tuple<L, R>>();\r\n");
@@ -261,7 +264,7 @@ public final class CodeGenerator {
     try {
       String f;
       String ext = ".cs";
-      System.out.println("Save in dist: " + saveInDist);
+      //System.out.println("Save in dist: " + saveInDist);
       if (saveInDist) {
         f = ".\\" + new File(originalFilename).getName() + ext;
       }
@@ -272,7 +275,7 @@ public final class CodeGenerator {
       if (file.exists()) {
         file.delete();
       }
-      System.out.println("Writes to " + f);
+      //System.out.println("Writes to " + f);
       PrintWriter out = new PrintWriter(new FileWriter(	f, true));
       new CodeGenerator(world.getAllReachableSigs(), world.getAllFunc(), originalFilename, out, checkContracts);
     }

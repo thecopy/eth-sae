@@ -54,7 +54,7 @@ public class TestGeneratorVisitor extends VisitQuery<NodeInfoTest> {
 			throw new Exception("ArgumentNullException: out");
 		
 		this.out = out;
-		System.out.println("Init Test Visistor with PrintWriter");
+		//System.out.println("Init Test Visistor with PrintWriter");
 	}
 	
 	
@@ -497,7 +497,20 @@ public class TestGeneratorVisitor extends VisitQuery<NodeInfoTest> {
 			ret.invariants.addAll(left.invariants);
 			ret.invariants.addAll(right.invariants);
 			break;
-
+			
+		case IPLUS:
+			break;
+		case IMINUS:
+			break;
+		case IMPLIES:
+			break;
+		case IN:
+			break;
+		case NOT_IN:
+			break;
+		case IFF:
+			break;
+			
 		case NOT_LTE:
 		case GT:
 		case NOT_GTE:
@@ -516,9 +529,8 @@ public class TestGeneratorVisitor extends VisitQuery<NodeInfoTest> {
 			right = x.right.accept(this);
 			ret = ASTHelper.handleSimpleBinaryOperator(x, ret, left, right);
 			break;
-		case IMPLIES:
-			break;
-			// These we do not have to support
+			
+		// These we do not have to support
 		case ISSEQ_ARROW_LONE:
 		case DOMAIN:
 		case RANGE:
@@ -572,6 +584,6 @@ public class TestGeneratorVisitor extends VisitQuery<NodeInfoTest> {
 		for(int i = 0; i < ident; i++)
 			idents += "  ";
 		
-		System.out.print(idents + s + "\r\n");
+		//System.out.print(idents + s + "\r\n");
 	}
 }

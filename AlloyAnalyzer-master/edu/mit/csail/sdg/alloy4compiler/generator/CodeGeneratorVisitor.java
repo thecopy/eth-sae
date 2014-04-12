@@ -298,6 +298,61 @@ public class CodeGeneratorVisitor extends VisitQuery<NodeInfo> {
 			ret.addAllInvariants(left.invariants);
 			ret.addAllInvariants(right.invariants);
 			break;
+			
+		case ANY_ARROW_SOME: // "A -> some B" (Tuple) B must be non empty set	
+			left = x.left.accept(this);
+			right = x.right.accept(this);
+			s.append("ISet<Tuple<");
+			s.append(left.typeName);
+			s.append(", ");
+			s.append(right.typeName);
+			s.append(">>");
+			
+			ret.typeName = s.toString();
+			ret.addInvariant("{def} != null");
+			
+			ret.addInvariant(
+					"Contract.ForAll({def}, e1 => e1 != null" 
+							+ " && {def}.Count(x => x.Item1.Equals(e1.Item1)) >= 1)");
+			
+			if(left.fieldName != null && !left.fieldName.isEmpty()){
+				ret.addInvariant("Contract.ForAll({def}, e => e.Item1.Equals(" + left.fieldName + "))");
+			}
+			if(right.fieldName != null && !right.fieldName.isEmpty()){
+				ret.addInvariant("Contract.ForAll({def}, e => e.Item2.Equals(" + right.fieldName + "))");
+			}
+
+			ret.invariants.addAll(left.invariants);
+			ret.invariants.addAll(right.invariants);
+			break;
+			
+		case ANY_ARROW_ONE: // A -> one B
+			left = x.left.accept(this);
+			right = x.right.accept(this);
+			s.append("ISet<Tuple<");
+			s.append(left.typeName);
+			s.append(", ");
+			s.append(right.typeName);
+			s.append(">>");
+			
+			ret.typeName = s.toString();
+			ret.addInvariant("{def} != null");
+			
+			ret.addInvariant(
+					"Contract.ForAll({def}, e1 => e1 != null" 
+							+ " && {def}.Count(x => x.Item1.Equals(e1.Item1)) == 1)");
+			
+			if(left.fieldName != null && !left.fieldName.isEmpty()){
+				ret.addInvariant("Contract.ForAll({def}, e => e.Item1.Equals(" + left.fieldName + "))");
+			}
+			if(right.fieldName != null && !right.fieldName.isEmpty()){
+				ret.addInvariant("Contract.ForAll({def}, e => e.Item2.Equals(" + right.fieldName + "))");
+			}
+
+			ret.invariants.addAll(left.invariants);
+			ret.invariants.addAll(right.invariants);
+			break;
+			
 		case ANY_ARROW_LONE: // "A -> lone B" (Tuple) (Lone can be null (0 or 1))
 			left = x.left.accept(this);
 			right = x.right.accept(this);
@@ -324,6 +379,173 @@ public class CodeGeneratorVisitor extends VisitQuery<NodeInfo> {
 			ret.invariants.addAll(left.invariants);
 			ret.invariants.addAll(right.invariants);
 			break;
+		
+		case SOME_ARROW_ANY: // some A -> B
+			left = x.left.accept(this);
+			right = x.right.accept(this);
+			s.append("ISet<Tuple<");
+			s.append(left.typeName);
+			s.append(", ");
+			s.append(right.typeName);
+			s.append(">>");
+			
+			ret.typeName = s.toString();
+			ret.addInvariant("{def} != null");
+			
+			ret.addInvariant(
+					"Contract.ForAll({def}, e1 => e1 != null" 
+							+ " && {def}.Count(x => x.Item2.Equals(e1.Item2)) >= 1)");
+			
+			if(left.fieldName != null && !left.fieldName.isEmpty()){
+				ret.addInvariant("Contract.ForAll({def}, e => e.Item1.Equals(" + left.fieldName + "))");
+			}
+			if(right.fieldName != null && !right.fieldName.isEmpty()){
+				ret.addInvariant("Contract.ForAll({def}, e => e.Item2.Equals(" + right.fieldName + "))");
+			}
+
+			ret.invariants.addAll(left.invariants);
+			ret.invariants.addAll(right.invariants);
+			break;
+			
+		case SOME_ARROW_SOME: //some A -> some B
+			left = x.left.accept(this);
+			right = x.right.accept(this);
+			s.append("ISet<Tuple<");
+			s.append(left.typeName);
+			s.append(", ");
+			s.append(right.typeName);
+			s.append(">>");
+			
+			ret.typeName = s.toString();
+			ret.addInvariant("{def} != null");
+			
+			ret.addInvariant(
+					"Contract.ForAll({def}, e1 => e1 != null" 
+							+ " && {def}.Count(x => x.Item1.Equals(e1.Item1)) >= 1"
+							+ " && {def}.Count(x => x.Item2.Equals(e1.Item2)) >= 1)");
+			
+			if(left.fieldName != null && !left.fieldName.isEmpty()){
+				ret.addInvariant("Contract.ForAll({def}, e => e.Item1.Equals(" + left.fieldName + "))");
+			}
+			if(right.fieldName != null && !right.fieldName.isEmpty()){
+				ret.addInvariant("Contract.ForAll({def}, e => e.Item2.Equals(" + right.fieldName + "))");
+			}
+
+			ret.invariants.addAll(left.invariants);
+			ret.invariants.addAll(right.invariants);
+			break;
+			
+		case SOME_ARROW_ONE: // some A -> one B
+			left = x.left.accept(this);
+			right = x.right.accept(this);
+			s.append("ISet<Tuple<");
+			s.append(left.typeName);
+			s.append(", ");
+			s.append(right.typeName);
+			s.append(">>");
+			
+			ret.typeName = s.toString();
+			ret.addInvariant("{def} != null");
+			
+			ret.addInvariant(
+					"Contract.ForAll({def}, e1 => e1 != null" 
+							+ " && {def}.Count(x => x.Item1.Equals(e1.Item1)) == 1"
+							+ " && {def}.Count(x => x.Item2.Equals(e1.Item2)) >= 1)");
+			
+			if(left.fieldName != null && !left.fieldName.isEmpty()){
+				ret.addInvariant("Contract.ForAll({def}, e => e.Item1.Equals(" + left.fieldName + "))");
+			}
+			if(right.fieldName != null && !right.fieldName.isEmpty()){
+				ret.addInvariant("Contract.ForAll({def}, e => e.Item2.Equals(" + right.fieldName + "))");
+			}
+
+			ret.invariants.addAll(left.invariants);
+			ret.invariants.addAll(right.invariants);
+			break;
+			
+		case SOME_ARROW_LONE: // some A -> lone B
+			left = x.left.accept(this);
+			right = x.right.accept(this);
+			s.append("ISet<Tuple<");
+			s.append(left.typeName);
+			s.append(", ");
+			s.append(right.typeName);
+			s.append(">>");
+			
+			ret.typeName = s.toString();
+			ret.addInvariant("{def} != null");
+			
+			ret.addInvariant(
+					"Contract.ForAll({def}, e1 => e1 != null" 
+							+ " && {def}.Count(x => x.Item1.Equals(e1.Item1)) <= 1"
+							+ " && {def}.Count(x => x.Item2.Equals(e1.Item2)) >= 1)");
+			
+			if(left.fieldName != null && !left.fieldName.isEmpty()){
+				ret.addInvariant("Contract.ForAll({def}, e => e.Item1.Equals(" + left.fieldName + "))");
+			}
+			if(right.fieldName != null && !right.fieldName.isEmpty()){
+				ret.addInvariant("Contract.ForAll({def}, e => e.Item2.Equals(" + right.fieldName + "))");
+			}
+
+			ret.invariants.addAll(left.invariants);
+			ret.invariants.addAll(right.invariants);
+			break;
+			
+		case ONE_ARROW_ANY: // "one A -> B" 
+			left = x.left.accept(this);
+			right = x.right.accept(this);
+			s.append("ISet<Tuple<");
+			s.append(left.typeName);
+			s.append(", ");
+			s.append(right.typeName);
+			s.append(">>");
+			
+			ret.typeName = s.toString();
+			ret.addInvariant("{def} != null");
+			
+			ret.addInvariant(
+					"Contract.ForAll({def}, e1 => e1 != null" 
+							+ " && {def}.Count(x => x.Item2.Equals(e1.Item2)) == 1)");
+			
+			if(left.fieldName != null && !left.fieldName.isEmpty()){
+				ret.addInvariant("Contract.ForAll({def}, e => e.Item1.Equals(" + left.fieldName + "))");
+			}
+			if(right.fieldName != null && !right.fieldName.isEmpty()){
+				ret.addInvariant("Contract.ForAll({def}, e => e.Item2.Equals(" + right.fieldName + "))");
+			}
+
+			ret.invariants.addAll(left.invariants);
+			ret.invariants.addAll(right.invariants);
+			break;	
+			
+		case ONE_ARROW_SOME: // one A -> some B
+			left = x.left.accept(this);
+			right = x.right.accept(this);
+			s.append("ISet<Tuple<");
+			s.append(left.typeName);
+			s.append(", ");
+			s.append(right.typeName);
+			s.append(">>");
+			
+			ret.typeName = s.toString();
+			ret.addInvariant("{def} != null");
+			
+			ret.addInvariant(
+					"Contract.ForAll({def}, e1 => e1 != null" 
+							+ " && {def}.Count(x => x.Item1.Equals(e1.Item1)) >= 1"
+							+ " && {def}.Count(x => x.Item2.Equals(e1.Item2)) == 1)");
+			
+			if(left.fieldName != null && !left.fieldName.isEmpty()){
+				ret.addInvariant("Contract.ForAll({def}, e => e.Item1.Equals(" + left.fieldName + "))");
+			}
+			if(right.fieldName != null && !right.fieldName.isEmpty()){
+				ret.addInvariant("Contract.ForAll({def}, e => e.Item2.Equals(" + right.fieldName + "))");
+			}
+
+			ret.invariants.addAll(left.invariants);
+			ret.invariants.addAll(right.invariants);
+			break;
+			
 		case ONE_ARROW_ONE: // Set of Tuples with one-to-one mapping
 			left = x.left.accept(this);
 			right = x.right.accept(this);
@@ -350,24 +572,23 @@ public class CodeGeneratorVisitor extends VisitQuery<NodeInfo> {
 			ret.invariants.addAll(left.invariants);
 			ret.invariants.addAll(right.invariants);
 			break;
-
-		case ANY_ARROW_SOME: // "A -> some B" (Tuple) B must be non empty set
-			
+		
+		case ONE_ARROW_LONE: // one A -> lone B
 			left = x.left.accept(this);
 			right = x.right.accept(this);
 			s.append("ISet<Tuple<");
 			s.append(left.typeName);
-			s.append(", ");
+			s.append(",");
 			s.append(right.typeName);
 			s.append(">>");
-			
+
 			ret.typeName = s.toString();
 			ret.addInvariant("{def} != null");
-			
 			ret.addInvariant(
 					"Contract.ForAll({def}, e1 => e1 != null" 
-							+ " && {def}.Count(x => x.Item1.Equals(e1.Item1)) >= 1)");
-			
+							+ " && {def}.Count(x => x.Item1.Equals(e1.Item1)) <= 1"
+							+ " && {def}.Count(x => x.Item2.Equals(e1.Item2)) == 1)");
+
 			if(left.fieldName != null && !left.fieldName.isEmpty()){
 				ret.addInvariant("Contract.ForAll({def}, e => e.Item1.Equals(" + left.fieldName + "))");
 			}
@@ -378,7 +599,114 @@ public class CodeGeneratorVisitor extends VisitQuery<NodeInfo> {
 			ret.invariants.addAll(left.invariants);
 			ret.invariants.addAll(right.invariants);
 			break;
+			
+		case LONE_ARROW_ANY: //lone A -> B
+			left = x.left.accept(this);
+			right = x.right.accept(this);
+			s.append("ISet<Tuple<");
+			s.append(left.typeName);
+			s.append(",");
+			s.append(right.typeName);
+			s.append(">>");
 
+			ret.typeName = s.toString();
+			ret.addInvariant("{def} != null");
+			ret.addInvariant(
+					"Contract.ForAll({def}, e1 => e1 != null" 
+							+ " && {def}.Count(x => x.Item2.Equals(e1.Item2)) <= 1)");
+
+			if(left.fieldName != null && !left.fieldName.isEmpty()){
+				ret.addInvariant("Contract.ForAll({def}, e => e.Item1.Equals(" + left.fieldName + "))");
+			}
+			if(right.fieldName != null && !right.fieldName.isEmpty()){
+				ret.addInvariant("Contract.ForAll({def}, e => e.Item2.Equals(" + right.fieldName + "))");
+			}
+
+			ret.invariants.addAll(left.invariants);
+			ret.invariants.addAll(right.invariants);
+			break;
+			
+		case LONE_ARROW_SOME: // lone A -> some B
+			left = x.left.accept(this);
+			right = x.right.accept(this);
+			s.append("ISet<Tuple<");
+			s.append(left.typeName);
+			s.append(",");
+			s.append(right.typeName);
+			s.append(">>");
+
+			ret.typeName = s.toString();
+			ret.addInvariant("{def} != null");
+			ret.addInvariant(
+					"Contract.ForAll({def}, e1 => e1 != null" 
+							+ " && {def}.Count(x => x.Item1.Equals(e1.Item1)) >= 1"
+							+ " && {def}.Count(x => x.Item2.Equals(e1.Item2)) <= 1)");
+
+			if(left.fieldName != null && !left.fieldName.isEmpty()){
+				ret.addInvariant("Contract.ForAll({def}, e => e.Item1.Equals(" + left.fieldName + "))");
+			}
+			if(right.fieldName != null && !right.fieldName.isEmpty()){
+				ret.addInvariant("Contract.ForAll({def}, e => e.Item2.Equals(" + right.fieldName + "))");
+			}
+
+			ret.invariants.addAll(left.invariants);
+			ret.invariants.addAll(right.invariants);
+			break;
+		
+		case LONE_ARROW_ONE: // lone A -> one B
+			left = x.left.accept(this);
+			right = x.right.accept(this);
+			s.append("ISet<Tuple<");
+			s.append(left.typeName);
+			s.append(",");
+			s.append(right.typeName);
+			s.append(">>");
+
+			ret.typeName = s.toString();
+			ret.addInvariant("{def} != null");
+			ret.addInvariant(
+					"Contract.ForAll({def}, e1 => e1 != null" 
+							+ " && {def}.Count(x => x.Item1.Equals(e1.Item1)) == 1"
+							+ " && {def}.Count(x => x.Item2.Equals(e1.Item2)) <= 1)");
+
+			if(left.fieldName != null && !left.fieldName.isEmpty()){
+				ret.addInvariant("Contract.ForAll({def}, e => e.Item1.Equals(" + left.fieldName + "))");
+			}
+			if(right.fieldName != null && !right.fieldName.isEmpty()){
+				ret.addInvariant("Contract.ForAll({def}, e => e.Item2.Equals(" + right.fieldName + "))");
+			}
+
+			ret.invariants.addAll(left.invariants);
+			ret.invariants.addAll(right.invariants);
+			break;
+		
+		case LONE_ARROW_LONE: // lone A -> lone B
+			left = x.left.accept(this);
+			right = x.right.accept(this);
+			s.append("ISet<Tuple<");
+			s.append(left.typeName);
+			s.append(",");
+			s.append(right.typeName);
+			s.append(">>");
+
+			ret.typeName = s.toString();
+			ret.addInvariant("{def} != null");
+			ret.addInvariant(
+					"Contract.ForAll({def}, e1 => e1 != null" 
+							+ " && {def}.Count(x => x.Item1.Equals(e1.Item1)) <= 1"
+							+ " && {def}.Count(x => x.Item2.Equals(e1.Item2)) <= 1)");
+
+			if(left.fieldName != null && !left.fieldName.isEmpty()){
+				ret.addInvariant("Contract.ForAll({def}, e => e.Item1.Equals(" + left.fieldName + "))");
+			}
+			if(right.fieldName != null && !right.fieldName.isEmpty()){
+				ret.addInvariant("Contract.ForAll({def}, e => e.Item2.Equals(" + right.fieldName + "))");
+			}
+
+			ret.invariants.addAll(left.invariants);
+			ret.invariants.addAll(right.invariants);
+			break;
+			
 		case INTERSECT:
 			left = x.left.accept(this);
 			right = x.right.accept(this);

@@ -43,7 +43,6 @@ public final class TestGenerator {
 	  
 
 	  out.println("// This C# file is generated from " + originalFilename + "\r\n");
-	  out.println("#undef CONTRACTS_FULL\r\n");
 	  
 	  out.println("using System;\r\n"
 			  	 +"using System.Linq;\r\n"
@@ -133,7 +132,7 @@ public final class TestGenerator {
 
 		  for(Field f : sig.getFields()){
 			  A4TupleSet fieldTuples = solution.eval(f);
-			  boolean isOne = f.decl().expr.toString().contains("one");
+			  boolean isOne = f.decl().expr.toString().contains("one ");
 			  for(A4Tuple field : fieldTuples){
 				  int arity = field.arity();
 				  String objName = ASTHelper.extractGeneratedInstanceName(field.atom(0));
