@@ -34,6 +34,7 @@ public class NodeInfo {
 	public String initialization = "";
 	public PrimSig sig = null;
 	public FieldModifier fieldModifier = FieldModifier.One;
+	public ArrayList<ArgumentDescriptor> args = new ArrayList<ArgumentDescriptor>();
 	
 	public NodeInfo() {}
 	

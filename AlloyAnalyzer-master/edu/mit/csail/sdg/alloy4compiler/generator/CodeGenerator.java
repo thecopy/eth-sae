@@ -44,7 +44,7 @@ public final class CodeGenerator {
 			  	 +"using System.Collections.Generic;\r\n"
 			  	 +"using System.Diagnostics.Contracts;\r\n");
 	  
-	  CodeGeneratorVisitor v = new CodeGeneratorVisitor(out);
+	  Visitor v = new Visitor(out);
 	  for(Sig sig : sigs){
 		  if(sig.label.equals("univ") || sig.label.equals("Int")
 				  || sig.label.equals("seq/Int")

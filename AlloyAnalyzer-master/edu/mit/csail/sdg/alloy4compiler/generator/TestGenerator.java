@@ -181,7 +181,7 @@ public final class TestGenerator {
 		  out.println("");
 	  }
 	  
-	  TestGeneratorVisitor v = new TestGeneratorVisitor(out);
+	  Visitor v = new Visitor(out);
 	  for(Pair<String, Expr> assertion : assertions){
 		  v.setIdent(1);
 		  //System.out.println(" * Parsing " + assertion.a);
@@ -197,7 +197,7 @@ public final class TestGenerator {
 		  //System.out.println("  Expect: " + cmd.expects);
 		  //System.out.println("  Is: " + (cmd.check ? "'check'" : "'run'"));
 		  v.setExpect(cmd.expects);
-		  NodeInfoTest node = cmd.formula.accept(v);
+		  NodeInfo node = cmd.formula.accept(v);
 		  
 		  out.println("    Contract.Assert(" + node.csharpCode + ", \"" + cmd.label + "\");");
 	  }
