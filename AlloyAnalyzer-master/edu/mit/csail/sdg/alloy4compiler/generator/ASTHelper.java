@@ -96,13 +96,16 @@ public class ASTHelper {
 				ret.addInvariant("Contract.ForAll(" + left.fieldName + ", e => {def}.Contains(e))", InvariantConstraint.SET_ONLY);
 				ret.addInvariant("Contract.ForAll(" + right.fieldName + ", e => {def}.Contains(e))", InvariantConstraint.SET_ONLY);
 				ret.fieldName = left.fieldName + ".Union<" + ret.typeName + ">(" + right.fieldName + ")";
+				ret.fieldName = "new HashSet<" + ret.typeName + ">(" + ret.fieldName + ")";
 				break;
 			case MINUS:
 				ret.addInvariant("Contract.ForAll({def}, e => " + left.fieldName + ".Contains(e) && " + right.fieldName + ".Contains(e) == false)", InvariantConstraint.SET_ONLY);
 				ret.fieldName = left.fieldName + ".Except<" + ret.typeName + ">(" + right.fieldName + ")";
+				ret.fieldName = "new HashSet<" + ret.typeName + ">(" + ret.fieldName + ")";
 				break;
 			case INTERSECT:
-				ret.fieldName = "(ISet<" + ret.typeName + ">) " + left.fieldName + ".Intersect<" + ret.typeName + ">(" + right.fieldName + ")";
+				ret.fieldName = left.fieldName + ".Intersect<" + ret.typeName + ">(" + right.fieldName + ")";
+				ret.fieldName = "new HashSet<" + ret.typeName + ">(" + ret.fieldName + ")";
 				ret.addInvariant("Contract.ForAll({def}, e => " + left.fieldName + ".Contains(e) && "	+ right.fieldName + ".Contains(e))", InvariantConstraint.SET_ONLY);
 				ret.addInvariant("Contract.ForAll(" + left.fieldName + ", e => " + right.fieldName + ".Contains(e))", InvariantConstraint.SET_ONLY);
 				ret.addInvariant("Contract.ForAll(" + right.fieldName + ", e => " + left.fieldName + ".Contains(e))", InvariantConstraint.SET_ONLY);
