@@ -102,8 +102,7 @@ public class ASTHelper {
 				ret.fieldName = left.fieldName + ".Except<" + ret.typeName + ">(" + right.fieldName + ")";
 				break;
 			case INTERSECT:
-				ret.initialization = left.fieldName + ".Intersect<" + ret.typeName + ">(" + right.fieldName + ")";	
-				ret.fieldName = left.fieldName;	
+				ret.fieldName = "(ISet<" + ret.typeName + ">) " + left.fieldName + ".Intersect<" + ret.typeName + ">(" + right.fieldName + ")";
 				ret.addInvariant("Contract.ForAll({def}, e => " + left.fieldName + ".Contains(e) && "	+ right.fieldName + ".Contains(e))", InvariantConstraint.SET_ONLY);
 				ret.addInvariant("Contract.ForAll(" + left.fieldName + ", e => " + right.fieldName + ".Contains(e))", InvariantConstraint.SET_ONLY);
 				ret.addInvariant("Contract.ForAll(" + right.fieldName + ", e => " + left.fieldName + ".Contains(e))", InvariantConstraint.SET_ONLY);

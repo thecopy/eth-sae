@@ -205,9 +205,6 @@ public final class CodeGenerator {
 		  NodeInfo body = func.getBody().accept(v);
 		  out.print("\r\n");
 		  if(body.csharpCode == null || body.csharpCode.isEmpty()){
-			  if(body.initialization != "") {
-				  out.print("    " + body.initialization + ";\r\n");
-			  }
 			  out.print("    return " + body.fieldName + ";");
 		  }else{
 			  out.print("    return " + body.csharpCode + ";");
