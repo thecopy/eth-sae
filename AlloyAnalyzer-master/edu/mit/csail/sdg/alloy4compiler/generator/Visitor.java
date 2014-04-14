@@ -258,8 +258,8 @@ public class Visitor extends VisitQuery<NodeInfo> {
 			break;
 		case NOT:
 			t = x.sub.accept(this);
-			ret.csharpCode = "!(" + t.csharpCode + ")";
-			ret.fieldName = "!(" + t.csharpCode + ")";
+			ret.csharpCode = "(" + t.csharpCode + ")";
+			ret.fieldName = "(" + t.csharpCode + ")";
 			ret.typeName = "bool";
 			break;
 		case TRANSPOSE: // hm?
