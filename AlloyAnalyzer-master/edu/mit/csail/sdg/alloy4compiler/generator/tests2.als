@@ -1,11 +1,14 @@
-sig B{}
-sig A{
-  field: B
+-- any_arrow_some invariant
+
+sig From {}
+sig To {}
+
+sig Class {
+  field: From -> some To
 }
 
-assert foo {
-  not
-    // always holds, if you remove "not", no instance can be found.
-    all a:A | let b = a+a | #(b.field) != 0
+assert Assertion {
+  0 = 1
 }
-check foo for 3
+
+check Assertion

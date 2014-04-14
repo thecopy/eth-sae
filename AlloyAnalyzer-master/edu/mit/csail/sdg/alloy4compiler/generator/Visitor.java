@@ -252,6 +252,9 @@ public class Visitor extends VisitQuery<NodeInfo> {
 			break;
 		case CAST2SIGINT: // no idea what this is
 			ret = x.sub.accept(this);
+			ret.typeName = "Int";
+			ret.csharpCode = "(Int)" + ret.csharpCode;
+			ret.fieldName = "(Int)" + ret.fieldName;
 			break;
 		case NOT:
 			t = x.sub.accept(this);
