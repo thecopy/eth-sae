@@ -252,6 +252,15 @@ public final class CodeGenerator {
 	  out.print("    }\r\n");
 	  out.print("    return closure;\r\n");
 	  out.print("  }\r\n");
+	  out.print("  public static ISet<Tuple<R, L>> Transpose<L, R>(ISet<Tuple<L, R>> set) {\r\n");
+	  out.print("    ISet<Tuple<R, L>> transpose = new HashSet<Tuple<R, L>>();\r\n");
+	  out.print("    foreach (Tuple<L, R> tup in set) {\r\n");
+	  out.print("      L first = tup.Item1;\r\n");
+	  out.print("      R second = tup.Item2;\r\n");
+	  out.print("      transpose.Add(new Tuple<R, L>(second, first));\r\n");
+	  out.print("    }\r\n");
+	  out.print("    return transpose;\r\n");
+	  out.print("  }\r\n");
 	  out.print("}\r\n");
 	  
 	  out.flush();
