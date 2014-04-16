@@ -1,0 +1,215 @@
+------- test0 -------
+Save in dist: false
+Writes to ..\edu\mit\csail\sdg\alloy4compiler\generator\tests0.als.cs
+ ** Got to constructor of CodeGenerator
+ ** Got sigs:  [univ, Int, seq/Int, String, none, this/Platform, this/Man, this/Date, this/Person, this/Woman, this/Eve]
+ ** Got funcs:  [pred this/Above, fun this/Closure]
+ ** Got originalFilename:  ..\edu\mit\csail\sdg\alloy4compiler\generator\tests0.als
+Init Visistor with PrintWriter
+* Visit Sig: this/Platform (0 field declarations)
+* Sig visit completed!
+* Visit Sig: this/Man (3 field declarations)
+
+ Field Declaration: [field (this/Man <: ceiling), field (this/Man <: floor)] (2 fields, mult=1)
+  Visit unary expression ('one this/Platform') with OP: 'one of' (ONEOF) and sub: this/Platform, type: {this/Platform}
+    Visit unary expression ('this/Platform') with OP: 'NOOP' (NOOP) and sub: this/Platform, type: {this/Platform}
+      Visit Sig: this/Platform
+    Unary Expression returning TypeName = Platform FieldName =  C#-Code: ([])
+  Unary Expression returning TypeName = Platform FieldName =  C#-Code: ([edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@78c8a027])
+  Transforming 'edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@78c8a027' to 'ceiling != null'
+  Transforming 'edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@78c8a027' to 'floor != null'
+
+ Field Declaration: [field (this/Man <: wifes)] (1 fields, mult=1)
+  Visit unary expression ('some this/Woman') with OP: 'some of' (SOMEOF) and sub: this/Woman, type: {this/Woman}
+    Visit unary expression ('this/Woman') with OP: 'NOOP' (NOOP) and sub: this/Woman, type: {this/Woman}
+      Visit Sig: this/Woman
+    Unary Expression returning TypeName = Woman FieldName =  C#-Code: ([])
+  Unary Expression returning TypeName = ISet<Woman> FieldName =  C#-Code: ([edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@3b8a9e64, edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@9a4d5c6, edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@24cebf1c])
+  Transforming 'edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@3b8a9e64' to 'wifes.Count() > 0'
+  Transforming 'edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@9a4d5c6' to 'wifes != null'
+  Transforming 'edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@24cebf1c' to 'Contract.ForAll(wifes, e => e != null)'
+
+ Field Declaration: [field (this/Man <: between)] (1 fields, mult=0)
+  Visit binary expression (mult=0, type={this/Platform->this/Platform}, type size=1) (OP=ARROW, '->' ) [this . (this/Man <: floor) -> this . (this/Man <: ceiling)].
+  Visiting left, type {this/Platform}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprBinary)
+    Visit binary expression (mult=0, type={this/Platform}, type size=1) (OP=JOIN, '.' ) [this . (this/Man <: floor)].
+    Visiting left, type {this/Man}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
+      Visit unary expression ('this') with OP: 'NOOP' (NOOP) and sub: this, type: {this/Man}
+        Visit Variable expression: this
+        Variable expression returning typeName = Man, fieldName = this
+      Unary Expression returning TypeName = Man FieldName = this C#-Code: ([])
+    Visiting right, type {this/Man->this/Platform}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
+      Visit unary expression ('(this/Man <: floor)') with OP: 'NOOP' (NOOP) and sub: field (this/Man <: floor), type: {this/Man->this/Platform}
+        Visit field expression: field (this/Man <: floor), type: {this/Man->this/Platform}
+        Field Expression returning: TypeName = Platform FieldName = floor C#-Code: ([edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@164da25])
+      Unary Expression returning TypeName = Platform FieldName = floor C#-Code: ([edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@164da25])
+    Binary JOIN Expression returning TypeName = Platform FieldName = this.floor C#-Code: ([])
+  Visiting right, type {this/Platform}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprBinary)
+    Visit binary expression (mult=0, type={this/Platform}, type size=1) (OP=JOIN, '.' ) [this . (this/Man <: ceiling)].
+    Visiting left, type {this/Man}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
+      Visit unary expression ('this') with OP: 'NOOP' (NOOP) and sub: this, type: {this/Man}
+        Visit Variable expression: this
+        Variable expression returning typeName = Man, fieldName = this
+      Unary Expression returning TypeName = Man FieldName = this C#-Code: ([])
+    Visiting right, type {this/Man->this/Platform}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
+      Visit unary expression ('(this/Man <: ceiling)') with OP: 'NOOP' (NOOP) and sub: field (this/Man <: ceiling), type: {this/Man->this/Platform}
+        Visit field expression: field (this/Man <: ceiling), type: {this/Man->this/Platform}
+        Field Expression returning: TypeName = Platform FieldName = ceiling C#-Code: ([edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@42db3da])
+      Unary Expression returning TypeName = Platform FieldName = ceiling C#-Code: ([edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@42db3da])
+    Binary JOIN Expression returning TypeName = Platform FieldName = this.ceiling C#-Code: ([])
+  Binary ARROW Expression returning TypeName = ISet<Tuple<Platform, Platform>> FieldName =  C#-Code: ([edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@547aaf5a, edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@428e690a, edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@139231a9])
+  Transforming 'edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@547aaf5a' to 'Contract.ForAll(between, e => e.Item1.Equals(this.floor))'
+  Transforming 'edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@428e690a' to 'Contract.ForAll(between, e => e.Item2.Equals(this.ceiling))'
+  Transforming 'edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@139231a9' to 'between != null'
+  Printing Invariants
+* Sig visit completed!
+* Visit Sig: this/Date (0 field declarations)
+* Sig visit completed!
+* Visit Sig: this/Person (0 field declarations)
+* Sig visit completed!
+* Visit Sig: this/Woman (0 field declarations)
+* Sig visit completed!
+* Visit Sig: this/Eve (0 field declarations)
+* Sig visit completed!
+  * Handling Functions
+  ** Parsing function Above
+  *** Resolving function return type...
+  Visit constant expression with OP false and type {PrimitiveBoolean}
+  *** Resolving function parameters...
+  Visit unary expression ('this/Man') with OP: 'NOOP' (NOOP) and sub: this/Man, type: {this/Man}
+    Visit Sig: this/Man
+  Unary Expression returning TypeName = Man FieldName =  C#-Code: ([])
+  *** Resolving function body...
+  Visit unary expression ('m . (this/Man <: floor) = n . (this/Man <: ceiling)') with OP: 'NOOP' (NOOP) and sub: m . (this/Man <: floor) = n . (this/Man <: ceiling), type: {PrimitiveBoolean}
+    Visit binary expression (mult=0, type={PrimitiveBoolean}, type size=0) (OP=EQUALS, '=' ) [m . (this/Man <: floor) = n . (this/Man <: ceiling)].
+      Visit binary expression (mult=0, type={this/Platform}, type size=1) (OP=JOIN, '.' ) [m . (this/Man <: floor)].
+      Visiting left, type {this/Man}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
+        Visit unary expression ('m') with OP: 'NOOP' (NOOP) and sub: m, type: {this/Man}
+          Visit Variable expression: m
+          Variable expression returning typeName = Man, fieldName = m
+        Unary Expression returning TypeName = Man FieldName = m C#-Code: ([])
+      Visiting right, type {this/Man->this/Platform}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
+        Visit unary expression ('(this/Man <: floor)') with OP: 'NOOP' (NOOP) and sub: field (this/Man <: floor), type: {this/Man->this/Platform}
+          Visit field expression: field (this/Man <: floor), type: {this/Man->this/Platform}
+          Field Expression returning: TypeName = Platform FieldName = floor C#-Code: ([edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@21ba11bc])
+        Unary Expression returning TypeName = Platform FieldName = floor C#-Code: ([edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@21ba11bc])
+      Binary JOIN Expression returning TypeName = Platform FieldName = m.floor C#-Code: ([])
+      Visit binary expression (mult=0, type={this/Platform}, type size=1) (OP=JOIN, '.' ) [n . (this/Man <: ceiling)].
+      Visiting left, type {this/Man}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
+        Visit unary expression ('n') with OP: 'NOOP' (NOOP) and sub: n, type: {this/Man}
+          Visit Variable expression: n
+          Variable expression returning typeName = Man, fieldName = n
+        Unary Expression returning TypeName = Man FieldName = n C#-Code: ([])
+      Visiting right, type {this/Man->this/Platform}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
+        Visit unary expression ('(this/Man <: ceiling)') with OP: 'NOOP' (NOOP) and sub: field (this/Man <: ceiling), type: {this/Man->this/Platform}
+          Visit field expression: field (this/Man <: ceiling), type: {this/Man->this/Platform}
+          Field Expression returning: TypeName = Platform FieldName = ceiling C#-Code: ([edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@3ee25ef0])
+        Unary Expression returning TypeName = Platform FieldName = ceiling C#-Code: ([edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@3ee25ef0])
+      Binary JOIN Expression returning TypeName = Platform FieldName = n.ceiling C#-Code: ([])
+    Binary EQUALS Expression returning TypeName = bool FieldName =  C#-Code: (m.floor.Equals(n.ceiling))([])
+  Unary Expression returning TypeName = bool FieldName =  C#-Code: (m.floor.Equals(n.ceiling))([])
+  ** Parsing function Closure
+  *** Resolving function return type...
+  Visit binary expression (mult=0, type={this/Date->this/Date}, type size=1) (OP=ARROW, '->' ) [this/Date -> this/Date].
+  Visiting left, type {this/Date}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
+    Visit unary expression ('this/Date') with OP: 'NOOP' (NOOP) and sub: this/Date, type: {this/Date}
+      Visit Sig: this/Date
+    Unary Expression returning TypeName = Date FieldName =  C#-Code: ([])
+  Visiting right, type {this/Date}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
+    Visit unary expression ('this/Date') with OP: 'NOOP' (NOOP) and sub: this/Date, type: {this/Date}
+      Visit Sig: this/Date
+    Unary Expression returning TypeName = Date FieldName =  C#-Code: ([])
+  Binary ARROW Expression returning TypeName = ISet<Tuple<Date, Date>> FieldName =  C#-Code: ([edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@7fc6fed0])
+  *** Resolving function parameters...
+  Visit binary expression (mult=0, type={this/Date->this/Date}, type size=1) (OP=ARROW, '->' ) [this/Date -> this/Date].
+  Visiting left, type {this/Date}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
+    Visit unary expression ('this/Date') with OP: 'NOOP' (NOOP) and sub: this/Date, type: {this/Date}
+      Visit Sig: this/Date
+    Unary Expression returning TypeName = Date FieldName =  C#-Code: ([])
+  Visiting right, type {this/Date}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
+    Visit unary expression ('this/Date') with OP: 'NOOP' (NOOP) and sub: this/Date, type: {this/Date}
+      Visit Sig: this/Date
+    Unary Expression returning TypeName = Date FieldName =  C#-Code: ([])
+  Binary ARROW Expression returning TypeName = ISet<Tuple<Date, Date>> FieldName =  C#-Code: ([edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@61834b39])
+  *** Resolving function body...
+  Visit unary expression ('^ date') with OP: 'NOOP' (NOOP) and sub: ^ date, type: {this/Date->this/Date}
+    Visit unary expression ('^ date') with OP: '^' (CLOSURE) and sub: date, type: {this/Date->this/Date}
+      Visit unary expression ('date') with OP: 'NOOP' (NOOP) and sub: date, type: {this/Date->this/Date}
+        Visit Variable expression: date
+          Visit binary expression (mult=0, type={this/Date->this/Date}, type size=1) (OP=ARROW, '->' ) [this/Date -> this/Date].
+          Left is of type Sig. Will not visit!
+          Right is of type Sig. Will not visit!
+          Binary ARROW Expression returning TypeName = ISet<Tuple<Date, Date>> FieldName =  C#-Code: ([edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@72bfbd32])
+        Variable expression returning typeName = ISet<Tuple<Date, Date>>, fieldName = date
+      Unary Expression returning TypeName = ISet<Tuple<Date, Date>> FieldName = date C#-Code: ([])
+    Unary Expression returning TypeName = Object FieldName =  C#-Code: Helper.Closure(date)([])
+  Unary Expression returning TypeName = Object FieldName =  C#-Code: Helper.Closure(date)([])
+  * Printing Helper Class
+Code generation: Failed
+Code compilation: SUCCESS
+ ** Got to constructor of TestGenerator
+ ** Got sigs:  [univ, Int, seq/Int, String, none, this/Platform, this/Man, this/Date, this/Person, this/Woman, this/Eve]
+ ** Got assertions:  [BelowToo]
+ ** Got cmds:  [Check BelowToo for 3 expect 1]
+ * Producing environment...
+ A4Tuple For sig Platform
+Instantiating...
+Instantiating...
+ A4Tuple For sig Man
+Instantiating...
+Instantiating...
+ A4Tuple For sig Date
+ A4Tuple For sig Person
+ A4Tuple For sig Woman
+Instantiating...
+ A4Tuple For sig Eve
+Init Test Visistor with PrintWriter
+ * Parsing BelowToo
+* Handling commands
+  Label: BelowToo
+  Bitwidth: -1
+  Max Sequence: -1
+  Overall Scope: 3
+  Expect: 1
+  Is: 'check'
+    Visit ExprList expression: AND[! (all m | (one n | this/Above[m, n]))]
+    Going into arg in ExprList...
+      Visit ExprUnary expression of type ! with sub (all m | (one n | this/Above[m, n])): ! (all m | (one n | this/Above[m, n]))
+        Visit ExprUnary expression of type NOOP with sub (all m | (one n | this/Above[m, n])): (all m | (one n | this/Above[m, n]))
+          Visit ExprUnary expression of type NOOP with sub (all m | (one n | this/Above[m, n])): (all m | (one n | this/Above[m, n]))
+            Visit ExprQt  with op: all with sub (one n | this/Above[m, n])
+              Visit ExprUnary expression of type one of with sub this/Man: one this/Man
+                Visit ExprUnary expression of type NOOP with sub this/Man: this/Man
+                Visit Sig expression: this/Man
+                ExprUnary returning TypeName = Man FieldName =  C#-Code:  Args: []
+              ExprUnary returning TypeName = Man FieldName =  C#-Code:  Args: []
+              Visit ExprQt  with op: one with sub this/Above[m, n]
+                Visit ExprUnary expression of type one of with sub this/Man: one this/Man
+                  Visit ExprUnary expression of type NOOP with sub this/Man: this/Man
+                  Visit Sig expression: this/Man
+                  ExprUnary returning TypeName = Man FieldName =  C#-Code:  Args: []
+                ExprUnary returning TypeName = Man FieldName =  C#-Code:  Args: []
+                Visit ExprCall expression: this/Above[m, n]
+                  Visit ExprUnary expression of type NOOP with sub m: m
+                    Visit ExprVar expression: m
+                    Label: m
+                  ExprUnary returning TypeName =  FieldName = m C#-Code:  Args: []
+                  Visit ExprUnary expression of type NOOP with sub n: n
+                    Visit ExprVar expression: n
+                    Label: n
+                  ExprUnary returning TypeName =  FieldName = n C#-Code:  Args: []
+                Target Function: Above
+                  Visit constant expression of type {PrimitiveBoolean}
+                  Visit ExprUnary expression of type NOOP with sub this/Man: this/Man
+                  Visit Sig expression: this/Man
+                  ExprUnary returning TypeName = Man FieldName =  C#-Code:  Args: []
+                TypeName = Man FieldName =  C#-Code:  Args: []
+                ExprCall returning TypeName = bool FieldName =  C#-Code: FuncClass.Above(m, n) Args: [edu.mit.csail.sdg.alloy4compiler.generator.ArgumentDescriptor@107dfdb8, edu.mit.csail.sdg.alloy4compiler.generator.ArgumentDescriptor@3f9c437d]
+              ExprQt returning TypeName =  FieldName =  C#-Code: ManSet.Where(n => FuncClass.Above(m, n)).Count() == 1 Args: []
+            ExprQt returning TypeName =  FieldName =  C#-Code: Contract.ForAll(ManSet, m => ManSet.Where(n => FuncClass.Above(m, n)).Count() == 1) Args: []
+          ExprUnary returning TypeName =  FieldName =  C#-Code: Contract.ForAll(ManSet, m => ManSet.Where(n => FuncClass.Above(m, n)).Count() == 1) Args: []
+        ExprUnary returning TypeName =  FieldName =  C#-Code: Contract.ForAll(ManSet, m => ManSet.Where(n => FuncClass.Above(m, n)).Count() == 1) Args: []
+      ExprUnary returning TypeName =  FieldName =  C#-Code: Contract.ForAll(ManSet, m => ManSet.Where(n => FuncClass.Above(m, n)).Count() == 1) Args: []
+    ExprList returning TypeName =  FieldName =  C#-Code: Contract.ForAll(ManSet, m => ManSet.Where(n => FuncClass.Above(m, n)).Count() == 1) Args: []
+Test generation: Failed
+Code and test compilation: 

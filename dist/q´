@@ -1,0 +1,481 @@
+------- test0 -------
+Save in dist: false
+Writes to ..\edu\mit\csail\sdg\alloy4compiler\generator\tests0.als.cs
+ ** Got to constructor of CodeGenerator
+ ** Got sigs:  [univ, Int, seq/Int, String, none, this/Platform, this/Man, this/Date, this/Person, this/Woman, this/Eve]
+ ** Got funcs:  [pred this/Above, fun this/Closure]
+ ** Got originalFilename:  ..\edu\mit\csail\sdg\alloy4compiler\generator\tests0.als
+Init Visistor with PrintWriter
+* Visit Sig: this/Platform (0 field declarations)
+* Sig is PrimSig = true. Sig is SubSetSig: false
+* Sig visit completed!
+* Visit Sig: this/Man (2 field declarations)
+* Sig is PrimSig = true. Sig is SubSetSig: false
+
+ Field Declaration: [field (this/Man <: ceiling), field (this/Man <: floor)] (2 fields)
+    Visit unary expression ('one this/Platform') with OP: 'one of' (ONEOF) and sub: this/Platform, type: {this/Platform}
+      Visit unary expression ('this/Platform') with OP: 'NOOP' (NOOP) and sub: this/Platform, type: {this/Platform}
+      Unary Expression returning TypeName = Platform(One) FieldName =  C#-Code: ([])
+    Unary Expression returning TypeName = Platform(One) FieldName =  C#-Code: ([{def} != null])
+  Transforming '{def} != null' to 'ceiling != null'
+  Transforming '{def} != null' to 'floor != null'
+
+ Field Declaration: [field (this/Man <: between)] (1 fields)
+    Visit binary expression (OP=ARROW, '->' ) [this . (this/Man <: floor) -> this . (this/Man <: ceiling)]
+    Visiting left, type {this/Platform}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprBinary)
+      Visit binary expression (OP=JOIN, '.' ) [this . (this/Man <: floor)]
+      Visiting left, type {this/Man}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
+        Visit unary expression ('this') with OP: 'NOOP' (NOOP) and sub: this, type: {this/Man}
+          Visit Variable expression: this
+          Variable expression returning typeName = Man, fieldName = this
+        Unary Expression returning TypeName = Man(One) FieldName = this C#-Code: ([])
+      Visiting right, type {this/Man->this/Platform}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
+        Visit unary expression ('(this/Man <: floor)') with OP: 'NOOP' (NOOP) and sub: field (this/Man <: floor), type: {this/Man->this/Platform}
+          Visit field expression: field (this/Man <: floor), type: {this/Man->this/Platform}
+          Type have arity 2
+          Field Expression returning: TypeName = Platform(One) FieldName = floor C#-Code: ([floor != null])
+        Unary Expression returning TypeName = Platform(One) FieldName = floor C#-Code: ([floor != null])
+      Binary JOIN Expression returning TypeName = Platform(One) FieldName = this.floor C#-Code: ([])
+    Visiting right, type {this/Platform}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprBinary)
+      Visit binary expression (OP=JOIN, '.' ) [this . (this/Man <: ceiling)]
+      Visiting left, type {this/Man}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
+        Visit unary expression ('this') with OP: 'NOOP' (NOOP) and sub: this, type: {this/Man}
+          Visit Variable expression: this
+          Variable expression returning typeName = Man, fieldName = this
+        Unary Expression returning TypeName = Man(One) FieldName = this C#-Code: ([])
+      Visiting right, type {this/Man->this/Platform}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
+        Visit unary expression ('(this/Man <: ceiling)') with OP: 'NOOP' (NOOP) and sub: field (this/Man <: ceiling), type: {this/Man->this/Platform}
+          Visit field expression: field (this/Man <: ceiling), type: {this/Man->this/Platform}
+          Type have arity 2
+          Field Expression returning: TypeName = Platform(One) FieldName = ceiling C#-Code: ([ceiling != null])
+        Unary Expression returning TypeName = Platform(One) FieldName = ceiling C#-Code: ([ceiling != null])
+      Binary JOIN Expression returning TypeName = Platform(One) FieldName = this.ceiling C#-Code: ([])
+    Binary ARROW Expression returning TypeName = Tuple<Platform, Platform>(Set) FieldName =  C#-Code: ([Contract.ForAll({def}, e => e.Item1.Equals(this.floor)), Contract.ForAll({def}, e => e.Item2.Equals(this.ceiling))])
+  Transforming 'Contract.ForAll({def}, e => e.Item1.Equals(this.floor))' to 'Contract.ForAll(between, e => e.Item1.Equals(this.floor))'
+  Transforming 'Contract.ForAll({def}, e => e.Item2.Equals(this.ceiling))' to 'Contract.ForAll(between, e => e.Item2.Equals(this.ceiling))'
+  Printing Invariants
+* Sig visit completed!
+* Visit Sig: this/Date (0 field declarations)
+* Sig is PrimSig = true. Sig is SubSetSig: false
+* Sig visit completed!
+* Visit Sig: this/Person (0 field declarations)
+* Sig is PrimSig = true. Sig is SubSetSig: false
+* Sig visit completed!
+* Visit Sig: this/Woman (0 field declarations)
+* Sig is PrimSig = true. Sig is SubSetSig: false
+* Sig visit completed!
+* Visit Sig: this/Eve (0 field declarations)
+* Sig is PrimSig = true. Sig is SubSetSig: false
+* Sig visit completed!
+  * Handling Functions
+  ** Parsing function Above
+  *** Resolving function return type...
+  Visit constant expression of type {PrimitiveBoolean}
+  *** Resolving function parameters...
+  Visit unary expression ('this/Man') with OP: 'NOOP' (NOOP) and sub: this/Man, type: {this/Man}
+  Unary Expression returning TypeName = Man(One) FieldName =  C#-Code: ([])
+  *** Resolving function body...
+  Visit unary expression ('m . (this/Man <: floor) = n . (this/Man <: ceiling)') with OP: 'NOOP' (NOOP) and sub: m . (this/Man <: floor) = n . (this/Man <: ceiling), type: {PrimitiveBoolean}
+    Visit binary expression (OP=EQUALS, '=' ) [m . (this/Man <: floor) = n . (this/Man <: ceiling)]
+      Visit binary expression (OP=JOIN, '.' ) [m . (this/Man <: floor)]
+      Visiting left, type {this/Man}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
+        Visit unary expression ('m') with OP: 'NOOP' (NOOP) and sub: m, type: {this/Man}
+          Visit Variable expression: m
+          Variable expression returning typeName = Man, fieldName = m
+        Unary Expression returning TypeName = Man(One) FieldName = m C#-Code: ([])
+      Visiting right, type {this/Man->this/Platform}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
+        Visit unary expression ('(this/Man <: floor)') with OP: 'NOOP' (NOOP) and sub: field (this/Man <: floor), type: {this/Man->this/Platform}
+          Visit field expression: field (this/Man <: floor), type: {this/Man->this/Platform}
+          Type have arity 2
+          Field Expression returning: TypeName = Platform(One) FieldName = floor C#-Code: ([floor != null])
+        Unary Expression returning TypeName = Platform(One) FieldName = floor C#-Code: ([floor != null])
+      Binary JOIN Expression returning TypeName = Platform(One) FieldName = m.floor C#-Code: ([])
+      Visit binary expression (OP=JOIN, '.' ) [n . (this/Man <: ceiling)]
+      Visiting left, type {this/Man}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
+        Visit unary expression ('n') with OP: 'NOOP' (NOOP) and sub: n, type: {this/Man}
+          Visit Variable expression: n
+          Variable expression returning typeName = Man, fieldName = n
+        Unary Expression returning TypeName = Man(One) FieldName = n C#-Code: ([])
+      Visiting right, type {this/Man->this/Platform}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
+        Visit unary expression ('(this/Man <: ceiling)') with OP: 'NOOP' (NOOP) and sub: field (this/Man <: ceiling), type: {this/Man->this/Platform}
+          Visit field expression: field (this/Man <: ceiling), type: {this/Man->this/Platform}
+          Type have arity 2
+          Field Expression returning: TypeName = Platform(One) FieldName = ceiling C#-Code: ([ceiling != null])
+        Unary Expression returning TypeName = Platform(One) FieldName = ceiling C#-Code: ([ceiling != null])
+      Binary JOIN Expression returning TypeName = Platform(One) FieldName = n.ceiling C#-Code: ([])
+    Binary EQUALS Expression returning TypeName = bool(One) FieldName =  C#-Code: (m.floor.Equals(n.ceiling))([])
+  Unary Expression returning TypeName = bool(One) FieldName =  C#-Code: (m.floor.Equals(n.ceiling))([])
+  ** Parsing function Closure
+  *** Resolving function return type...
+  Visit binary expression (OP=ARROW, '->' ) [this/Date -> this/Date]
+  Visiting left, type {this/Date}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
+    Visit unary expression ('this/Date') with OP: 'NOOP' (NOOP) and sub: this/Date, type: {this/Date}
+    Unary Expression returning TypeName = Date(One) FieldName =  C#-Code: ([])
+  Visiting right, type {this/Date}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
+    Visit unary expression ('this/Date') with OP: 'NOOP' (NOOP) and sub: this/Date, type: {this/Date}
+    Unary Expression returning TypeName = Date(One) FieldName =  C#-Code: ([])
+  Binary ARROW Expression returning TypeName = Tuple<Date, Date>(Set) FieldName =  C#-Code: ([])
+  *** Resolving function parameters...
+  Visit binary expression (OP=ARROW, '->' ) [this/Date -> this/Date]
+  Visiting left, type {this/Date}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
+    Visit unary expression ('this/Date') with OP: 'NOOP' (NOOP) and sub: this/Date, type: {this/Date}
+    Unary Expression returning TypeName = Date(One) FieldName =  C#-Code: ([])
+  Visiting right, type {this/Date}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
+    Visit unary expression ('this/Date') with OP: 'NOOP' (NOOP) and sub: this/Date, type: {this/Date}
+    Unary Expression returning TypeName = Date(One) FieldName =  C#-Code: ([])
+  Binary ARROW Expression returning TypeName = Tuple<Date, Date>(Set) FieldName =  C#-Code: ([])
+  *** Resolving function body...
+  Visit unary expression ('^ date') with OP: 'NOOP' (NOOP) and sub: ^ date, type: {this/Date->this/Date}
+    Visit unary expression ('^ date') with OP: '^' (CLOSURE) and sub: date, type: {this/Date->this/Date}
+      Visit unary expression ('date') with OP: 'NOOP' (NOOP) and sub: date, type: {this/Date->this/Date}
+        Visit Variable expression: date
+          Visit binary expression (OP=ARROW, '->' ) [this/Date -> this/Date]
+          Left is of type Sig. Will not visit!
+          Right is of type Sig. Will not visit!
+          Binary ARROW Expression returning TypeName = Tuple<Date, Date>(Set) FieldName =  C#-Code: ([])
+        Variable expression returning typeName = Tuple<Date, Date>, fieldName = date
+      Unary Expression returning TypeName = Tuple<Date, Date>(One) FieldName = date C#-Code: ([])
+    Unary Expression returning TypeName = Object(One) FieldName =  C#-Code: Helper.Closure(date)([])
+  Unary Expression returning TypeName = Object(One) FieldName =  C#-Code: Helper.Closure(date)([])
+  * Printing Helper Class
+Code generation: Failed
+Code compilation: Failed
+ERROR: c:\Users\Erik Jonsson Thor‚n\workspace2\MariasAlloy\AlloyAnalyzer-master\edu\mit\csail\sdg\alloy4compiler\generator\tests0.als.cs(53,12): error CS0411: The type arguments for method 'Helper.Closure<L,R>(System.Collections.Generic.ISet<System.Tuple<L,R>>)' cannot be inferred from the usage. Try specifying the type arguments explicitly.
+[read buffer end]
+ ** Got to constructor of TestGenerator
+ ** Got sigs:  [univ, Int, seq/Int, String, none, this/Platform, this/Man, this/Date, this/Person, this/Woman, this/Eve]
+ ** Got assertions:  [BelowToo]
+ ** Got cmds:  [Check BelowToo for 2 expect 1]
+Init Test Visistor with PrintWriter
+ * Parsing BelowToo
+  Visit ExprUnary expression of type NOOP with sub (all m | (one n | this/Above[m, n])): (all m | (one n | this/Above[m, n]))
+    Visit ExprUnary expression of type NOOP with sub (all m | (one n | this/Above[m, n])): (all m | (one n | this/Above[m, n]))
+      Visit ExprQt expression with op: all with sub (one n | this/Above[m, n])
+        Visit ExprQt expression with op: one with sub this/Above[m, n]
+        Visit ExprCall expression: this/Above[m, n]
+Test generation: Failed
+Code and test compilation: Failed
+ERROR: c:\Users\Erik Jonsson Thor‚n\workspace2\MariasAlloy\AlloyAnalyzer-master\edu\mit\csail\sdg\alloy4compiler\generator\tests0.als.cs(53,12): error CS0411: The type arguments for method 'Helper.Closure<L,R>(System.Collections.Generic.ISet<System.Tuple<L,R>>)' cannot be inferred from the usage. Try specifying the type arguments explicitly.
+[read buffer end]
+Code and test rewriting: Failed
+Error running the tests: java.io.IOException: Cannot run program "..\edu\mit\csail\sdg\alloy4compiler\generator\tests0.als.tests.exe": CreateProcess error=2, The system cannot find the file specified
+Error running the tests: java.io.IOException: CreateProcess error=2, The system cannot find the file specified
+------- test1 -------
+Save in dist: false
+Writes to ..\edu\mit\csail\sdg\alloy4compiler\generator\tests1.als.cs
+ ** Got to constructor of CodeGenerator
+ ** Got sigs:  [univ, Int, seq/Int, String, none, this/Object, this/Name, this/File, this/Dir, this/Root, this/Cur, this/DirEntry]
+ ** Got funcs:  [pred this/OneParent_buggyVersion, pred this/OneParent_correctVersion, pred this/NoDirAliases]
+ ** Got originalFilename:  ..\edu\mit\csail\sdg\alloy4compiler\generator\tests1.als
+Init Visistor with PrintWriter
+* Visit Sig: this/Object (0 field declarations)
+* Sig is PrimSig = true. Sig is SubSetSig: false
+* Sig visit completed!
+* Visit Sig: this/Name (0 field declarations)
+* Sig is PrimSig = true. Sig is SubSetSig: false
+* Sig visit completed!
+  ***** TODO: Change so type name cannot be 'Object'
+* Visit Sig: this/File (0 field declarations)
+* Sig is PrimSig = true. Sig is SubSetSig: false
+* Sig visit completed!
+  ***** TODO: Change so type name cannot be 'Object'
+* Visit Sig: this/Dir (2 field declarations)
+* Sig is PrimSig = true. Sig is SubSetSig: false
+
+ Field Declaration: [field (this/Dir <: entries)] (1 fields)
+    Visit unary expression ('set this/DirEntry') with OP: 'set of' (SETOF) and sub: this/DirEntry, type: {this/DirEntry}
+      Visit unary expression ('this/DirEntry') with OP: 'NOOP' (NOOP) and sub: this/DirEntry, type: {this/DirEntry}
+      Unary Expression returning TypeName = DirEntry(One) FieldName =  C#-Code: ([])
+    Unary Expression returning TypeName = DirEntry(Set) FieldName =  C#-Code: ([{def} != null, Contract.ForAll({def}, e => e != null)])
+  Transforming '{def} != null' to 'entries != null'
+  Transforming 'Contract.ForAll({def}, e => e != null)' to 'Contract.ForAll(entries, e => e != null)'
+
+ Field Declaration: [field (this/Dir <: parent)] (1 fields)
+    Visit unary expression ('lone this/Dir') with OP: 'lone of' (LONEOF) and sub: this/Dir, type: {this/Dir}
+      Visit unary expression ('this/Dir') with OP: 'NOOP' (NOOP) and sub: this/Dir, type: {this/Dir}
+      Unary Expression returning TypeName = Dir(One) FieldName =  C#-Code: ([])
+    Unary Expression returning TypeName = Dir(One) FieldName =  C#-Code: ([])
+  Printing Invariants
+* Sig visit completed!
+* Visit Sig: this/Root (0 field declarations)
+* Sig is PrimSig = true. Sig is SubSetSig: false
+* Sig visit completed!
+* Visit Sig: this/Cur (0 field declarations)
+* Sig is PrimSig = true. Sig is SubSetSig: false
+* Sig visit completed!
+* Visit Sig: this/DirEntry (2 field declarations)
+* Sig is PrimSig = true. Sig is SubSetSig: false
+
+ Field Declaration: [field (this/DirEntry <: name)] (1 fields)
+    Visit unary expression ('one this/Name') with OP: 'one of' (ONEOF) and sub: this/Name, type: {this/Name}
+      Visit unary expression ('this/Name') with OP: 'NOOP' (NOOP) and sub: this/Name, type: {this/Name}
+      Unary Expression returning TypeName = Name(One) FieldName =  C#-Code: ([])
+    Unary Expression returning TypeName = Name(One) FieldName =  C#-Code: ([{def} != null])
+  Transforming '{def} != null' to 'name != null'
+
+ Field Declaration: [field (this/DirEntry <: contents)] (1 fields)
+    Visit unary expression ('one this/Object') with OP: 'one of' (ONEOF) and sub: this/Object, type: {this/Object}
+      Visit unary expression ('this/Object') with OP: 'NOOP' (NOOP) and sub: this/Object, type: {this/Object}
+      Unary Expression returning TypeName = Object(One) FieldName =  C#-Code: ([])
+    Unary Expression returning TypeName = Object(One) FieldName =  C#-Code: ([{def} != null])
+  Transforming '{def} != null' to 'contents != null'
+  Printing Invariants
+* Sig visit completed!
+  * Handling Functions
+  ** Parsing function OneParent_buggyVersion
+  *** Resolving function return type...
+  Visit constant expression of type {PrimitiveBoolean}
+  *** Resolving function parameters...
+  *** Resolving function body...
+  Visit unary expression ('(all d | one d . (this/Dir <: parent))') with OP: 'NOOP' (NOOP) and sub: (all d | one d . (this/Dir <: parent)), type: {PrimitiveBoolean}
+  Visit quantified expression: (all d | one d . (this/Dir <: parent))
+  !ENOTIMPL:QT:(all d | one d . (this/Dir <: parent))!
+  Unary Expression returning TypeName = ??? /* ExprQt */(One) FieldName =  C#-Code: ([])
+  ** Parsing function OneParent_correctVersion
+  *** Resolving function return type...
+  Visit constant expression of type {PrimitiveBoolean}
+  *** Resolving function parameters...
+  *** Resolving function body...
+  Visit unary expression ('(all d | AND[one d . (this/Dir <: parent), one (this/DirEntry <: contents) . d])') with OP: 'NOOP' (NOOP) and sub: (all d | AND[one d . (this/Dir <: parent), one (this/DirEntry <: contents) . d]), type: {PrimitiveBoolean}
+  Visit quantified expression: (all d | AND[one d . (this/Dir <: parent), one (this/DirEntry <: contents) . d])
+  !ENOTIMPL:QT:(all d | AND[one d . (this/Dir <: parent), one (this/DirEntry <: contents) . d])!
+  Unary Expression returning TypeName = ??? /* ExprQt */(One) FieldName =  C#-Code: ([])
+  ** Parsing function NoDirAliases
+  *** Resolving function return type...
+  Visit constant expression of type {PrimitiveBoolean}
+  *** Resolving function parameters...
+  *** Resolving function body...
+  Visit unary expression ('(all o | lone o . ~ (this/DirEntry <: contents))') with OP: 'NOOP' (NOOP) and sub: (all o | lone o . ~ (this/DirEntry <: contents)), type: {PrimitiveBoolean}
+  Visit quantified expression: (all o | lone o . ~ (this/DirEntry <: contents))
+  !ENOTIMPL:QT:(all o | lone o . ~ (this/DirEntry <: contents))!
+  Unary Expression returning TypeName = ??? /* ExprQt */(One) FieldName =  C#-Code: ([])
+  * Printing Helper Class
+Error running the tests: java.io.FileNotFoundException: ..\edu\mit\csail\sdg\alloy4compiler\generator\answer1.cs (The system cannot find the file specified)
+------- test2 -------
+Save in dist: false
+Writes to ..\edu\mit\csail\sdg\alloy4compiler\generator\tests2.als.cs
+ ** Got to constructor of CodeGenerator
+ ** Got sigs:  [univ, Int, seq/Int, String, none, this/A0, this/Y1, this/SuperBase, this/Base, this/A, this/B, this/C]
+ ** Got funcs:  []
+ ** Got originalFilename:  ..\edu\mit\csail\sdg\alloy4compiler\generator\tests2.als
+Init Visistor with PrintWriter
+* Visit Sig: this/A0 (3 field declarations)
+* Sig is PrimSig = true. Sig is SubSetSig: false
+
+ Field Declaration: [field (this/A0 <: a1)] (1 fields)
+    Visit unary expression ('set this/A0') with OP: 'set of' (SETOF) and sub: this/A0, type: {this/A0}
+      Visit unary expression ('this/A0') with OP: 'NOOP' (NOOP) and sub: this/A0, type: {this/A0}
+      Unary Expression returning TypeName = A0(One) FieldName =  C#-Code: ([])
+    Unary Expression returning TypeName = A0(Set) FieldName =  C#-Code: ([{def} != null, Contract.ForAll({def}, e => e != null)])
+  Transforming '{def} != null' to 'a1 != null'
+  Transforming 'Contract.ForAll({def}, e => e != null)' to 'Contract.ForAll(a1, e => e != null)'
+
+ Field Declaration: [field (this/A0 <: a2)] (1 fields)
+    Visit unary expression ('set this/A0') with OP: 'set of' (SETOF) and sub: this/A0, type: {this/A0}
+      Visit unary expression ('this/A0') with OP: 'NOOP' (NOOP) and sub: this/A0, type: {this/A0}
+      Unary Expression returning TypeName = A0(One) FieldName =  C#-Code: ([])
+    Unary Expression returning TypeName = A0(Set) FieldName =  C#-Code: ([{def} != null, Contract.ForAll({def}, e => e != null)])
+  Transforming '{def} != null' to 'a2 != null'
+  Transforming 'Contract.ForAll({def}, e => e != null)' to 'Contract.ForAll(a2, e => e != null)'
+
+ Field Declaration: [field (this/A0 <: a4)] (1 fields)
+    Visit binary expression (OP=ARROW, '->' ) [this . (this/A0 <: a1) -> this . (this/A0 <: a2)]
+    Visiting left, type {this/A0}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprBinary)
+      Visit binary expression (OP=JOIN, '.' ) [this . (this/A0 <: a1)]
+      Visiting left, type {this/A0}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
+        Visit unary expression ('this') with OP: 'NOOP' (NOOP) and sub: this, type: {this/A0}
+          Visit Variable expression: this
+          Variable expression returning typeName = A0, fieldName = this
+        Unary Expression returning TypeName = A0(One) FieldName = this C#-Code: ([])
+      Visiting right, type {this/A0->this/A0}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
+        Visit unary expression ('(this/A0 <: a1)') with OP: 'NOOP' (NOOP) and sub: field (this/A0 <: a1), type: {this/A0->this/A0}
+          Visit field expression: field (this/A0 <: a1), type: {this/A0->this/A0}
+          Type have arity 2
+          Field Expression returning: TypeName = A0(One) FieldName = a1 C#-Code: ([a1 != null])
+        Unary Expression returning TypeName = A0(One) FieldName = a1 C#-Code: ([a1 != null])
+      Binary JOIN Expression returning TypeName = A0(One) FieldName = this.a1 C#-Code: ([])
+    Visiting right, type {this/A0}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprBinary)
+      Visit binary expression (OP=JOIN, '.' ) [this . (this/A0 <: a2)]
+      Visiting left, type {this/A0}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
+        Visit unary expression ('this') with OP: 'NOOP' (NOOP) and sub: this, type: {this/A0}
+          Visit Variable expression: this
+          Variable expression returning typeName = A0, fieldName = this
+        Unary Expression returning TypeName = A0(One) FieldName = this C#-Code: ([])
+      Visiting right, type {this/A0->this/A0}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
+        Visit unary expression ('(this/A0 <: a2)') with OP: 'NOOP' (NOOP) and sub: field (this/A0 <: a2), type: {this/A0->this/A0}
+          Visit field expression: field (this/A0 <: a2), type: {this/A0->this/A0}
+          Type have arity 2
+          Field Expression returning: TypeName = A0(One) FieldName = a2 C#-Code: ([a2 != null])
+        Unary Expression returning TypeName = A0(One) FieldName = a2 C#-Code: ([a2 != null])
+      Binary JOIN Expression returning TypeName = A0(One) FieldName = this.a2 C#-Code: ([])
+    Binary ARROW Expression returning TypeName = Tuple<A0, A0>(Set) FieldName =  C#-Code: ([Contract.ForAll({def}, e => e.Item1.Equals(this.a1)), Contract.ForAll({def}, e => e.Item2.Equals(this.a2))])
+  Transforming 'Contract.ForAll({def}, e => e.Item1.Equals(this.a1))' to 'Contract.ForAll(a4, e => e.Item1.Equals(this.a1))'
+  Transforming 'Contract.ForAll({def}, e => e.Item2.Equals(this.a2))' to 'Contract.ForAll(a4, e => e.Item2.Equals(this.a2))'
+  Printing Invariants
+* Sig visit completed!
+* Visit Sig: this/Y1 (3 field declarations)
+* Sig is PrimSig = true. Sig is SubSetSig: false
+
+ Field Declaration: [field (this/Y1 <: Y2)] (1 fields)
+    Visit unary expression ('one this/Y1') with OP: 'one of' (ONEOF) and sub: this/Y1, type: {this/Y1}
+      Visit unary expression ('this/Y1') with OP: 'NOOP' (NOOP) and sub: this/Y1, type: {this/Y1}
+      Unary Expression returning TypeName = Y1(One) FieldName =  C#-Code: ([])
+    Unary Expression returning TypeName = Y1(One) FieldName =  C#-Code: ([{def} != null])
+  Transforming '{def} != null' to 'Y2 != null'
+
+ Field Declaration: [field (this/Y1 <: Y3)] (1 fields)
+    Visit unary expression ('one this/Y1') with OP: 'one of' (ONEOF) and sub: this/Y1, type: {this/Y1}
+      Visit unary expression ('this/Y1') with OP: 'NOOP' (NOOP) and sub: this/Y1, type: {this/Y1}
+      Unary Expression returning TypeName = Y1(One) FieldName =  C#-Code: ([])
+    Unary Expression returning TypeName = Y1(One) FieldName =  C#-Code: ([{def} != null])
+  Transforming '{def} != null' to 'Y3 != null'
+
+ Field Declaration: [field (this/Y1 <: Y4)] (1 fields)
+    Visit unary expression ('one this . (this/Y1 <: Y2) + this . (this/Y1 <: Y3) - this . (this/Y1 <: Y2) & this . (this/Y1 <: Y3)') with OP: 'one of' (ONEOF) and sub: this . (this/Y1 <: Y2) + this . (this/Y1 <: Y3) - this . (this/Y1 <: Y2) & this . (this/Y1 <: Y3), type: {this/Y1}
+      Visit binary expression (OP=INTERSECT, '&' ) [this . (this/Y1 <: Y2) + this . (this/Y1 <: Y3) - this . (this/Y1 <: Y2) & this . (this/Y1 <: Y3)]
+        Visit binary expression (OP=MINUS, '-' ) [this . (this/Y1 <: Y2) + this . (this/Y1 <: Y3) - this . (this/Y1 <: Y2)]
+          Visit binary expression (OP=PLUS, '+' ) [this . (this/Y1 <: Y2) + this . (this/Y1 <: Y3)]
+            Visit binary expression (OP=JOIN, '.' ) [this . (this/Y1 <: Y2)]
+            Visiting left, type {this/Y1}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
+              Visit unary expression ('this') with OP: 'NOOP' (NOOP) and sub: this, type: {this/Y1}
+                Visit Variable expression: this
+                Variable expression returning typeName = Y1, fieldName = this
+              Unary Expression returning TypeName = Y1(One) FieldName = this C#-Code: ([])
+            Visiting right, type {this/Y1->this/Y1}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
+              Visit unary expression ('(this/Y1 <: Y2)') with OP: 'NOOP' (NOOP) and sub: field (this/Y1 <: Y2), type: {this/Y1->this/Y1}
+                Visit field expression: field (this/Y1 <: Y2), type: {this/Y1->this/Y1}
+                Type have arity 2
+                Field Expression returning: TypeName = Y1(One) FieldName = Y2 C#-Code: ([Y2 != null])
+              Unary Expression returning TypeName = Y1(One) FieldName = Y2 C#-Code: ([Y2 != null])
+            Binary JOIN Expression returning TypeName = Y1(One) FieldName = this.Y2 C#-Code: ([])
+            Visit binary expression (OP=JOIN, '.' ) [this . (this/Y1 <: Y3)]
+            Visiting left, type {this/Y1}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
+              Visit unary expression ('this') with OP: 'NOOP' (NOOP) and sub: this, type: {this/Y1}
+                Visit Variable expression: this
+                Variable expression returning typeName = Y1, fieldName = this
+              Unary Expression returning TypeName = Y1(One) FieldName = this C#-Code: ([])
+            Visiting right, type {this/Y1->this/Y1}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
+              Visit unary expression ('(this/Y1 <: Y3)') with OP: 'NOOP' (NOOP) and sub: field (this/Y1 <: Y3), type: {this/Y1->this/Y1}
+                Visit field expression: field (this/Y1 <: Y3), type: {this/Y1->this/Y1}
+                Type have arity 2
+                Field Expression returning: TypeName = Y1(One) FieldName = Y3 C#-Code: ([Y3 != null])
+              Unary Expression returning TypeName = Y1(One) FieldName = Y3 C#-Code: ([Y3 != null])
+            Binary JOIN Expression returning TypeName = Y1(One) FieldName = this.Y3 C#-Code: ([])
+          Binary PLUS Expression returning TypeName = Y1(Set) FieldName = this.Y2.Union<Y1>(this.Y3) C#-Code: ([Contract.ForAll({def}, e => this.Y2.Union<Y1>(this.Y3).Contains(e)])
+          Visit binary expression (OP=JOIN, '.' ) [this . (this/Y1 <: Y2)]
+          Visiting left, type {this/Y1}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
+            Visit unary expression ('this') with OP: 'NOOP' (NOOP) and sub: this, type: {this/Y1}
+              Visit Variable expression: this
+              Variable expression returning typeName = Y1, fieldName = this
+            Unary Expression returning TypeName = Y1(One) FieldName = this C#-Code: ([])
+          Visiting right, type {this/Y1->this/Y1}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
+            Visit unary expression ('(this/Y1 <: Y2)') with OP: 'NOOP' (NOOP) and sub: field (this/Y1 <: Y2), type: {this/Y1->this/Y1}
+              Visit field expression: field (this/Y1 <: Y2), type: {this/Y1->this/Y1}
+              Type have arity 2
+              Field Expression returning: TypeName = Y1(One) FieldName = Y2 C#-Code: ([Y2 != null])
+            Unary Expression returning TypeName = Y1(One) FieldName = Y2 C#-Code: ([Y2 != null])
+          Binary JOIN Expression returning TypeName = Y1(One) FieldName = this.Y2 C#-Code: ([])
+        Binary MINUS Expression returning TypeName = Y1(Set) FieldName = this.Y2.Union<Y1>(this.Y3).Except<Y1>(this.Y2) C#-Code: ([Contract.ForAll({def}, e => this.Y2.Union<Y1>(this.Y3).Contains(e)])
+        Visit binary expression (OP=JOIN, '.' ) [this . (this/Y1 <: Y3)]
+        Visiting left, type {this/Y1}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
+          Visit unary expression ('this') with OP: 'NOOP' (NOOP) and sub: this, type: {this/Y1}
+            Visit Variable expression: this
+            Variable expression returning typeName = Y1, fieldName = this
+          Unary Expression returning TypeName = Y1(One) FieldName = this C#-Code: ([])
+        Visiting right, type {this/Y1->this/Y1}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
+          Visit unary expression ('(this/Y1 <: Y3)') with OP: 'NOOP' (NOOP) and sub: field (this/Y1 <: Y3), type: {this/Y1->this/Y1}
+            Visit field expression: field (this/Y1 <: Y3), type: {this/Y1->this/Y1}
+            Type have arity 2
+            Field Expression returning: TypeName = Y1(One) FieldName = Y3 C#-Code: ([Y3 != null])
+          Unary Expression returning TypeName = Y1(One) FieldName = Y3 C#-Code: ([Y3 != null])
+        Binary JOIN Expression returning TypeName = Y1(One) FieldName = this.Y3 C#-Code: ([])
+      Binary INTERSECT Expression returning TypeName = Y1(Set) FieldName =  C#-Code: ([Contract.ForAll({def}, e1 => this.Y2.Union<Y1>(this.Y3).Except<Y1>(this.Y2).Contains(e1), Contract.ForAll({def}, e1 => this.Y3.Contains(e1)])
+    Unary Expression returning TypeName = Y1(Set) FieldName =  C#-Code: ([{def} != null, Contract.ForAll({def}, e1 => this.Y2.Union<Y1>(this.Y3).Except<Y1>(this.Y2).Contains(e1), Contract.ForAll({def}, e1 => this.Y3.Contains(e1), Contract.ForAll({def}, e => e != null)])
+  Transforming '{def} != null' to 'Y4 != null'
+  Transforming 'Contract.ForAll({def}, e1 => this.Y2.Union<Y1>(this.Y3).Except<Y1>(this.Y2).Contains(e1)' to 'Contract.ForAll(Y4, e1 => this.Y2.Union<Y1>(this.Y3).Except<Y1>(this.Y2).Contains(e1)'
+  Transforming 'Contract.ForAll({def}, e1 => this.Y3.Contains(e1)' to 'Contract.ForAll(Y4, e1 => this.Y3.Contains(e1)'
+  Transforming 'Contract.ForAll({def}, e => e != null)' to 'Contract.ForAll(Y4, e => e != null)'
+  Printing Invariants
+* Sig visit completed!
+* Visit Sig: this/SuperBase (0 field declarations)
+* Sig is PrimSig = true. Sig is SubSetSig: false
+* Sig visit completed!
+* Visit Sig: this/Base (0 field declarations)
+* Sig is PrimSig = true. Sig is SubSetSig: false
+* Sig visit completed!
+* Visit Sig: this/A (0 field declarations)
+* Sig is PrimSig = true. Sig is SubSetSig: false
+* Sig visit completed!
+* Visit Sig: this/B (0 field declarations)
+* Sig is PrimSig = true. Sig is SubSetSig: false
+* Sig visit completed!
+* Visit Sig: this/C (4 field declarations)
+* Sig is PrimSig = true. Sig is SubSetSig: false
+
+ Field Declaration: [field (this/C <: C0)] (1 fields)
+    Visit unary expression ('one this/A + this/B') with OP: 'one of' (ONEOF) and sub: this/A + this/B, type: {this/A, this/B}
+      Visit binary expression (OP=PLUS, '+' ) [this/A + this/B]
+        Visit unary expression ('this/A') with OP: 'NOOP' (NOOP) and sub: this/A, type: {this/A}
+        Unary Expression returning TypeName = A(One) FieldName =  C#-Code: ([])
+        Visit unary expression ('this/B') with OP: 'NOOP' (NOOP) and sub: this/B, type: {this/B}
+        Unary Expression returning TypeName = B(One) FieldName =  C#-Code: ([])
+      Binary PLUS Expression returning TypeName = Base(Set) FieldName = .Union<Base>() C#-Code: ([Contract.ForAll({def}, e => .Union<Base>().Contains(e)])
+    Unary Expression returning TypeName = Base(Set) FieldName = .Union<Base>() C#-Code: ([{def} != null, Contract.ForAll({def}, e => .Union<Base>().Contains(e), Contract.ForAll({def}, e => e != null)])
+  Transforming '{def} != null' to 'C0 != null'
+  Transforming 'Contract.ForAll({def}, e => .Union<Base>().Contains(e)' to 'Contract.ForAll(C0, e => .Union<Base>().Contains(e)'
+  Transforming 'Contract.ForAll({def}, e => e != null)' to 'Contract.ForAll(C0, e => e != null)'
+
+ Field Declaration: [field (this/C <: C1)] (1 fields)
+    Visit binary expression (OP=ARROW, '->' ) [this/A -> this/B]
+    Visiting left, type {this/A}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
+      Visit unary expression ('this/A') with OP: 'NOOP' (NOOP) and sub: this/A, type: {this/A}
+      Unary Expression returning TypeName = A(One) FieldName =  C#-Code: ([])
+    Visiting right, type {this/B}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
+      Visit unary expression ('this/B') with OP: 'NOOP' (NOOP) and sub: this/B, type: {this/B}
+      Unary Expression returning TypeName = B(One) FieldName =  C#-Code: ([])
+    Binary ARROW Expression returning TypeName = Tuple<A, B>(Set) FieldName =  C#-Code: ([])
+
+ Field Declaration: [field (this/C <: C2)] (1 fields)
+    Visit binary expression (OP=ONE_ARROW_ONE, 'one->one' ) [this/A one->one this/B]
+      Visit unary expression ('this/A') with OP: 'NOOP' (NOOP) and sub: this/A, type: {this/A}
+      Unary Expression returning TypeName = A(One) FieldName =  C#-Code: ([])
+      Visit unary expression ('this/B') with OP: 'NOOP' (NOOP) and sub: this/B, type: {this/B}
+      Unary Expression returning TypeName = B(One) FieldName =  C#-Code: ([])
+    Binary ONE_ARROW_ONE Expression returning TypeName = Tuple<A,B>(One) FieldName =  C#-Code: ([])
+
+ Field Declaration: [field (this/C <: C3)] (1 fields)
+    Visit binary expression (OP=PLUS, '+' ) [this . (this/C <: C1) + this . (this/C <: C2)]
+      Visit binary expression (OP=JOIN, '.' ) [this . (this/C <: C1)]
+      Visiting left, type {this/C}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
+        Visit unary expression ('this') with OP: 'NOOP' (NOOP) and sub: this, type: {this/C}
+          Visit Variable expression: this
+          Variable expression returning typeName = C, fieldName = this
+        Unary Expression returning TypeName = C(One) FieldName = this C#-Code: ([])
+      Visiting right, type {this/C->this/A->this/B}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
+        Visit unary expression ('(this/C <: C1)') with OP: 'NOOP' (NOOP) and sub: field (this/C <: C1), type: {this/C->this/A->this/B}
+          Visit field expression: field (this/C <: C1), type: {this/C->this/A->this/B}
+          Type have arity 3
+          Field Expression returning: TypeName = Tuple<A,B>(One) FieldName = C1 C#-Code: ([C1 != null])
+        Unary Expression returning TypeName = Tuple<A,B>(One) FieldName = C1 C#-Code: ([C1 != null])
+      Binary JOIN Expression returning TypeName = Tuple<A,B>(One) FieldName = this.C1 C#-Code: ([])
+      Visit binary expression (OP=JOIN, '.' ) [this . (this/C <: C2)]
+      Visiting left, type {this/C}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
+        Visit unary expression ('this') with OP: 'NOOP' (NOOP) and sub: this, type: {this/C}
+          Visit Variable expression: this
+          Variable expression returning typeName = C, fieldName = this
+        Unary Expression returning TypeName = C(One) FieldName = this C#-Code: ([])
+      Visiting right, type {this/C->this/A->this/B}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
+        Visit unary expression ('(this/C <: C2)') with OP: 'NOOP' (NOOP) and sub: field (this/C <: C2), type: {this/C->this/A->this/B}
+          Visit field expression: field (this/C <: C2), type: {this/C->this/A->this/B}
+          Type have arity 3
+          Field Expression returning: TypeName = Tuple<A,B>(One) FieldName = C2 C#-Code: ([C2 != null])
+        Unary Expression returning TypeName = Tuple<A,B>(One) FieldName = C2 C#-Code: ([C2 != null])
+      Binary JOIN Expression returning TypeName = Tuple<A,B>(One) FieldName = this.C2 C#-Code: ([])
+    Binary PLUS Expression returning TypeName = Tuple<A,B>(Set) FieldName = this.C1.Union<Tuple<A,B>>(this.C2) C#-Code: ([Contract.ForAll({def}, e => this.C1.Union<Tuple<A,B>>(this.C2).Contains(e)])
+  Transforming 'Contract.ForAll({def}, e => this.C1.Union<Tuple<A,B>>(this.C2).Contains(e)' to 'Contract.ForAll(C3, e => this.C1.Union<Tuple<A,B>>(this.C2).Contains(e)'
+  Printing Invariants
+* Sig visit completed!
+  * Handling Functions
+  * Printing Helper Class
+Error running the tests: java.io.FileNotFoundException: ..\edu\mit\csail\sdg\alloy4compiler\generator\answer2.cs (The system cannot find the file specified)
+------- Failed -------
