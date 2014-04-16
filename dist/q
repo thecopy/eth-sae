@@ -1,303 +1,97 @@
 ------- test2 -------
-  Visit binary expression (mult=2, type={this/From->this/To}, type size=1) (OP=ANY_ARROW_SOME, '->some' ) [this/From ->some this/To].
-    Visit unary expression ('this/From') with OP: 'NOOP' (NOOP) and sub: this/From, type: {this/From}
-      Visit Sig: this/From
-    Unary Expression returning TypeName = From FieldName =  C#-Code: ([]), sig = this/From
-    Visit unary expression ('this/To') with OP: 'NOOP' (NOOP) and sub: this/To, type: {this/To}
-      Visit Sig: this/To
-    Unary Expression returning TypeName = To FieldName =  C#-Code: ([]), sig = this/To
-  Binary ANY_ARROW_SOME Expression returning TypeName = ISet<Tuple<From, To>> FieldName =  C#-Code: ([edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@111de95a, edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@42c31c7d]), sig = null
 Code generation: SUCCESS
 Code compilation: SUCCESS
-    Visit ExprList expression: AND[! 0 = 1]
-    Going into arg in ExprList...
-      Visit unary expression ('! 0 = 1') with OP: '!' (NOT) and sub: 0 = 1, type: {PrimitiveBoolean}
-        Visit unary expression ('0 = 1') with OP: 'NOOP' (NOOP) and sub: 0 = 1, type: {PrimitiveBoolean}
-          Visit unary expression ('0 = 1') with OP: 'NOOP' (NOOP) and sub: 0 = 1, type: {PrimitiveBoolean}
-            Visit binary expression (mult=0, type={PrimitiveBoolean}, type size=0) (OP=EQUALS, '=' ) [0 = 1].
-              Visit constant expression with OP NUMBER and type {Int}
-              Visit constant expression with OP NUMBER and type {Int}
-            Binary EQUALS Expression returning TypeName = bool FieldName =  C#-Code: (0.Equals(1))([]), sig = null
-          Unary Expression returning TypeName = bool FieldName =  C#-Code: (0.Equals(1))([]), sig = null
-        Unary Expression returning TypeName = bool FieldName =  C#-Code: (0.Equals(1))([]), sig = null
-      Unary Expression returning TypeName = bool FieldName = ((0.Equals(1))) C#-Code: ((0.Equals(1)))([]), sig = null
-    ExprList returning TypeName =  FieldName =  C#-Code: ((0.Equals(1)))([]), sig = null
 Test generation: SUCCESS
 Code and test compilation: SUCCESS
 Code and test compilation (modified): SUCCESS
 Code and test rewriting: SUCCESS
 Code and test execution: SUCCESS
 ------- test5 -------
-  Visit unary expression ('set this/Name') with OP: 'set of' (SETOF) and sub: this/Name, type: {this/Name}
-    Visit unary expression ('this/Name') with OP: 'NOOP' (NOOP) and sub: this/Name, type: {this/Name}
-      Visit Sig: this/Name
-    Unary Expression returning TypeName = Name FieldName =  C#-Code: ([]), sig = this/Name
-  Unary Expression returning TypeName = ISet<Name> FieldName =  C#-Code: ([edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@36927633, edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@498e2a42]), sig = this/Name
-  Visit binary expression (mult=0, type={this/Name->this/Date}, type size=1) (OP=ARROW, '->' ) [this . (this/BirthdayBook <: known) -> this/Date].
-    Visit binary expression (mult=0, type={this/Name}, type size=1) (OP=JOIN, '.' ) [this . (this/BirthdayBook <: known)].
-    Visiting left, type {this/BirthdayBook}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
-      Visit unary expression ('this') with OP: 'NOOP' (NOOP) and sub: this, type: {this/BirthdayBook}
-        Visit Variable expression: this
-        Variable expression returning TypeName = BirthdayBook FieldName = this C#-Code: ([]), sig = this/BirthdayBook
-      Unary Expression returning TypeName = BirthdayBook FieldName = this C#-Code: ([]), sig = this/BirthdayBook
-    Visiting right, type {this/BirthdayBook->this/Name}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
-      Visit unary expression ('(this/BirthdayBook <: known)') with OP: 'NOOP' (NOOP) and sub: field (this/BirthdayBook <: known), type: {this/BirthdayBook->this/Name}
-        Visit field expression: field (this/BirthdayBook <: known), type: {this/BirthdayBook->this/Name}
-        Field Expression returning: TypeName = Name FieldName = known C#-Code: ([edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@147878c8]), sig = this/Name
-      Unary Expression returning TypeName = Name FieldName = known C#-Code: ([edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@147878c8]), sig = this/Name
-    Binary JOIN Expression returning TypeName = Name FieldName = this.known C#-Code: ([]), sig = this/BirthdayBook
-    Visit unary expression ('this/Date') with OP: 'NOOP' (NOOP) and sub: this/Date, type: {this/Date}
-      Visit Sig: this/Date
-    Unary Expression returning TypeName = Date FieldName =  C#-Code: ([]), sig = this/Date
-  Binary ARROW Expression returning TypeName = ISet<Tuple<Name, Date>> FieldName =  C#-Code: ([edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@71419cf7, edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@aa85638, edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@31b47bff]), sig = null
 Code generation: SUCCESS
 Code compilation: SUCCESS
-    Visit ExprList expression: AND[! 0 = 1]
-    Going into arg in ExprList...
-      Visit unary expression ('! 0 = 1') with OP: '!' (NOT) and sub: 0 = 1, type: {PrimitiveBoolean}
-        Visit unary expression ('0 = 1') with OP: 'NOOP' (NOOP) and sub: 0 = 1, type: {PrimitiveBoolean}
-          Visit unary expression ('0 = 1') with OP: 'NOOP' (NOOP) and sub: 0 = 1, type: {PrimitiveBoolean}
-            Visit binary expression (mult=0, type={PrimitiveBoolean}, type size=0) (OP=EQUALS, '=' ) [0 = 1].
-              Visit constant expression with OP NUMBER and type {Int}
-              Visit constant expression with OP NUMBER and type {Int}
-            Binary EQUALS Expression returning TypeName = bool FieldName =  C#-Code: (0.Equals(1))([]), sig = null
-          Unary Expression returning TypeName = bool FieldName =  C#-Code: (0.Equals(1))([]), sig = null
-        Unary Expression returning TypeName = bool FieldName =  C#-Code: (0.Equals(1))([]), sig = null
-      Unary Expression returning TypeName = bool FieldName = ((0.Equals(1))) C#-Code: ((0.Equals(1)))([]), sig = null
-    ExprList returning TypeName =  FieldName =  C#-Code: ((0.Equals(1)))([]), sig = null
 Test generation: SUCCESS
 Code and test compilation: SUCCESS
 Code and test compilation (modified): SUCCESS
 Code and test rewriting: SUCCESS
 Code and test execution: SUCCESS
 ------- test7 -------
-  Visit unary expression ('one this/Person') with OP: 'one of' (ONEOF) and sub: this/Person, type: {this/Person}
-    Visit unary expression ('this/Person') with OP: 'NOOP' (NOOP) and sub: this/Person, type: {this/Person}
-      Visit Sig: this/Person
-    Unary Expression returning TypeName = Person FieldName =  C#-Code: ([]), sig = this/Person
-  Unary Expression returning TypeName = Person FieldName =  C#-Code: ([edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@4bf329a4]), sig = this/Person
 Code generation: SUCCESS
 Code compilation: SUCCESS
-    Visit ExprList expression: AND[! 0 = 1]
-    Going into arg in ExprList...
-      Visit unary expression ('! 0 = 1') with OP: '!' (NOT) and sub: 0 = 1, type: {PrimitiveBoolean}
-        Visit unary expression ('0 = 1') with OP: 'NOOP' (NOOP) and sub: 0 = 1, type: {PrimitiveBoolean}
-          Visit unary expression ('0 = 1') with OP: 'NOOP' (NOOP) and sub: 0 = 1, type: {PrimitiveBoolean}
-            Visit binary expression (mult=0, type={PrimitiveBoolean}, type size=0) (OP=EQUALS, '=' ) [0 = 1].
-              Visit constant expression with OP NUMBER and type {Int}
-              Visit constant expression with OP NUMBER and type {Int}
-            Binary EQUALS Expression returning TypeName = bool FieldName =  C#-Code: (0.Equals(1))([]), sig = null
-          Unary Expression returning TypeName = bool FieldName =  C#-Code: (0.Equals(1))([]), sig = null
-        Unary Expression returning TypeName = bool FieldName =  C#-Code: (0.Equals(1))([]), sig = null
-      Unary Expression returning TypeName = bool FieldName = ((0.Equals(1))) C#-Code: ((0.Equals(1)))([]), sig = null
-    ExprList returning TypeName =  FieldName =  C#-Code: ((0.Equals(1)))([]), sig = null
 Test generation: SUCCESS
 Code and test compilation: SUCCESS
 Code and test compilation (modified): SUCCESS
 Code and test rewriting: SUCCESS
 Code and test execution: SUCCESS
 ------- test8 -------
-  Visit unary expression ('one this/Status') with OP: 'one of' (ONEOF) and sub: this/Status, type: {this/Status}
-    Visit unary expression ('this/Status') with OP: 'NOOP' (NOOP) and sub: this/Status, type: {this/Status}
-      Visit Sig: this/Status
-    Unary Expression returning TypeName = Status FieldName =  C#-Code: ([]), sig = this/Status
-  Unary Expression returning TypeName = Status FieldName =  C#-Code: ([edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@71394e2d]), sig = this/Status
 Code generation: SUCCESS
 Code compilation: SUCCESS
-    Visit ExprList expression: AND[! 0 = 1]
-    Going into arg in ExprList...
-      Visit unary expression ('! 0 = 1') with OP: '!' (NOT) and sub: 0 = 1, type: {PrimitiveBoolean}
-        Visit unary expression ('0 = 1') with OP: 'NOOP' (NOOP) and sub: 0 = 1, type: {PrimitiveBoolean}
-          Visit unary expression ('0 = 1') with OP: 'NOOP' (NOOP) and sub: 0 = 1, type: {PrimitiveBoolean}
-            Visit binary expression (mult=0, type={PrimitiveBoolean}, type size=0) (OP=EQUALS, '=' ) [0 = 1].
-              Visit constant expression with OP NUMBER and type {Int}
-              Visit constant expression with OP NUMBER and type {Int}
-            Binary EQUALS Expression returning TypeName = bool FieldName =  C#-Code: (0.Equals(1))([]), sig = null
-          Unary Expression returning TypeName = bool FieldName =  C#-Code: (0.Equals(1))([]), sig = null
-        Unary Expression returning TypeName = bool FieldName =  C#-Code: (0.Equals(1))([]), sig = null
-      Unary Expression returning TypeName = bool FieldName = ((0.Equals(1))) C#-Code: ((0.Equals(1)))([]), sig = null
-    ExprList returning TypeName =  FieldName =  C#-Code: ((0.Equals(1)))([]), sig = null
 Test generation: SUCCESS
 Code and test compilation: SUCCESS
 Code and test compilation (modified): SUCCESS
 Code and test rewriting: SUCCESS
 Code and test execution: SUCCESS
 ------- test11 -------
-  Visit unary expression ('set this/S') with OP: 'set of' (SETOF) and sub: this/S, type: {this/S}
-    Visit unary expression ('this/S') with OP: 'NOOP' (NOOP) and sub: this/S, type: {this/S}
-      Visit Sig: this/S
-    Unary Expression returning TypeName = S FieldName =  C#-Code: ([]), sig = this/S
-  Unary Expression returning TypeName = ISet<S> FieldName =  C#-Code: ([edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@6b69dc09, edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@72ed09f6]), sig = this/S
-  Visit unary expression ('one this/S') with OP: 'one of' (ONEOF) and sub: this/S, type: {this/S}
-    Visit unary expression ('this/S') with OP: 'NOOP' (NOOP) and sub: this/S, type: {this/S}
-      Visit Sig: this/S
-    Unary Expression returning TypeName = S FieldName =  C#-Code: ([]), sig = this/S
-  Unary Expression returning TypeName = S FieldName =  C#-Code: ([edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@2829306c]), sig = this/S
-  Visit unary expression ('set this/S') with OP: 'set of' (SETOF) and sub: this/S, type: {this/S}
-    Visit unary expression ('this/S') with OP: 'NOOP' (NOOP) and sub: this/S, type: {this/S}
-      Visit Sig: this/S
-    Unary Expression returning TypeName = S FieldName =  C#-Code: ([]), sig = this/S
-  Unary Expression returning TypeName = ISet<S> FieldName =  C#-Code: ([edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@282a170d, edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@634f6b14]), sig = this/S
-  Visit unary expression ('this/A') with OP: 'NOOP' (NOOP) and sub: this/A, type: {this/A}
-    Visit Sig: this/A
-  Unary Expression returning TypeName = A FieldName =  C#-Code: ([]), sig = this/A
-  Visit unary expression ('a . (this/A <: field)') with OP: 'NOOP' (NOOP) and sub: a . (this/A <: field), type: {this/S}
-    Visit binary expression (mult=0, type={this/S}, type size=1) (OP=JOIN, '.' ) [a . (this/A <: field)].
-    Visiting left, type {this/A}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
-      Visit unary expression ('a') with OP: 'NOOP' (NOOP) and sub: a, type: {this/A}
-        Visit Variable expression: a
-        Variable expression returning TypeName = A FieldName = a C#-Code: ([]), sig = this/A
-      Unary Expression returning TypeName = A FieldName = a C#-Code: ([]), sig = this/A
-    Visiting right, type {this/A->this/S}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
-      Visit unary expression ('(this/A <: field)') with OP: 'NOOP' (NOOP) and sub: field (this/A <: field), type: {this/A->this/S}
-        Visit field expression: field (this/A <: field), type: {this/A->this/S}
-        Field Expression returning: TypeName = S FieldName = field C#-Code: ([edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@72ff20fb]), sig = this/S
-      Unary Expression returning TypeName = S FieldName = field C#-Code: ([edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@72ff20fb]), sig = this/S
-    Binary JOIN Expression returning TypeName = S FieldName = a.field C#-Code: ([]), sig = this/A
-  Unary Expression returning TypeName = S FieldName = a.field C#-Code: ([]), sig = this/A
-  Visit unary expression ('one this/S') with OP: 'one of' (ONEOF) and sub: this/S, type: {this/S}
-    Visit unary expression ('this/S') with OP: 'NOOP' (NOOP) and sub: this/S, type: {this/S}
-      Visit Sig: this/S
-    Unary Expression returning TypeName = S FieldName =  C#-Code: ([]), sig = this/S
-  Unary Expression returning TypeName = S FieldName =  C#-Code: ([edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@4bce79b8]), sig = this/S
-  Visit unary expression ('this/A') with OP: 'NOOP' (NOOP) and sub: this/A, type: {this/A}
-    Visit Sig: this/A
-  Unary Expression returning TypeName = A FieldName =  C#-Code: ([]), sig = this/A
-  Visit unary expression ('a . (this/A <: field)') with OP: 'NOOP' (NOOP) and sub: a . (this/A <: field), type: {this/S}
-    Visit binary expression (mult=0, type={this/S}, type size=1) (OP=JOIN, '.' ) [a . (this/A <: field)].
-    Visiting left, type {this/A}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
-      Visit unary expression ('a') with OP: 'NOOP' (NOOP) and sub: a, type: {this/A}
-        Visit Variable expression: a
-        Variable expression returning TypeName = A FieldName = a C#-Code: ([]), sig = this/A
-      Unary Expression returning TypeName = A FieldName = a C#-Code: ([]), sig = this/A
-    Visiting right, type {this/A->this/S}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
-      Visit unary expression ('(this/A <: field)') with OP: 'NOOP' (NOOP) and sub: field (this/A <: field), type: {this/A->this/S}
-        Visit field expression: field (this/A <: field), type: {this/A->this/S}
-        Field Expression returning: TypeName = S FieldName = field C#-Code: ([edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@609945e9]), sig = this/S
-      Unary Expression returning TypeName = S FieldName = field C#-Code: ([edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@609945e9]), sig = this/S
-    Binary JOIN Expression returning TypeName = S FieldName = a.field C#-Code: ([]), sig = this/A
-  Unary Expression returning TypeName = S FieldName = a.field C#-Code: ([]), sig = this/A
-  Visit binary expression (mult=0, type={this/S}, type size=1) (OP=JOIN, '.' ) [a . (this/A <: field)].
-  Visiting left, type {this/A}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
-    Visit unary expression ('a') with OP: 'NOOP' (NOOP) and sub: a, type: {this/A}
-      Visit Variable expression: a
-      Variable expression returning TypeName = A FieldName = a C#-Code: ([]), sig = this/A
-    Unary Expression returning TypeName = A FieldName = a C#-Code: ([]), sig = this/A
-  Visiting right, type {this/A->this/S}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
-    Visit unary expression ('(this/A <: field)') with OP: 'NOOP' (NOOP) and sub: field (this/A <: field), type: {this/A->this/S}
-      Visit field expression: field (this/A <: field), type: {this/A->this/S}
-      Field Expression returning: TypeName = S FieldName = field C#-Code: ([edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@6ebcf58a]), sig = this/S
-    Unary Expression returning TypeName = S FieldName = field C#-Code: ([edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@6ebcf58a]), sig = this/S
-  Binary JOIN Expression returning TypeName = S FieldName = a.field C#-Code: ([]), sig = this/A
-  Visit unary expression ('set this/S') with OP: 'set of' (SETOF) and sub: this/S, type: {this/S}
-    Visit unary expression ('this/S') with OP: 'NOOP' (NOOP) and sub: this/S, type: {this/S}
-      Visit Sig: this/S
-    Unary Expression returning TypeName = S FieldName =  C#-Code: ([]), sig = this/S
-  Unary Expression returning TypeName = ISet<S> FieldName =  C#-Code: ([edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@379c6fd2, edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@7f716083]), sig = this/S
-  Visit unary expression ('this/A') with OP: 'NOOP' (NOOP) and sub: this/A, type: {this/A}
-    Visit Sig: this/A
-  Unary Expression returning TypeName = A FieldName =  C#-Code: ([]), sig = this/A
-  Visit unary expression ('a . (this/A <: field) & a . (this/A <: field2)') with OP: 'NOOP' (NOOP) and sub: a . (this/A <: field) & a . (this/A <: field2), type: {this/S}
-    Visit binary expression (mult=0, type={this/S}, type size=1) (OP=INTERSECT, '&' ) [a . (this/A <: field) & a . (this/A <: field2)].
-      Visit binary expression (mult=0, type={this/S}, type size=1) (OP=JOIN, '.' ) [a . (this/A <: field)].
-      Visiting left, type {this/A}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
-        Visit unary expression ('a') with OP: 'NOOP' (NOOP) and sub: a, type: {this/A}
-          Visit Variable expression: a
-          Variable expression returning TypeName = A FieldName = a C#-Code: ([]), sig = this/A
-        Unary Expression returning TypeName = A FieldName = a C#-Code: ([]), sig = this/A
-      Visiting right, type {this/A->this/S}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
-        Visit unary expression ('(this/A <: field)') with OP: 'NOOP' (NOOP) and sub: field (this/A <: field), type: {this/A->this/S}
-          Visit field expression: field (this/A <: field), type: {this/A->this/S}
-          Field Expression returning: TypeName = S FieldName = field C#-Code: ([edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@6c7779d2]), sig = this/S
-        Unary Expression returning TypeName = S FieldName = field C#-Code: ([edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@6c7779d2]), sig = this/S
-      Binary JOIN Expression returning TypeName = S FieldName = a.field C#-Code: ([]), sig = this/A
-      Visit binary expression (mult=0, type={this/S}, type size=1) (OP=JOIN, '.' ) [a . (this/A <: field2)].
-      Visiting left, type {this/A}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
-        Visit unary expression ('a') with OP: 'NOOP' (NOOP) and sub: a, type: {this/A}
-          Visit Variable expression: a
-          Variable expression returning TypeName = A FieldName = a C#-Code: ([]), sig = this/A
-        Unary Expression returning TypeName = A FieldName = a C#-Code: ([]), sig = this/A
-      Visiting right, type {this/A->this/S}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
-        Visit unary expression ('(this/A <: field2)') with OP: 'NOOP' (NOOP) and sub: field (this/A <: field2), type: {this/A->this/S}
-          Visit field expression: field (this/A <: field2), type: {this/A->this/S}
-          Field Expression returning: TypeName = S FieldName = field2 C#-Code: ([edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@17df01a0]), sig = this/S
-        Unary Expression returning TypeName = S FieldName = field2 C#-Code: ([edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@17df01a0]), sig = this/S
-      Binary JOIN Expression returning TypeName = S FieldName = a.field2 C#-Code: ([]), sig = this/A
-    Binary INTERSECT Expression returning TypeName = S FieldName = new HashSet<S>(a.field.Intersect<S>(a.field2)) C#-Code: ([edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@4c8962e8, edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@4fbc9499, edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@65bff1b4, edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@1c95949c, edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@204f9c6d, edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@4aa6c8ad]), sig = null
-  Unary Expression returning TypeName = S FieldName = new HashSet<S>(a.field.Intersect<S>(a.field2)) C#-Code: ([edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@4c8962e8, edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@4fbc9499, edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@65bff1b4, edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@1c95949c, edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@204f9c6d, edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@4aa6c8ad]), sig = null
-Code generation: SUCCESS
-Code compilation: Failed
-    Visit ExprList expression: AND[! 0 = 1]
-    Going into arg in ExprList...
-      Visit unary expression ('! 0 = 1') with OP: '!' (NOT) and sub: 0 = 1, type: {PrimitiveBoolean}
-        Visit unary expression ('0 = 1') with OP: 'NOOP' (NOOP) and sub: 0 = 1, type: {PrimitiveBoolean}
-          Visit unary expression ('0 = 1') with OP: 'NOOP' (NOOP) and sub: 0 = 1, type: {PrimitiveBoolean}
-            Visit binary expression (mult=0, type={PrimitiveBoolean}, type size=0) (OP=EQUALS, '=' ) [0 = 1].
-              Visit constant expression with OP NUMBER and type {Int}
-              Visit constant expression with OP NUMBER and type {Int}
-            Binary EQUALS Expression returning TypeName = bool FieldName =  C#-Code: (0.Equals(1))([]), sig = null
-          Unary Expression returning TypeName = bool FieldName =  C#-Code: (0.Equals(1))([]), sig = null
-        Unary Expression returning TypeName = bool FieldName =  C#-Code: (0.Equals(1))([]), sig = null
-      Unary Expression returning TypeName = bool FieldName = ((0.Equals(1))) C#-Code: ((0.Equals(1)))([]), sig = null
-    ExprList returning TypeName =  FieldName =  C#-Code: ((0.Equals(1)))([]), sig = null
-Test generation: SUCCESS
-Code and test compilation: Failed
-Code and test compilation (modified): Failed
-Code and test rewriting: SUCCESS
-Code and test execution: SUCCESS
-------- test12 -------
-  Visit unary expression ('one this/Platform') with OP: 'one of' (ONEOF) and sub: this/Platform, type: {this/Platform}
-    Visit unary expression ('this/Platform') with OP: 'NOOP' (NOOP) and sub: this/Platform, type: {this/Platform}
-      Visit Sig: this/Platform
-    Unary Expression returning TypeName = Platform FieldName =  C#-Code: ([]), sig = this/Platform
-  Unary Expression returning TypeName = Platform FieldName =  C#-Code: ([edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@7f8e1a98]), sig = this/Platform
-  Visit constant expression with OP false and type {PrimitiveBoolean}
-  Visit unary expression ('this/Man') with OP: 'NOOP' (NOOP) and sub: this/Man, type: {this/Man}
-    Visit Sig: this/Man
-  Unary Expression returning TypeName = Man FieldName =  C#-Code: ([]), sig = this/Man
-  Visit unary expression ('m . (this/Man <: floor) = n . (this/Man <: ceiling)') with OP: 'NOOP' (NOOP) and sub: m . (this/Man <: floor) = n . (this/Man <: ceiling), type: {PrimitiveBoolean}
-    Visit binary expression (mult=0, type={PrimitiveBoolean}, type size=0) (OP=EQUALS, '=' ) [m . (this/Man <: floor) = n . (this/Man <: ceiling)].
-      Visit binary expression (mult=0, type={this/Platform}, type size=1) (OP=JOIN, '.' ) [m . (this/Man <: floor)].
-      Visiting left, type {this/Man}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
-        Visit unary expression ('m') with OP: 'NOOP' (NOOP) and sub: m, type: {this/Man}
-          Visit Variable expression: m
-          Variable expression returning TypeName = Man FieldName = m C#-Code: ([]), sig = this/Man
-        Unary Expression returning TypeName = Man FieldName = m C#-Code: ([]), sig = this/Man
-      Visiting right, type {this/Man->this/Platform}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
-        Visit unary expression ('(this/Man <: floor)') with OP: 'NOOP' (NOOP) and sub: field (this/Man <: floor), type: {this/Man->this/Platform}
-          Visit field expression: field (this/Man <: floor), type: {this/Man->this/Platform}
-          Field Expression returning: TypeName = Platform FieldName = floor C#-Code: ([edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@4a743294]), sig = this/Platform
-        Unary Expression returning TypeName = Platform FieldName = floor C#-Code: ([edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@4a743294]), sig = this/Platform
-      Binary JOIN Expression returning TypeName = Platform FieldName = m.floor C#-Code: ([]), sig = this/Man
-      Visit binary expression (mult=0, type={this/Platform}, type size=1) (OP=JOIN, '.' ) [n . (this/Man <: ceiling)].
-      Visiting left, type {this/Man}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
-        Visit unary expression ('n') with OP: 'NOOP' (NOOP) and sub: n, type: {this/Man}
-          Visit Variable expression: n
-          Variable expression returning TypeName = Man FieldName = n C#-Code: ([]), sig = this/Man
-        Unary Expression returning TypeName = Man FieldName = n C#-Code: ([]), sig = this/Man
-      Visiting right, type {this/Man->this/Platform}(class edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary)
-        Visit unary expression ('(this/Man <: ceiling)') with OP: 'NOOP' (NOOP) and sub: field (this/Man <: ceiling), type: {this/Man->this/Platform}
-          Visit field expression: field (this/Man <: ceiling), type: {this/Man->this/Platform}
-          Field Expression returning: TypeName = Platform FieldName = ceiling C#-Code: ([edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@12a4b8bc]), sig = this/Platform
-        Unary Expression returning TypeName = Platform FieldName = ceiling C#-Code: ([edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor@12a4b8bc]), sig = this/Platform
-      Binary JOIN Expression returning TypeName = Platform FieldName = n.ceiling C#-Code: ([]), sig = this/Man
-    Binary EQUALS Expression returning TypeName = bool FieldName =  C#-Code: (m.floor.Equals(n.ceiling))([]), sig = null
-  Unary Expression returning TypeName = bool FieldName =  C#-Code: (m.floor.Equals(n.ceiling))([]), sig = null
 Code generation: SUCCESS
 Code compilation: SUCCESS
-    Visit ExprList expression: AND[! 0 = 1]
-    Going into arg in ExprList...
-      Visit unary expression ('! 0 = 1') with OP: '!' (NOT) and sub: 0 = 1, type: {PrimitiveBoolean}
-        Visit unary expression ('0 = 1') with OP: 'NOOP' (NOOP) and sub: 0 = 1, type: {PrimitiveBoolean}
-          Visit unary expression ('0 = 1') with OP: 'NOOP' (NOOP) and sub: 0 = 1, type: {PrimitiveBoolean}
-            Visit binary expression (mult=0, type={PrimitiveBoolean}, type size=0) (OP=EQUALS, '=' ) [0 = 1].
-              Visit constant expression with OP NUMBER and type {Int}
-              Visit constant expression with OP NUMBER and type {Int}
-            Binary EQUALS Expression returning TypeName = bool FieldName =  C#-Code: (0.Equals(1))([]), sig = null
-          Unary Expression returning TypeName = bool FieldName =  C#-Code: (0.Equals(1))([]), sig = null
-        Unary Expression returning TypeName = bool FieldName =  C#-Code: (0.Equals(1))([]), sig = null
-      Unary Expression returning TypeName = bool FieldName = ((0.Equals(1))) C#-Code: ((0.Equals(1)))([]), sig = null
-    ExprList returning TypeName =  FieldName =  C#-Code: ((0.Equals(1)))([]), sig = null
 Test generation: SUCCESS
 Code and test compilation: SUCCESS
 Code and test compilation (modified): SUCCESS
+Code and test rewriting: SUCCESS
+Code and test execution: SUCCESS
+------- test12 -------
+Code generation: SUCCESS
+Code compilation: SUCCESS
+Test generation: SUCCESS
+Code and test compilation: SUCCESS
+Code and test compilation (modified): SUCCESS
+Code and test rewriting: SUCCESS
+Code and test execution: SUCCESS
+------- test13 -------
+Code generation: SUCCESS
+Code compilation: SUCCESS
+Test generation: SUCCESS
+Code and test compilation: SUCCESS
+Code and test compilation (modified): SUCCESS
+Code and test rewriting: SUCCESS
+Code and test execution: SUCCESS
+------- test15 -------
+Code generation: SUCCESS
+Code compilation: SUCCESS
+Test generation: SUCCESS
+Code and test compilation: SUCCESS
+Code and test compilation (modified): SUCCESS
+Code and test rewriting: SUCCESS
+Code and test execution: SUCCESS
+------- test17 -------
+Code generation: SUCCESS
+Code compilation: SUCCESS
+Test generation: SUCCESS
+Code and test compilation: SUCCESS
+Code and test compilation (modified): SUCCESS
+Code and test rewriting: SUCCESS
+Code and test execution: SUCCESS
+------- test19 -------
+Code generation: SUCCESS
+Code compilation: SUCCESS
+Test generation: SUCCESS
+Code and test compilation: SUCCESS
+Code and test compilation (modified): SUCCESS
+Code and test rewriting: SUCCESS
+Code and test execution: SUCCESS
+------- test22 -------
+Code generation: SUCCESS
+Code compilation: SUCCESS
+Test generation: SUCCESS
+Code and test compilation: SUCCESS
+Code and test compilation (modified): SUCCESS
+Code and test rewriting: SUCCESS
+Code and test execution: SUCCESS
+------- test23 -------
+Code generation: SUCCESS
+Code compilation: SUCCESS
+Test generation: SUCCESS
+Code and test compilation: SUCCESS
+Code and test compilation (modified): SUCCESS
+Code and test rewriting: SUCCESS
+Code and test execution: SUCCESS
+Grade: 12/12

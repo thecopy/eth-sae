@@ -177,7 +177,7 @@ public final class CodeGenerator {
 	  //System.out.println("  * Handling Functions");
 	  out.print("public static class FuncClass {\r\n");
 	  for(Func func : funcs){
-		  System.err.println("\r\nFunction " + func.label.substring(5) + " in " + originalFilename);
+		  //System.err.println("\r\nFunction " + func.label.substring(5) + " in " + originalFilename);
 		  //System.out.println("  ** Parsing function " + func.label.substring(5));
 		  //System.out.println("  *** Resolving function return type...");
 		  NodeInfo returnType = func.returnDecl.accept(v);
@@ -232,7 +232,7 @@ public final class CodeGenerator {
 		  }
 		  
 		  //System.out.println("  *** Resolving function body...");
-		  System.err.println("Function body is " + func.getBody());
+		  //System.err.println("Function body is " + func.getBody());
 		  NodeInfo body = func.getBody().accept(v);
 		  out.print("\r\n");
 		  String bodyCode = null;
@@ -244,60 +244,59 @@ public final class CodeGenerator {
 		  
 		  out.print(bodyCode);
 		  // If body is a set but function should return a non-set, apply LINQ .Single()
-		  System.err.println("Checking of body is set and if return type is not...");
+		  //System.err.println("Checking of body is set and if return type is not...");
 		  if(false == returnType.typeName.startsWith("ISet")){
-			  System.err.println("Func return type is not a set");
+			  //System.err.println("Func return type is not a set");
 			  if(bodyCode.contains("new HashSet")){
-				  System.err.println("Body is a HashSet or was decided to be a set => Outputting .Single()");
+				  //System.err.println("Body is a HashSet or was decided to be a set => Outputting .Single()");
 				  out.print(".Single()");
 			  }else{
-				  System.err.println("Body did not contain HashSet delcaration, checking variable");
+				  //System.err.println("Body did not contain HashSet delcaration, checking variable");
 				  for(String param : setParams){
 					  if(bodyCode.equals("    return " + param)){
-						  System.err.println("Body is a reference to a parameter which is a set => Outputting .Single()");
+						  //System.err.println("Body is a reference to a parameter which is a set => Outputting .Single()");
 						  out.print(".Single()");
 						  break;
 					  }
 				  }
 				  
-				  System.err.println("Body.class = " + func.getBody().deNOP().getClass());
+				  //System.err.println("Body.class = " + func.getBody().deNOP().getClass());
 				  Expr b = func.getBody().deNOP();
 				  if(b instanceof ExprUnary){
 					  if(((ExprUnary)b).op.equals(ExprUnary.Op.SETOF) || ((ExprUnary)b).op.equals(ExprUnary.Op.SOMEOF)){
-						  System.err.println("Body is a ExprUnary with OP=SET or SOME => Outputting .Single()");
+						  //System.err.println("Body is a ExprUnary with OP=SET or SOME => Outputting .Single()");
 					  }else{
-						  System.err.println("Body is a ExprUnary but with OP=" + ((ExprUnary)b).op);
+						  //System.err.println("Body is a ExprUnary but with OP=" + ((ExprUnary)b).op);
 
 					  }
 				  }else{
-					  System.err.println("Checking reference to params ( " + params.size() + ")...");
+					  //System.err.println("Checking reference to params ( " + params.size() + ")...");
 					  for(String param : params){
-						  System.err.println("Checking " + param);
+						  //System.err.println("Checking " + param);
 						  try{
 							  if(bodyCode.startsWith("    return " + param + ".")){
-								  System.err.println("Visiting body of function...");
+								  //System.err.println("Visiting body of function...");
 								  NodeInfo bInfo = b.accept(v);
 								  if(bInfo.fieldName == null){
-									  System.err.println("bInfo.fieldName is null! Cannot check...");
+									  //System.err.println("bInfo.fieldName is null! Cannot check...");
 								  }
 								  String field = bInfo.fieldName.substring(bInfo.fieldName.indexOf(".")+1);
-								  if(bInfo.sig == null)
-									  System.err.println("Sig is null! Cannot check...");
-								  else{
+								  if(bInfo.sig == null){
+									  //System.err.println("Sig is null! Cannot check...");
+							  	  }else{
 									  String sigName = bInfo.sig.label;
 									  if(sigName.startsWith("this/"))
 										  sigName = sigName.substring(5);
 									  if(fieldSets.contains(sigName + "." + field)){
-										  System.err.println("Body is referencing " + sigName + "." + field +" which is a set in sig " + sigName + " => Outputting .Single()");
+										  //System.err.println("Body is referencing " + sigName + "." + field +" which is a set in sig " + sigName + " => Outputting .Single()");
 										  out.print(".Single()");
 									  }else{
-										  System.err.println("Body is referencing " + sigName + "." + field +" which is _not_ a set in sig " + sigName);
-										  for(String s : fieldSets)
-											  System.err.println(s);
+										  //System.err.println("Body is referencing " + sigName + "." + field +" which is _not_ a set in sig " + sigName);
 									  }
-								  }
+							  		}
+								  
 							  }else{
-								  System.err.println(bodyCode + " does not start with '    return " + param + ".");
+								  //System.err.println(bodyCode + " does not start with '    return " + param + ".");
 							  }
 						  }catch(Throwable e){
 							  e.printStackTrace();

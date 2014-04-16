@@ -1084,6 +1084,6 @@ public class Visitor extends VisitQuery<NodeInfo> {
 		for(int i = 0; i < ident; i++)
 			idents += "  ";
 
-		System.out.print(idents + s + "\r\n");
+		//System.out.print(idents + s + "\r\n");
 	}
 }
