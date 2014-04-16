@@ -318,7 +318,7 @@ public class Visitor extends VisitQuery<NodeInfo> {
 			ret.addAllInvariants(right.invariants);
 			break;
 			
-		case ANY_ARROW_SOME: // "A -> some B" (Tuple) B must be non empty set	
+		case ANY_ARROW_SOME: // "any A -> some B" (Tuple) B must be non empty set	
 			left = x.left.accept(this);
 			right = x.right.accept(this);
 			s.append("ISet<Tuple<");
@@ -333,6 +333,8 @@ public class Visitor extends VisitQuery<NodeInfo> {
 			ret.addInvariant(
 					"Contract.ForAll({def}, e1 => e1 != null" 
 							+ " && {def}.Count(x => x.Item1.Equals(e1.Item1)) >= 1)");
+			
+			ret.addInvariant("Contract.ForAll({def}, e1 => e1.Item1 != null && e1.Item2 != null");
 			
 			if(left.fieldName != null && !left.fieldName.isEmpty()){
 				ret.addInvariant("Contract.ForAll({def}, e => e.Item1.Equals(" + left.fieldName + "))");
@@ -359,7 +361,7 @@ public class Visitor extends VisitQuery<NodeInfo> {
 			
 			ret.addInvariant(
 					"Contract.ForAll({def}, e1 => e1 != null" 
-							+ " && {def}.Count(x => x.Item1.Equals(e1.Item1)) == 1)");
+							+ " && {def}.(x => x.Item1.Equals(e1.Item1)) == 1)");
 			
 			if(left.fieldName != null && !left.fieldName.isEmpty()){
 				ret.addInvariant("Contract.ForAll({def}, e => e.Item1.Equals(" + left.fieldName + "))");
