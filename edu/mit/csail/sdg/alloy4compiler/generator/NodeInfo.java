@@ -54,7 +54,7 @@ public class NodeInfo {
 	
 	@Override
 	public String toString() {
-		return "TypeName = " + typeName + " FieldName = " + fieldName + " C#-Code: " + csharpCode + "(" + invariants + ")";
+		return "TypeName = " + typeName + " FieldName = " + fieldName + " C#-Code: " + csharpCode + "(" + invariants + "), sig = " + sig;
 	}
 	public void addAllInvariants(ArrayList<InvariantDescriptor> toAdd) {
 		this.invariants.addAll(toAdd);

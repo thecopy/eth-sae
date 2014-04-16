@@ -11,6 +11,7 @@ import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4.SafeList;
 import edu.mit.csail.sdg.alloy4.ErrorFatal;
 import edu.mit.csail.sdg.alloy4compiler.ast.Decl;
+import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprHasName;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
@@ -18,8 +19,11 @@ import edu.mit.csail.sdg.alloy4compiler.ast.Func;
 import edu.mit.csail.sdg.alloy4compiler.ast.Module;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.SubsetSig;
+import edu.mit.csail.sdg.alloy4compiler.generator.ASTHelper;
+import edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor;
 import edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor.InvariantConstraint;
 import edu.mit.csail.sdg.alloy4compiler.generator.NodeInfo;
+import edu.mit.csail.sdg.alloy4compiler.generator.Visitor;
 
 public final class CodeGenerator {
 
@@ -42,8 +46,9 @@ public final class CodeGenerator {
 			  	 +"using System.Linq;\r\n"
 			  	 +"using System.Collections.Generic;\r\n"
 			  	 +"using System.Diagnostics.Contracts;\r\n");
-	  
-	  Visitor v = new Visitor(out);
+	  ArrayList<String> fieldSets = new ArrayList<String>();
+
+	  Visitor v = new Visitor();
 	  for(Sig sig : sigs){
 		  if(sig.label.equals("univ") || sig.label.equals("Int")
 				  || sig.label.equals("seq/Int")
@@ -85,6 +90,9 @@ public final class CodeGenerator {
 				String finalTypeName = defAndInvariants.typeName;
 				
 				for(ExprHasName n : decl.names){
+
+					if(finalTypeName.startsWith("ISet"))
+						fieldSets.add(name + "." + n.label);
 					
 					s.append("  public " + finalTypeName + " " + n.label + ";\r\n"); 
 					
@@ -169,6 +177,7 @@ public final class CodeGenerator {
 	  //System.out.println("  * Handling Functions");
 	  out.print("public static class FuncClass {\r\n");
 	  for(Func func : funcs){
+		  System.err.println("\r\nFunction " + func.label.substring(5) + " in " + originalFilename);
 		  //System.out.println("  ** Parsing function " + func.label.substring(5));
 		  //System.out.println("  *** Resolving function return type...");
 		  NodeInfo returnType = func.returnDecl.accept(v);
@@ -177,6 +186,8 @@ public final class CodeGenerator {
 
 		  //System.out.println("  *** Resolving function parameters...");
 		  ArrayList<String> requires = new ArrayList<String>();
+		  ArrayList<String> setParams = new ArrayList<String>();
+		  ArrayList<String> params = new ArrayList<String>();
 		  boolean first = true;
 		  for(Decl decl : func.decls){
 			  NodeInfo d = decl.expr.accept(v);
@@ -186,8 +197,27 @@ public final class CodeGenerator {
 				  out.print(d.typeName + " " + name.label);
 				  first = false;
 
-				  for(InvariantDescriptor inv : d.invariants)
-					  requires.add(inv.invariant.replace("{def}", name.label));
+				  params.add(name.label);
+				  if(d.typeName.startsWith("ISet"))
+					  setParams.add(name.label);
+				  
+				  for(InvariantDescriptor inv : d.invariants){
+					  	
+						// If invariant is only for sets, check that this is a set
+						if(inv.invariantConstraint.equals(InvariantConstraint.SET_ONLY)){
+							
+							if(false == ASTHelper.isSet(decl.expr))
+								continue;
+						}
+						
+						// If invariant is only when not a set, check that this is not a set
+						if(inv.invariantConstraint.equals(InvariantConstraint.NONSET_ONLY)){
+							if(ASTHelper.isSet(decl.expr))
+								continue;
+						}
+						
+						requires.add(inv.invariant.replace("{def}", name.label));
+				  }
 			  }
 		  }
 		  out.print("){\r\n");
@@ -202,14 +232,83 @@ public final class CodeGenerator {
 		  }
 		  
 		  //System.out.println("  *** Resolving function body...");
+		  System.err.println("Function body is " + func.getBody());
 		  NodeInfo body = func.getBody().accept(v);
 		  out.print("\r\n");
+		  String bodyCode = null;
 		  if(body.csharpCode == null || body.csharpCode.isEmpty()){
-			  out.print("    return " + body.fieldName + ";");
+			  bodyCode = "    return " + body.fieldName;
 		  }else{
-			  out.print("    return " + body.csharpCode + ";");
+			  bodyCode = "    return " + body.csharpCode;
 		  }
-		  out.print("\r\n  }\r\n");
+		  
+		  out.print(bodyCode);
+		  // If body is a set but function should return a non-set, apply LINQ .Single()
+		  System.err.println("Checking of body is set and if return type is not...");
+		  if(false == returnType.typeName.startsWith("ISet")){
+			  System.err.println("Func return type is not a set");
+			  if(bodyCode.contains("new HashSet")){
+				  System.err.println("Body is a HashSet or was decided to be a set => Outputting .Single()");
+				  out.print(".Single()");
+			  }else{
+				  System.err.println("Body did not contain HashSet delcaration, checking variable");
+				  for(String param : setParams){
+					  if(bodyCode.equals("    return " + param)){
+						  System.err.println("Body is a reference to a parameter which is a set => Outputting .Single()");
+						  out.print(".Single()");
+						  break;
+					  }
+				  }
+				  
+				  System.err.println("Body.class = " + func.getBody().deNOP().getClass());
+				  Expr b = func.getBody().deNOP();
+				  if(b instanceof ExprUnary){
+					  if(((ExprUnary)b).op.equals(ExprUnary.Op.SETOF) || ((ExprUnary)b).op.equals(ExprUnary.Op.SOMEOF)){
+						  System.err.println("Body is a ExprUnary with OP=SET or SOME => Outputting .Single()");
+					  }else{
+						  System.err.println("Body is a ExprUnary but with OP=" + ((ExprUnary)b).op);
+
+					  }
+				  }else{
+					  System.err.println("Checking reference to params ( " + params.size() + ")...");
+					  for(String param : params){
+						  System.err.println("Checking " + param);
+						  try{
+							  if(bodyCode.startsWith("    return " + param + ".")){
+								  System.err.println("Visiting body of function...");
+								  NodeInfo bInfo = b.accept(v);
+								  if(bInfo.fieldName == null){
+									  System.err.println("bInfo.fieldName is null! Cannot check...");
+								  }
+								  String field = bInfo.fieldName.substring(bInfo.fieldName.indexOf(".")+1);
+								  if(bInfo.sig == null)
+									  System.err.println("Sig is null! Cannot check...");
+								  else{
+									  String sigName = bInfo.sig.label;
+									  if(sigName.startsWith("this/"))
+										  sigName = sigName.substring(5);
+									  if(fieldSets.contains(sigName + "." + field)){
+										  System.err.println("Body is referencing " + sigName + "." + field +" which is a set in sig " + sigName + " => Outputting .Single()");
+										  out.print(".Single()");
+									  }else{
+										  System.err.println("Body is referencing " + sigName + "." + field +" which is _not_ a set in sig " + sigName);
+										  for(String s : fieldSets)
+											  System.err.println(s);
+									  }
+								  }
+							  }else{
+								  System.err.println(bodyCode + " does not start with '    return " + param + ".");
+							  }
+						  }catch(Throwable e){
+							  e.printStackTrace();
+						  }
+					  }
+				  }
+
+			  }
+		  }
+		  
+		  out.print(";\r\n  }\r\n");
 	  }
 	  out.print("}\r\n");
 	  

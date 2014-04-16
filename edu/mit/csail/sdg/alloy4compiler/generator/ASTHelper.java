@@ -2,8 +2,11 @@ package edu.mit.csail.sdg.alloy4compiler.generator;
 
 import java.util.HashSet;
 
+import edu.mit.csail.sdg.alloy4.Err;
 import edu.mit.csail.sdg.alloy4compiler.ast.Expr;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprBinary;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary;
+import edu.mit.csail.sdg.alloy4compiler.ast.ExprVar;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig;
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprUnary.Op;
 import edu.mit.csail.sdg.alloy4compiler.ast.Sig.PrimSig;
@@ -11,6 +14,39 @@ import edu.mit.csail.sdg.alloy4compiler.ast.VisitQuery;
 import edu.mit.csail.sdg.alloy4compiler.generator.InvariantDescriptor.InvariantConstraint;
 
 public class ASTHelper {
+	public static Expr deJOIN(Expr expr){
+		if(expr instanceof ExprBinary && ((ExprBinary)expr).op.equals(ExprBinary.Op.JOIN))
+			return deJOIN(((ExprBinary)expr).right);
+		
+		return expr;
+		
+	}
+	public static boolean isSet(Expr expr){
+		
+		if(false == (expr instanceof ExprUnary)){
+			System.err.print("Expression root is not ExprUnary, but rather " + expr.getClass());
+
+			if(expr.deNOP().mult != 2){
+				System.err.println(", and mult is not 2 => Not a set");
+				return false;
+			}
+			System.err.println(", but mult=2 => It is a set");
+			return true;
+		}
+		
+		ExprUnary unaryExpr =(ExprUnary)expr.deNOP();
+		
+		// If the unary op is not declaring a set or some, then this is not a set, go to the next invariant
+		if(false == (unaryExpr.op.equals(ExprUnary.Op.SOME) || unaryExpr.op.equals(ExprUnary.Op.SETOF))){
+			System.err.println("Expression root is ExprUnary but it does not declare SOMEOF or SETOF => Not a set");
+			return false;
+		}
+		
+		System.err.println("Expression root is ExprUnary which delcare SOMEOF or SETOF _or_ is or mult=2 => Is a set");
+
+		return true; // if not assume this expression is an ISet<T>
+	}
+	
 	public static NodeInfo handleSimpleBinaryOperator(ExprBinary x, NodeInfo ret, NodeInfo left, NodeInfo right){
 		String operator = "???";
 		ret.typeName = "bool";

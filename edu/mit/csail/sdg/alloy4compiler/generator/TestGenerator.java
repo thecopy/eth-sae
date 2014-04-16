@@ -181,7 +181,7 @@ public final class TestGenerator {
 		  out.println("");
 	  }
 	  
-	  Visitor v = new Visitor(out);
+	  Visitor v = new Visitor();
 	  for(Pair<String, Expr> assertion : assertions){
 		  v.setIdent(1);
 		  //System.out.println(" * Parsing " + assertion.a);

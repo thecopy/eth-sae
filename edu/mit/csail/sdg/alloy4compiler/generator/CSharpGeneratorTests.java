@@ -89,6 +89,7 @@ public final class CSharpGeneratorTests {
 			    // compile code
 				TaskWithTimeout t = new TaskWithTimeout("C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\csc.exe /R:System.Diagnostics.Contracts.dll /nologo /target:library /out:" + f + codeCompExt + " " + f + codeExt, timeout); 
 			    ProcessResult r = t.run();
+			    System.err.println("C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\csc.exe /R:System.Diagnostics.Contracts.dll /nologo /target:library /out:" + f + codeCompExt + " " + f + codeExt);
 			    System.out.print("Code compilation: ");
 			    if (r == ProcessResult.SUCCESS) {
 			    	System.out.println("SUCCESS");
@@ -206,6 +207,7 @@ public final class CSharpGeneratorTests {
 			}
 			catch (Throwable ex) {
 				System.out.println("Error running the tests.");
+				ex.printStackTrace();
 			}
 		}
 		System.out.println("Grade: " + grade + "/" + testNumber.length);

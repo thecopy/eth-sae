@@ -34,7 +34,6 @@ import edu.mit.csail.sdg.alloy4compiler.generator.NodeInfo.FieldModifier;
 
 public class Visitor extends VisitQuery<NodeInfo> {
 
-	private PrintWriter out;
 	int ident = 0;
 	public void setIdent(int i){
 		ident = i;
@@ -45,12 +44,7 @@ public class Visitor extends VisitQuery<NodeInfo> {
 		this.expect = i;
 	}
 
-	public Visitor(PrintWriter out) throws Exception{
-		if(out == null)
-			throw new Exception("ArgumentNullException: out");
-
-		this.out = out;
-		//System.out.println("Init Visistor with PrintWriter");
+	public Visitor() throws Exception{
 	}
 
 
@@ -69,7 +63,7 @@ public class Visitor extends VisitQuery<NodeInfo> {
 		}
 		NodeInfo ret = new NodeInfo(finalLabel);
 		ret.sig = (PrimSig)x;
-
+		
 		ident--;
 		return ret;
 	}
@@ -211,6 +205,7 @@ public class Visitor extends VisitQuery<NodeInfo> {
 			ret.fieldModifier = t.fieldModifier;
 			ret.invariants.addAll(t.invariants);
 			ret.fieldName = t.fieldName;
+			ret.sig = t.sig;
 			break;
 		case SOMEOF:
 			ret.addInvariant("{def}.Count() > 0");
@@ -222,6 +217,7 @@ public class Visitor extends VisitQuery<NodeInfo> {
 			//ret = ASTHelper.generateInvariantsForSetOperation(x, ret, left, right);
 			ret.invariants.addAll(t.invariants);
 			ret.fieldName = t.fieldName;
+			ret.sig = t.sig;
 			break;
 		case NOOP:
 			ret = x.sub.accept(this);
@@ -278,7 +274,6 @@ public class Visitor extends VisitQuery<NodeInfo> {
 		default:
 			ret.typeName = "??? /*ExprUnary. Unkown Operator Type: \"" + x.op + "\" (" + x.op.name() + ")*/";
 			break;
-
 		}
 
 		sprintln("Unary Expression returning " + ret);
@@ -321,7 +316,7 @@ public class Visitor extends VisitQuery<NodeInfo> {
 			ret.addAllInvariants(right.invariants);
 			break;
 			
-		case ANY_ARROW_SOME: // "any A -> some B" (Tuple) B must be non empty set	
+		case ANY_ARROW_SOME: // "A -> some B" (Tuple) B must be non empty set	
 			left = x.left.accept(this);
 			right = x.right.accept(this);
 			s.append("ISet<Tuple<");
@@ -336,8 +331,6 @@ public class Visitor extends VisitQuery<NodeInfo> {
 			ret.addInvariant(
 					"Contract.ForAll({def}, e1 => e1 != null" 
 							+ " && {def}.Count(x => x.Item1.Equals(e1.Item1)) >= 1)");
-			
-			ret.addInvariant("Contract.ForAll({def}, e1 => e1.Item1 != null && e1.Item2 != null");
 			
 			if(left.fieldName != null && !left.fieldName.isEmpty()){
 				ret.addInvariant("Contract.ForAll({def}, e => e.Item1.Equals(" + left.fieldName + "))");
@@ -364,7 +357,7 @@ public class Visitor extends VisitQuery<NodeInfo> {
 			
 			ret.addInvariant(
 					"Contract.ForAll({def}, e1 => e1 != null" 
-							+ " && {def}.(x => x.Item1.Equals(e1.Item1)) == 1)");
+							+ " && {def}.Count(x => x.Item1.Equals(e1.Item1)) == 1)");
 			
 			if(left.fieldName != null && !left.fieldName.isEmpty()){
 				ret.addInvariant("Contract.ForAll({def}, e => e.Item1.Equals(" + left.fieldName + "))");
@@ -802,6 +795,9 @@ public class Visitor extends VisitQuery<NodeInfo> {
 			if(false == left.fieldName.isEmpty()){
 				ret.fieldName = left.fieldName + ".";
 			}
+			if(left.sig != null)
+				ret.sig = left.sig;
+			
 			ret.fieldName += right.fieldName;
 			ret.typeName = right.typeName;
 			break;
@@ -1008,22 +1004,22 @@ public class Visitor extends VisitQuery<NodeInfo> {
 	public NodeInfo visit(ExprVar x) throws Err {
 		ident++;
 		sprintln("Visit Variable expression: " + x.toString());
-
+		NodeInfo ret = new NodeInfo();
 		Expr e = x.type().toExpr();
 
-		String typeName = null;
-		String fieldName = x.label;
+		ret.fieldName = x.label;
 
 		if(e instanceof PrimSig){
-			typeName = ((PrimSig)e).label.substring(5);
+			ret.typeName = ((PrimSig)e).label.substring(5);
+			ret.sig = (PrimSig)e;
 		}else{
-			typeName = e.accept(this).typeName;
+			ret.typeName = e.accept(this).typeName;
 		}
 
-		sprintln("Variable expression returning typeName = " + typeName + ", fieldName = " + fieldName);
+		sprintln("Variable expression returning " + ret);
 
 		ident--;		
-		return new NodeInfo(typeName, fieldName);
+		return ret;
 	}
 
 	@Override
@@ -1088,6 +1084,6 @@ public class Visitor extends VisitQuery<NodeInfo> {
 		for(int i = 0; i < ident; i++)
 			idents += "  ";
 
-		//System.out.print(idents + s + "\r\n");
+		System.out.print(idents + s + "\r\n");
 	}
 }

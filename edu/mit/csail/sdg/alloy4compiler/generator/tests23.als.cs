@@ -54,4 +54,13 @@ public static class Helper {
     }
     return closure;
   }
+  public static ISet<Tuple<R, L>> Transpose<L, R>(ISet<Tuple<L, R>> set) {
+    ISet<Tuple<R, L>> transpose = new HashSet<Tuple<R, L>>();
+    foreach (Tuple<L, R> tup in set) {
+      L first = tup.Item1;
+      R second = tup.Item2;
+      transpose.Add(new Tuple<R, L>(second, first));
+    }
+    return transpose;
+  }
 }

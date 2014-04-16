@@ -5,6 +5,21 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 
+public class S {
+}
+
+public class A {
+  public ISet<S> field;
+  public S field2;
+
+  [ContractInvariantMethod]
+  private void ObjectInvariant() {
+    Contract.Invariant(Contract.ForAll(field, e => e != null));
+    Contract.Invariant(field != null);
+    Contract.Invariant(field2 != null);
+  }
+}
+
 public class Eve {
   private static Eve instance;
   private Eve() {}
@@ -17,6 +32,23 @@ public class Eve {
 }
 
 public static class FuncClass {
+  public static ISet<S> test (A a){
+    Contract.Ensures(Contract.Result<ISet<S>>() != null);
+    Contract.Ensures(Contract.ForAll(Contract.Result<ISet<S>>(), e => e != null));
+
+    return a.field;
+  }
+  public static S test2 (A a){
+    Contract.Ensures(Contract.Result<S>() != null);
+
+    return a.field.Single();
+  }
+  public static ISet<S> test3 (A a){
+    Contract.Ensures(Contract.Result<ISet<S>>() != null);
+    Contract.Ensures(Contract.ForAll(Contract.Result<ISet<S>>(), e => e != null));
+
+    return new HashSet<S>(a.field.Intersect<S>(a.field2));
+  }
 }
 public static class Helper {
   public static ISet<Tuple<L, R>> Closure<L, R>(ISet<Tuple<L, R>> set) {
@@ -54,5 +86,14 @@ public static class Helper {
       closure.Add(new Tuple<L,R>(castedSecond,second));
     }
     return closure;
+  }
+  public static ISet<Tuple<R, L>> Transpose<L, R>(ISet<Tuple<L, R>> set) {
+    ISet<Tuple<R, L>> transpose = new HashSet<Tuple<R, L>>();
+    foreach (Tuple<L, R> tup in set) {
+      L first = tup.Item1;
+      R second = tup.Item2;
+      transpose.Add(new Tuple<R, L>(second, first));
+    }
+    return transpose;
   }
 }
