@@ -262,8 +262,11 @@ public class Visitor extends VisitQuery<NodeInfo> {
 			ret.fieldName = "(" + t.csharpCode + ")";
 			ret.typeName = "bool";
 			break;
-		case TRANSPOSE: // hm?
-			ret = x.sub.accept(this); // i dont know
+		case TRANSPOSE:
+			t = x.sub.accept(this); 
+			ret.typeName = "Object";
+			ret.fieldModifier = t.fieldModifier;
+			ret.csharpCode = "Helper.Transpose(" + t.fieldName + ")";
 			break;
 		
 		// We do not have to support these
